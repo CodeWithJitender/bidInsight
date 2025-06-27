@@ -39,3 +39,5 @@ function HeroHeading({ data }) {
 }
 
 export default HeroHeading;
+
+
