@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -43,15 +44,19 @@ function AppLayout() {
   );
 }
 
+function DebugStore() {
+  const user = useSelector(state => state.user); // replace 'user' with your slice name
+  console.log("Redux user state:", user);
+  return null;
+}
+
 function App() {
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
   return (
-    <Router>
-      <AppLayout />
-    </Router>
+    <AppLayout />
   );
 }
 

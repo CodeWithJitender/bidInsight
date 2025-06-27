@@ -7,6 +7,8 @@ function FormSelect({
   placeholder = "Select an option",
   delay = 100,
   required = true,
+  value = "",
+  onChange,
 }) {
   return (
     <div
@@ -23,8 +25,10 @@ function FormSelect({
           name={name}
           required={required}
           className="form-select bg-transparent w-full focus:ring-0"
+          value={value}
+          onChange={onChange}
         >
-          <option value="" disabled selected>
+          <option value="" disabled>
             {placeholder}
           </option>
           {options.map((opt, i) => (
