@@ -188,7 +188,7 @@ const CategoriesTab = () => {
 
       {/* Selected */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-p font-medium">
+        <h2 className="text-p font-medium font-inter">
           Selected Categories{" "}
           <span className="text-primary">({selected.length})</span>
         </h2>
@@ -225,7 +225,9 @@ const CategoriesTab = () => {
 
       {/* Categories */}
       <div className="border-[#273BE280] border-[2px] rounded-[10px] mt-6">
-        <div className="font-semibold text-md p-2 border-b">Categories</div>
+        <div className="text-p font-medium font-inter p-2 border-b ps-4">
+          Categories
+        </div>
         {mockData.map((cat) => {
           const allChildrenSelected = cat.children.every((child) =>
             selected.some((item) => item.code === child.code)

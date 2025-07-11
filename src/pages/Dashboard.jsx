@@ -9,6 +9,7 @@ import api from "../utils/axios";
 import Pagination from "../components/Pagination";
 import FilterPanel from "../components/FilterPanel";
 import { useNavigate } from "react-router-dom";
+import FilterPanelSaveSearch from "../components/FilterPanelSaveSearch";
 
 function Dashboard() {
   const data = {
@@ -26,6 +27,7 @@ function Dashboard() {
   const bidsSectionRef = useRef(null);
   const [count, setCount] = useState(0);
   const [sidebarToggle, setSidebarToggle] = useState(false);
+  const [saveSearchToggle, setSaveSearchToggle] = useState(false);
   const navigate = useNavigate();
   const middle = [
     { id: 1, title: "Total Bids", num: totalResults },
@@ -45,7 +47,7 @@ function Dashboard() {
         setError("User not logged in");
         setBids([]); // clear old data
         setLoading(false);
-        navigate("/login")
+        navigate("/login");
         return;
       }
 
@@ -57,7 +59,7 @@ function Dashboard() {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }
         );
-          
+
         setCount(res.data.count);
         console.log(
           `https://apibid.collegedwarka.com/api/bids/?pageSize=${currentPage}5&page=1&bid_type=Active`
@@ -99,7 +101,12 @@ function Dashboard() {
     <div className="bg-blue h-screen overflow-scroll">
       {/* <FilterPanel/> */}
       {sidebarToggle && (
-        <FilterPanel onClose={()=> setSidebarToggle((prev) => !prev)} />
+        <FilterPanel onClose={() => setSidebarToggle((prev) => !prev)} />
+      )}
+      {saveSearchToggle && (
+        <FilterPanelSaveSearch
+          onClose={() => setSaveSearchToggle((prev) => !prev)}
+        />
       )}
 
       <div className="container-fixed py-10 px-4">
@@ -185,7 +192,12 @@ function Dashboard() {
                   </select>
                 </div>
                 <BgCover>
-                  <div className="text-white">Save Search</div>
+                  <div
+                    className="text-white"
+                    onClick={() => setSaveSearchToggle((prev) => !prev)}
+                  >
+                    Save Search
+                  </div>
                 </BgCover>
               </div>
             </div>

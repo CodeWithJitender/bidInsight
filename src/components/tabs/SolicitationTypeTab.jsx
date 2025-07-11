@@ -48,35 +48,35 @@ const SolicitationTypeTab = () => {
         </div>
 
         {/* Bid Types Box */}
-        <div className=" border-[primary] border-[2px] rounded-xl">
-          <div className="flex justify-between items-center px-4 py-3 border-b border-purple-300">
+        <div className=" border-[#273BE280] border-[2px] rounded-[10px]">
+          <div className="flex justify-between items-center px-4 py-3 border-b border-[#273BE280]">
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                className="accent-purple-600"
+                className="accent-[#273BE280]"
                 checked={isAllSelected}
                 onChange={toggleAll}
               />
-              <span className="font-semibold text-[15px]">Bid Types</span>
+              <span className="text-p font-medium font-inter">Bid Types</span>
             </div>
             <button
               onClick={() => setSelected([])}
-              className="text-purple-600 text-sm hover:underline"
+              className="text-xl underline"
             >
               Clear All
             </button>
           </div>
 
           {/* Bid Type Items */}
-          <div className="divide-y divide-purple-300">
+          <div className="divide-y divide-[#273BE280]">
             {bidOptions.map((item) => (
               <label
                 key={item}
-                className="flex items-center px-4 py-2 cursor-pointer"
+                className="flex items-center px-4 py-2 cursor-pointer text-[22px] font-inter"
               >
                 <input
                   type="checkbox"
-                  className="accent-purple-600 mr-3"
+                  className="accent-[#273BE280] mr-3"
                   checked={selected.includes(item)}
                   onChange={() => toggleItem(item)}
                 />

@@ -22,6 +22,7 @@ import SolicitationTypeTab from "./tabs/SolicitationTypeTab";
 // );
 
 const tabs = [
+  "SaveSearchForm",
   "Status",
   "Categories",
   "Keyword",
@@ -31,11 +32,13 @@ const tabs = [
   "Solicitation Type",
 ];
 
-function FilterPanel({ onClose }) {
-  const [activeTab, setActiveTab] = useState("Status");
+function FilterPanelSaveSearch({ onClose }) {
+  const [activeTab, setActiveTab] = useState("SaveSearchForm");
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case "SaveSearchForm":
+        return <SaveSearchForm />;
       case "Status":
         return <StatusTab />;
       case "Categories":
@@ -98,4 +101,4 @@ function FilterPanel({ onClose }) {
   );
 }
 
-export default FilterPanel;
+export default FilterPanelSaveSearch;

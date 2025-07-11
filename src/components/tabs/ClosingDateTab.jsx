@@ -12,7 +12,7 @@ const ClosingDateTab = () => {
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div className="flex flex-col gap-6">
         {/* Search bar */}
-        <div className="flex justify-end mb-8">
+        {/* <div className="flex justify-end mb-8">
           <div className="relative w-[340px]">
             <input
               type="text"
@@ -24,7 +24,7 @@ const ClosingDateTab = () => {
               size={18}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Date */}
         <div>

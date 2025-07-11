@@ -11,7 +11,7 @@ function StatusTab() {
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div className="">
         {/* Search bar */}
-        <div className="flex justify-end mb-8">
+        {/* <div className="flex justify-end mb-8">
           <div className="relative w-[340px]">
             <input
               type="text"
@@ -23,7 +23,7 @@ function StatusTab() {
               size={18}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Radio Options */}
         <div className="space-y-6">

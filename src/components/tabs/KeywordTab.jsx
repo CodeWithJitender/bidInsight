@@ -7,7 +7,7 @@ function KeywordTab() {
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div className="">
         {/* Search bar */}
-        <div className="flex justify-end mb-8">
+        {/* <div className="flex justify-end mb-8">
           <div className="relative w-[340px]">
             <input
               type="text"
@@ -19,7 +19,7 @@ function KeywordTab() {
               size={18}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Exclude */}
         <div className="mb-6">
