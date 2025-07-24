@@ -9,6 +9,9 @@ function KeywordTab({
   searchOption,
   setShowValidation,
   setTriggerSave,
+  selectedSavedSearch,
+  defaultSearch,
+  onClose = () => {},
   onSubmit = () => {}, // <-- Add this line
 }) {
   const [showExampleInclude, setShowExampleInclude] = useState(true);
@@ -49,24 +52,31 @@ function KeywordTab({
 
   const handleSearchClick = () => {
     const isCreateMode = searchOption === 'create';
-    const isEmpty = isCreateMode && !filters.searchName?.trim();
+    const isReplaceMode = searchOption === 'replace';
+    const nameMissing = !filters.searchName?.trim();
 
-    if (isEmpty) {
+    if (isCreateMode && nameMissing) {
       setShowValidation?.(true);
       setActiveTab?.('Save Search Form');
       return;
     }
 
     if (isCreateMode) {
-      // Pass full filters object, not just keywords
+      setTriggerSave?.(true);
+    } else if (isReplaceMode) {
       const payload = {
+        action: "replace",
+        name: selectedSavedSearch?.name,
+        id: selectedSavedSearch?.id,
+        isDefault: defaultSearch,
         filters: { ...filters },
-        name: filters.searchName?.trim(),
-        action: searchOption,
       };
-      onSubmit(payload);
+      onSubmit?.(payload);
+      setShowValidation?.(false);
+      onClose?.();
     } else {
       onApply?.();
+      onClose?.();
     }
   };
 

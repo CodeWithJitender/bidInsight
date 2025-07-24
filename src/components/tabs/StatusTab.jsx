@@ -78,8 +78,24 @@ function StatusTab({
     if (isCreating) {
       console.log("🟢 Trigger Save (create)");
       setTriggerSave?.(true);
+    } else if (isReplacing) {
+      // ✅ FIX: Call onSubmit for replace
+      const payload = {
+        action: "replace",
+        name: selectedSavedSearch?.name,
+        id: selectedSavedSearch?.id,
+        isDefault: defaultSearch,
+        filters: {
+          status: filters.status,
+          personalised: filters.personalised,
+        },
+      };
+      console.log("🟢 Trigger Save (replace)", payload);
+      onSubmit?.(payload);
+      setShowValidation?.(false);
+      onClose?.();
     } else {
-      console.log("🟢 Apply filters (non-create)");
+      // fallback
       onApply?.();
       onClose?.();
     }

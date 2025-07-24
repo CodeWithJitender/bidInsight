@@ -106,59 +106,11 @@ function FilterPanelSaveSearch({
   };
 
   // ✅ NEW FUNCTION TO HANDLE REPLACE SELECTION
-  const handleSavedSearchSelect = async (selected) => {
-    console.log("✅ Saved search selected:", selected);
-
-    const token = localStorage.getItem("access_token");
-
-    try {
-      const res = await api.get("/bids/saved-filters/", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-
-      const matched = res.data.find((item) => item.id === parseInt(selected.id));
-      if (!matched) return;
-
-      const parsedFilters = parseSavedSearch(matched.query_string); // ✅ convert query string to object
-
-      // ✅ Update filters state
-      setFilters(parsedFilters);
-      setSelectedSavedSearch({ id: matched.id, name: matched.name });
-      setSearchOption("replace");
-
-      // ✅ Update URL params
-      const urlParams = new URLSearchParams();
-
-      if (parsedFilters.status) urlParams.set("bid_type", parsedFilters.status);
-      if (parsedFilters.keyword) urlParams.set("bid_name", parsedFilters.keyword);
-      if (parsedFilters.location) urlParams.set("state", parsedFilters.location);
-      if (parsedFilters.publishedDate?.from) urlParams.set("open_date_after", parsedFilters.publishedDate.from);
-      if (parsedFilters.publishedDate?.to) urlParams.set("open_date_before", parsedFilters.publishedDate.to);
-      if (parsedFilters.closingDate?.from) urlParams.set("close_date_after", parsedFilters.closingDate.from);
-      if (parsedFilters.closingDate?.to) urlParams.set("close_date_before", parsedFilters.closingDate.to);
-      if (parsedFilters.solicitationType?.length) urlParams.set("solicitation", parsedFilters.solicitationType.join(","));
-      if (parsedFilters.naics_codes?.length) urlParams.set("naics_codes", parsedFilters.naics_codes.join(","));
-      if (parsedFilters.unspsc_codes?.length) urlParams.set("unspsc_codes", parsedFilters.unspsc_codes.join(","));
-      if (parsedFilters.includeKeywords?.length) urlParams.set("include", parsedFilters.includeKeywords.join(","));
-      if (parsedFilters.excludeKeywords?.length) urlParams.set("exclude", parsedFilters.excludeKeywords.join(","));
-
-      // ✅ Optional: Reset pagination
-      urlParams.set("page", "1");
-      urlParams.set("pageSize", "25");
-
-      // ✅ Update URL
-      setSearchParams(urlParams);
-
-      // ✅ Trigger API fetch
-      setTimeout(() => {
-        console.log("🚀 Calling onApply with filters:", parsedFilters);
-        onApply?.();
-      }, 0);
-    } catch (err) {
-      console.error("❌ Failed to load saved search", err);
-    }
-
-
+  const handleSavedSearchSelect = (selected) => {
+    // selected should be the full saved search object
+    setSelectedSavedSearch(selected);
+    setSearchOption("replace");
+    setActiveTab("Save Search Form");
   };
 
 
@@ -221,11 +173,53 @@ function FilterPanelSaveSearch({
       case "UNSPSCCode":
         return <UNSPSCCode {...sharedProps} />;
       case "Keyword":
-        return <KeywordTab {...sharedProps} />;
+        return <KeywordTab
+          {...sharedProps}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+        />;
       case "Location":
-        return <LocationTab {...sharedProps} />;
+        return <LocationTab
+          {...sharedProps}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+        />;
       case "Published Date":
-        return <PublishedDateTab {...sharedProps} />;
+        return <PublishedDateTab
+          {...sharedProps}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+        />;
       case "Closing Date":
         return <ClosingDateTab {...sharedProps} />;
       case "Solicitation Type":

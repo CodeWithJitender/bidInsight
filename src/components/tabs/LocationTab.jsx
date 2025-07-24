@@ -10,7 +10,9 @@ const LocationTab = ({
   searchOption = "create",
   setShowValidation = () => {},
   setTriggerSave = () => {},
-  onSubmit = () => {}, // <-- Add this line
+  onSubmit = () => {},
+  selectedSavedSearch = {}, // <-- Add this line
+  defaultSearch = false,    // <-- Add this line
 }) => {
   const [statesData, setStatesData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -101,22 +103,31 @@ const LocationTab = ({
   };
 
   const handleApply = () => {
-    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
+    const isCreate = searchOption === "create";
+    const isReplace = searchOption === "replace";
+    const nameMissing = !filters.searchName?.trim();
 
-    if (isEmpty) {
+    if (isCreate && nameMissing) {
       setShowValidation(true);
       setActiveTab("Save Search Form");
       return;
     }
 
-    if (searchOption === "create") {
+    if (isCreate) {
       // Pass full filters object, not just location
+      setTriggerSave(true); // Parent will handle save via useEffect
+    } else if (isReplace) {
+      // Build payload for replace
       const payload = {
+        action: "replace",
+        name: selectedSavedSearch?.name,
+        id: selectedSavedSearch?.id,
+        isDefault: defaultSearch,
         filters: { ...filters },
-        name: filters.searchName?.trim(),
-        action: searchOption,
       };
-      onSubmit(payload);
+      onSubmit?.(payload);
+      setShowValidation(false);
+      // Optionally close modal if needed
     } else {
       onApply?.();
     }

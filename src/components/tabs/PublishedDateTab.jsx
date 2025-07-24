@@ -2,15 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
 
-const PublishedDateTab = ({
+function PublishedDateTab({
   filters = {},
   setFilters = () => { },
-  onApply = () => { },
+  setActiveTab = () => { },
   searchOption = "create",
   setShowValidation = () => { },
-  setActiveTab = () => { },
   setTriggerSave = () => { },
-}) => {
+  onSubmit = () => { },
+  selectedSavedSearch = {},
+  defaultSearch = false,
+  onClose = () => { },
+  onApply = () => { },
+}) {
   const { from = "", to = "" } = filters.publishedDate || {};
   const today = new Date().toISOString().slice(0, 10);
   const [manualSelected, setManualSelected] = useState("");
@@ -97,16 +101,36 @@ const loginDate = loginDateRaw
     onApply?.();
   };
 
-  const handleApply = () => {
-    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
-    if (isEmpty) {
-      setShowValidation(true);
-      setActiveTab("Save Search Form");
+  const handleSearchClick = () => {
+    console.log("Search button clicked", { searchOption, filters, selectedSavedSearch });
+
+    const isCreateMode = searchOption === 'create';
+    const isReplaceMode = searchOption === 'replace';
+    const nameMissing = !filters.searchName?.trim();
+
+    if (isCreateMode && nameMissing) {
+      setShowValidation?.(true);
+      setActiveTab?.('Save Search Form');
       return;
     }
 
-    setTriggerSave(true); // Auto-submit SaveSearchForm
-    onApply?.();
+    if (isCreateMode) {
+      setTriggerSave?.(true);
+    } else if (isReplaceMode) {
+      const payload = {
+        action: "replace",
+        name: selectedSavedSearch?.name,
+        id: selectedSavedSearch?.id,
+        isDefault: defaultSearch,
+        filters: { ...filters },
+      };
+      onSubmit?.(payload);
+      setShowValidation?.(false);
+      onClose?.();
+    } else {
+      onApply?.();
+      onClose?.();
+    }
   };
 
   const todayFormatted = new Date().toLocaleDateString("en-US");
@@ -241,7 +265,7 @@ const loginDate = loginDateRaw
           Cancel
         </button>
         <button
-          onClick={handleApply}
+          onClick={handleSearchClick}
           className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
         >
           Search
