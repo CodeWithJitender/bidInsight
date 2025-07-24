@@ -217,3 +217,4 @@ const UNSPSCCode = ({ filters, setFilters, onApply }) => {
 };
 
 export default UNSPSCCode;
+  

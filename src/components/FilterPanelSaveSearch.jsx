@@ -173,6 +173,7 @@ function FilterPanelSaveSearch({
     onSaveClick: handleSaveSearchClickFromAnyTab,
     onClose,
     onApply,
+    onSubmit: handleSaveSearchSubmit, // <-- Add this line
   };
 
   const renderTabContent = () => {

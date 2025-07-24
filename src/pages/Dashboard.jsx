@@ -499,21 +499,6 @@ const postSaveSearch = async (data) => {
     }
 
     // Reset modal
-    setSaveSearchFilters({
-      searchName: "",
-      status: "",
-      categories: [],
-      keyword: "",
-      location: "",
-      publishedDate: { from: "", to: "" },
-      closingDate: { from: "", to: "" },
-      solicitationType: [],
-      naics_codes: [],
-      unspsc_codes: [],
-      includeKeywords: [],
-      excludeKeywords: [],
-    });
-
     setSearchOption("replace");
     setSaveSearchToggle(false); // close modal
   } catch (err) {

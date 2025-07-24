@@ -9,6 +9,7 @@ function KeywordTab({
   searchOption,
   setShowValidation,
   setTriggerSave,
+  onSubmit = () => {}, // <-- Add this line
 }) {
   const [showExampleInclude, setShowExampleInclude] = useState(true);
   const [showExampleExclude, setShowExampleExclude] = useState(true);
@@ -57,7 +58,13 @@ function KeywordTab({
     }
 
     if (isCreateMode) {
-      setTriggerSave?.(true);
+      // Pass full filters object, not just keywords
+      const payload = {
+        filters: { ...filters },
+        name: filters.searchName?.trim(),
+        action: searchOption,
+      };
+      onSubmit(payload);
     } else {
       onApply?.();
     }
