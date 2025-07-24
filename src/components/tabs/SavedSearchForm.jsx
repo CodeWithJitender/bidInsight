@@ -13,10 +13,10 @@ const SavedSearchForm = ({
   selectedSavedSearch,
   setSelectedSavedSearch,
   showValidation = false,
-  onSelectSavedSearch = () => {},
-  setShowValidation = () => {},
+  onSelectSavedSearch = () => { },
+  setShowValidation = () => { },
   triggerSave = false,
-  setTriggerSave = () => {},
+  setTriggerSave = () => { },
 }) => {
   const savedSearches = Array.isArray(savedFilters) ? savedFilters : [];
   // console.log(savedSearches);
@@ -115,11 +115,10 @@ const SavedSearchForm = ({
                   searchName: e.target.value,
                 }))
               }
-              className={`border ${
-                showValidation && !filters.searchName?.trim()
+              className={`border ${showValidation && !filters.searchName?.trim()
                   ? "border-red-500"
                   : "border-[#273BE280]"
-              } rounded-lg px-4 py-2 font-inter text-xl`}
+                } rounded-lg px-4 py-2 font-inter text-xl`}
             />
             {showValidation && !filters.searchName?.trim() && (
               <p className="text-red-500 text-sm mt-1">This field is required</p>
@@ -136,26 +135,26 @@ const SavedSearchForm = ({
             >
               Replace an existing saved search
             </label>
-          <select
-  id="existingSearch"
-  className="form-control border border-primary rounded-lg px-4 py-2 font-inter text-xl"
-  value={selectedSavedSearch?.id || ""}
-  onChange={(e) => {
-    const selectedId = parseInt(e.target.value, 10);
-    const selected = savedSearches.find((s) => s.id === selectedId);
-    setSelectedSavedSearch(selected || null);
-    if (selected && typeof onSelectSavedSearch === "function") {
-      onSelectSavedSearch(selected);
-    }
-  }}
->
-  <option value="">Select saved search</option>
-  {savedSearches.map((s) => (
-    <option key={s.id} value={s.id}>
-      {s.name} {/* ✅ Only string value here */}
-    </option>
-  ))}
-</select>
+            <select
+              id="existingSearch"
+              className="form-control border border-primary rounded-lg px-4 py-2 font-inter text-xl"
+              value={selectedSavedSearch?.id || ""}
+              onChange={(e) => {
+                const selectedId = parseInt(e.target.value, 10);
+                const selected = savedSearches.find((s) => s.id === selectedId);
+                setSelectedSavedSearch(selected || null);
+                if (selected && typeof onSelectSavedSearch === "function") {
+                  onSelectSavedSearch(selected);
+                }
+              }}
+            >
+              <option value="">Select saved search</option>
+              {savedSearches.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} {/* ✅ Only string value here */}
+                </option>
+              ))}
+            </select>
 
           </div>
         )}

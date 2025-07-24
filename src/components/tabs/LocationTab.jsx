@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { Trash2, Search } from "lucide-react";
 import api from "../../utils/axios";
@@ -38,6 +33,33 @@ const LocationTab = ({
     };
     fetchStates();
   }, []);
+
+  const handleFormSubmit = () => {
+  const isCreate = searchOption === "create";
+  const nameMissing = !filters.searchName?.trim();
+
+  if (isCreate && nameMissing) {
+    setShowValidation(true);
+    setActiveTab("Save Search Form");
+    return;
+  }
+
+  const payload = {
+    filters: {
+      location: filters.location,
+    },
+    name: filters.searchName?.trim(),
+    action: searchOption,
+  };
+
+  onSubmit?.(payload);
+};
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  handleFormSubmit();
+};
+
 
   const selectedNames = filters.location
     ? filters.location.split(",").map((name) => name.trim())
@@ -130,6 +152,8 @@ const LocationTab = ({
   };
 
   return (
+    <form onSubmit={handleSubmit}>
+
     <div className="min-h-screen flex flex-col justify-between p-10 ps-14">
       {/* Search Box */}
       <div className="flex justify-end mb-8">
@@ -227,6 +251,10 @@ const LocationTab = ({
         </button>
       </div>
     </div>
+
+
+    </form>
+
   );
 };
 

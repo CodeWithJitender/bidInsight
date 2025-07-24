@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from "react";
 
 function StatusTab({
   filters,
@@ -9,31 +9,98 @@ function StatusTab({
   setShowValidation,
   setTriggerSave,
   onClose,
-  
+  triggerSave,
+  onSubmit,
+  defaultSearch,
+  selectedSavedSearch,
 }) {
-  const handleSearchClick = () => {
-  console.log("🔵 Search button clicked!");
-
   const isCreating = searchOption === "create";
+
+  // const handleFormSubmit = () => {
+  //   console.log("🟢 StatusTab → handleFormSubmit triggered");
+
+  //   const nameMissing = !filters.searchName?.trim();
+
+  //   if (isCreating && nameMissing) {
+  //     console.warn("❌ Validation Failed: searchName missing");
+  //     setShowValidation?.(true);
+  //     setActiveTab?.("Save Search Form");
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     status: filters.status,
+  //     personalised: filters.personalised,
+  //     name: filters.searchName?.trim() || "",
+  //   };
+
+  //   onSubmit?.(payload); // 🔄 Send data to parent handler
+  //   setShowValidation?.(false);
+  //   onClose?.();
+  // };
+  
+const handleFormSubmit = () => {
+  const isCreate = searchOption === "create";
+  const isReplace = searchOption === "replace";
   const nameMissing = !filters.searchName?.trim();
 
-  if (isCreating && nameMissing) {
+  if (isCreate && nameMissing) {
     setShowValidation?.(true);
     setActiveTab?.("Save Search Form");
     return;
   }
 
-  if (isCreating) {
-    console.log("🟢 Trigger Save: searchOption is 'create'");
-    setTriggerSave?.(true);
-    onClose?.();
-  } else {
-    console.log("🟢 Applying filters");
-    onApply?.();
-    onClose?.();
+  if (isReplace && !selectedSavedSearch?.id) {
+    alert("Please select a saved search to replace.");
+    return;
   }
+
+  const payload = {
+    action: searchOption,
+    name: isCreate
+      ? filters.searchName.trim()
+      : selectedSavedSearch?.name,
+    id: selectedSavedSearch?.id,
+    isDefault: defaultSearch,
+    filters: {
+      status: filters.status,
+      personalised: filters.personalised,
+    },
+  };
+  console.log("🚀 REPLACE Submit Payload:", payload);
+
+  onSubmit?.(payload);
+  setShowValidation?.(false);
+  onClose?.();
 };
 
+
+  // 🔁 Trigger listener like SaveSearchForm
+  useEffect(() => {
+    if (triggerSave) {
+      handleFormSubmit();
+      setTriggerSave(false);
+    }
+  }, [triggerSave]);
+
+  const handleSearchClick = () => {
+    console.log("🔵 Search button clicked!");
+
+    if (isCreating && !filters.searchName?.trim()) {
+      setShowValidation?.(true);
+      setActiveTab?.("Save Search Form");
+      return;
+    }
+
+    if (isCreating) {
+      console.log("🟢 Trigger Save: searchOption is 'create'");
+      setTriggerSave?.(true);
+    } else {
+      console.log("🟢 Applying filters directly");
+      onApply?.();
+      onClose?.();
+    }
+  };
 
   const handleCancel = () => {
     setFilters((prev) => ({
@@ -46,7 +113,24 @@ function StatusTab({
     onApply?.(); // Apply cleared filters
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleFormSubmit();
+  };
+
+  useEffect(() => {
+  console.log("🧠 selectedSavedSearch in StatusTab →", selectedSavedSearch);
+}, [selectedSavedSearch]);
+
+useEffect(() => {
+  console.log("🟨 filters updated in StatusTab:", filters);
+}, [filters]);
+
+
+
   return (
+    <form onSubmit={handleSubmit}>
+
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div>
         <div className="space-y-6">
@@ -111,6 +195,8 @@ function StatusTab({
         </button>
       </div>
     </div>
+
+    </form>
   );
 }
 

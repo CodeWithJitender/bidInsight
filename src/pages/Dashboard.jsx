@@ -180,12 +180,13 @@ function Dashboard() {
     };
 
     restoreFilters();
-
     // ✅ Re-apply filters when window regains focus
     window.addEventListener("focus", restoreFilters);
     return () => window.removeEventListener("focus", restoreFilters);
   }, []);
 
+
+  
   // for filter functionality
   const fetchBids = useCallback(async () => {
     setLoading(true);

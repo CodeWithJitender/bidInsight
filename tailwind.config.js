@@ -9,13 +9,13 @@ export default {
         accent: "#F59E0B",
       },
       backgroundImage: {
-        "summary": "url('/bg-summary.png')",
+        summary: "url('/bg-summary.png')",
         "hero-pattern": "url('/images/hero.jpg')",
         "footer-texture": "url('/images/footer-texture.png')",
-        "btn":"linear-gradient(178.55deg, rgba(255, 255, 255, 0.1) 1.23%, rgba(153, 153, 153, 0.1) 98.77%);"
+        btn: "linear-gradient(178.55deg, rgba(255, 255, 255, 0.1) 1.23%, rgba(153, 153, 153, 0.1) 98.77%)",
       },
       fontFamily: {
-        archivo: ["Archivo", "sans-serif"], // default font
+        archivo: ["Archivo", "sans-serif"],
         inter: ["Inter", "sans-serif"],
       },
       fontSize: {
@@ -23,6 +23,9 @@ export default {
         h2: ["clamp(24px, 5vw, 60px)", { lineHeight: "1.1" }],
         h3: ["clamp(16px, 5vw, 40px)", { lineHeight: "1.1" }],
         p: ["clamp(14px, 5vw, 24px)", { lineHeight: "1.1" }],
+      },
+      animation: {
+        bounce: "bounce 1s infinite",
       },
     },
   },

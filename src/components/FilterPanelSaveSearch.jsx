@@ -10,6 +10,8 @@ import NAICSCode from "./tabs/NAICSCode";
 import UNSPSCCode from "./tabs/UNSPSCCode";
 import api from "../utils/axios";
 import { parseSavedSearch } from "../utils/parseSavedSearch";
+import { useSearchParams } from "react-router-dom";
+
 
 const tabs = [
   "Save Search Form",
@@ -39,19 +41,29 @@ function FilterPanelSaveSearch({
   const [selectedSavedSearch, setSelectedSavedSearch] = useState(selectedSearch);
   const [showValidation, setShowValidation] = useState(false);
   const [triggerSave, setTriggerSave] = useState(false);
+  const [, setSearchParams] = useSearchParams();
 
   const handleSaveSearchSubmit = (data) => {
 
-    
+
     if (!data.name?.trim()) {
       setShowValidation(true);
       return;
     }
 
+    console.log("✅ handleSaveSearchSubmit Final Payload:", {
+      name: data.name.trim(),
+      isDefault: data.isDefault ?? defaultSearch,
+      filters: data.filters ?? filters,
+      action: data.action ?? (searchOption === "replace" ? "replace" : "create"),
+      id: data.id ?? (searchOption === "replace" ? selectedSavedSearch?.id : undefined),
+    });
+
+
     onSave?.({
       name: data.name.trim(),
       isDefault: defaultSearch,
-      filters,
+      filters: data.filters ?? filters,
       action: searchOption === "replace" ? "replace" : "create",
       id: searchOption === "replace" ? selectedSavedSearch?.id : undefined, // ✅ important
     });
@@ -96,58 +108,58 @@ function FilterPanelSaveSearch({
   // ✅ NEW FUNCTION TO HANDLE REPLACE SELECTION
   const handleSavedSearchSelect = async (selected) => {
     console.log("✅ Saved search selected:", selected);
-// console.log("✅ Matched Query String:", matched.query_string);
-// console.log("✅ Parsed Filters:", parsedFilters);
 
-  const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("access_token");
 
-  try {
-    const res = await api.get("/bids/saved-filters/", {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
+    try {
+      const res = await api.get("/bids/saved-filters/", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
 
-    const matched = res.data.find((item) => item.id === parseInt(selected.id));
-    if (!matched) return;
+      const matched = res.data.find((item) => item.id === parseInt(selected.id));
+      if (!matched) return;
 
-    const parsedFilters = parseSavedSearch(matched.query_string); // ✅ convert query string to object
+      const parsedFilters = parseSavedSearch(matched.query_string); // ✅ convert query string to object
 
-    // ✅ Update filters state
-    setFilters(parsedFilters);
-    setSelectedSavedSearch({ id: matched.id, name: matched.name });
-    setSearchOption("replace");
+      // ✅ Update filters state
+      setFilters(parsedFilters);
+      setSelectedSavedSearch({ id: matched.id, name: matched.name });
+      setSearchOption("replace");
 
-    // ✅ Update URL params
-    const urlParams = new URLSearchParams();
+      // ✅ Update URL params
+      const urlParams = new URLSearchParams();
 
-    if (parsedFilters.status) urlParams.set("bid_type", parsedFilters.status);
-    if (parsedFilters.keyword) urlParams.set("bid_name", parsedFilters.keyword);
-    if (parsedFilters.location) urlParams.set("state", parsedFilters.location);
-    if (parsedFilters.publishedDate?.from) urlParams.set("open_date_after", parsedFilters.publishedDate.from);
-    if (parsedFilters.publishedDate?.to) urlParams.set("open_date_before", parsedFilters.publishedDate.to);
-    if (parsedFilters.closingDate?.from) urlParams.set("close_date_after", parsedFilters.closingDate.from);
-    if (parsedFilters.closingDate?.to) urlParams.set("close_date_before", parsedFilters.closingDate.to);
-    if (parsedFilters.solicitationType?.length) urlParams.set("solicitation", parsedFilters.solicitationType.join(","));
-    if (parsedFilters.naics_codes?.length) urlParams.set("naics_codes", parsedFilters.naics_codes.join(","));
-    if (parsedFilters.unspsc_codes?.length) urlParams.set("unspsc_codes", parsedFilters.unspsc_codes.join(","));
-    if (parsedFilters.includeKeywords?.length) urlParams.set("include", parsedFilters.includeKeywords.join(","));
-    if (parsedFilters.excludeKeywords?.length) urlParams.set("exclude", parsedFilters.excludeKeywords.join(","));
+      if (parsedFilters.status) urlParams.set("bid_type", parsedFilters.status);
+      if (parsedFilters.keyword) urlParams.set("bid_name", parsedFilters.keyword);
+      if (parsedFilters.location) urlParams.set("state", parsedFilters.location);
+      if (parsedFilters.publishedDate?.from) urlParams.set("open_date_after", parsedFilters.publishedDate.from);
+      if (parsedFilters.publishedDate?.to) urlParams.set("open_date_before", parsedFilters.publishedDate.to);
+      if (parsedFilters.closingDate?.from) urlParams.set("close_date_after", parsedFilters.closingDate.from);
+      if (parsedFilters.closingDate?.to) urlParams.set("close_date_before", parsedFilters.closingDate.to);
+      if (parsedFilters.solicitationType?.length) urlParams.set("solicitation", parsedFilters.solicitationType.join(","));
+      if (parsedFilters.naics_codes?.length) urlParams.set("naics_codes", parsedFilters.naics_codes.join(","));
+      if (parsedFilters.unspsc_codes?.length) urlParams.set("unspsc_codes", parsedFilters.unspsc_codes.join(","));
+      if (parsedFilters.includeKeywords?.length) urlParams.set("include", parsedFilters.includeKeywords.join(","));
+      if (parsedFilters.excludeKeywords?.length) urlParams.set("exclude", parsedFilters.excludeKeywords.join(","));
 
-    // ✅ Optional: Reset pagination
-    urlParams.set("page", "1");
-    urlParams.set("pageSize", "25");
+      // ✅ Optional: Reset pagination
+      urlParams.set("page", "1");
+      urlParams.set("pageSize", "25");
 
-    // ✅ Update URL
-    setSearchParams(urlParams);
+      // ✅ Update URL
+      setSearchParams(urlParams);
 
-    // ✅ Trigger API fetch
-    setTimeout(() => {
-      console.log("🚀 Calling onApply with filters:", parsedFilters);
-      onApply?.();
-    }, 0);
-  } catch (err) {
-    console.error("❌ Failed to load saved search", err);
-  }
-};
+      // ✅ Trigger API fetch
+      setTimeout(() => {
+        console.log("🚀 Calling onApply with filters:", parsedFilters);
+        onApply?.();
+      }, 0);
+    } catch (err) {
+      console.error("❌ Failed to load saved search", err);
+    }
+
+
+  };
 
 
 
@@ -186,7 +198,23 @@ function FilterPanelSaveSearch({
           />
         );
       case "Status":
-        return <StatusTab {...sharedProps} />;
+        return <StatusTab {...sharedProps}
+          key={selectedSavedSearch?.id || 'new'}
+          onCancel={onClose}
+          onSubmit={handleSaveSearchSubmit}
+          defaultSearch={defaultSearch}
+          setDefaultSearch={setDefaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect} // ✅ pass here
+        />;
       case "NAICSCode":
         return <NAICSCode {...sharedProps} />;
       case "UNSPSCCode":
