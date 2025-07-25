@@ -125,6 +125,12 @@ function StatusTab({
     console.log("🟨 filters updated in StatusTab:", filters);
   }, [filters]);
 
+  // useEffect(() => {
+  //   if (!filters.status) {
+  //     setFilters((prev) => ({ ...prev, status: "Open Solicitations" }));
+  //   }
+  // }, []);
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">

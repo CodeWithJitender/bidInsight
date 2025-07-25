@@ -1,11 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Search, Trash2 } from "lucide-react";
 import api from "../../utils/axios";
 
-const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = () => { } }) => {
+const SolicitationTypeTab = ({
+  filters = {},
+  setFilters = () => {},
+  onApply = () => {},
+  searchOption = "create",
+  setShowValidation = () => {},
+  setActiveTab = () => {},
+  triggerSave = false,
+  setTriggerSave = () => {},
+  selectedSavedSearch = null,
+}) => {
   const [options, setOptions] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ Search state
+  const [searchTerm, setSearchTerm] = useState("");
+  const triggerRef = useRef(false);
 
+  const selectedNames = Array.isArray(filters.solicitationType)
+    ? filters.solicitationType
+    : [];
+
+  // ✅ Load bid types on mount
   useEffect(() => {
     const fetchTypes = async () => {
       try {
@@ -19,9 +35,25 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
     fetchTypes();
   }, []);
 
-  const selectedNames = Array.isArray(filters.solicitationType)
-    ? filters.solicitationType
-    : [];
+  // ✅ Restore from selectedSavedSearch
+  useEffect(() => {
+    if (selectedSavedSearch?.filters?.solicitationType) {
+      const types = selectedSavedSearch.filters.solicitationType;
+      setFilters((prev) => ({
+        ...prev,
+        solicitationType: Array.isArray(types) ? types : [],
+      }));
+    }
+  }, [selectedSavedSearch?.id]);
+
+  // ✅ Trigger Save Apply (e.g., Replace flow)
+  useEffect(() => {
+    if (triggerSave && !triggerRef.current) {
+      triggerRef.current = true;
+      setTriggerSave(false);
+      onApply?.();
+    }
+  }, [triggerSave]);
 
   const toggleSelect = (item) => {
     const isAlreadySelected = selectedNames.includes(item.name);
@@ -44,14 +76,19 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
   };
 
   const handleCancel = () => {
-    setFilters((prev) => ({
-      ...prev,
-      solicitationType: "",
-    }));
+    setFilters((prev) => ({ ...prev, solicitationType: [] }));
     onApply?.();
   };
 
   const handleApply = () => {
+    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
+    if (isEmpty) {
+      setShowValidation(true);
+      setActiveTab("Save Search Form");
+      return;
+    }
+
+    setTriggerSave(true); // trigger SaveSearchForm
     onApply?.();
   };
 
@@ -59,14 +96,13 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
 
   const toggleAll = () => {
     if (isAllSelected) {
-      setFilters((prev) => ({ ...prev, solicitationType: "" }));
+      setFilters((prev) => ({ ...prev, solicitationType: [] }));
     } else {
       const allNames = options.map((item) => item.name);
       setFilters((prev) => ({ ...prev, solicitationType: allNames }));
     }
   };
 
-  // ✅ Filtered data based on search term
   const filteredOptions = options.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -79,7 +115,7 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // ✅ On change handler
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search titles or organization or location"
             className="w-full px-10 py-2 rounded-full border border-primary outline-none placeholder-gray-500"
           />
@@ -94,7 +130,7 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
         </h2>
         {selectedNames.length > 0 && (
           <button
-            onClick={() => setFilters((prev) => ({ ...prev, solicitationType: "" }))}
+            onClick={() => setFilters((prev) => ({ ...prev, solicitationType: [] }))}
             className="text-lg underline font-inter"
           >
             Clear All
@@ -116,7 +152,7 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
         ))}
       </div>
 
-      {/* Bid Types Box */}
+      {/* Bid Types */}
       <div className="border-[#273BE280] border-[2px] rounded-[10px] mt-6">
         <div className="flex justify-between items-center px-4 py-3 border-b border-[#273BE280]">
           <div className="flex items-center space-x-2">
@@ -133,7 +169,6 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
           </button>
         </div>
 
-        {/* Filtered Options */}
         <div className="divide-y divide-[#273BE280]">
           {filteredOptions.map((item) => (
             <label
@@ -152,7 +187,7 @@ const SolicitationTypeTab = ({ filters = {}, setFilters = () => { }, onApply = (
         </div>
       </div>
 
-      {/* Buttons */}
+      {/* Footer Buttons */}
       <div className="flex gap-4 p-5 ps-0 bg-white sticky bottom-0">
         <button
           onClick={handleCancel}

@@ -41,6 +41,7 @@ const SavedSearchForm = ({
         : selectedSavedSearch?.name,
       id: selectedSavedSearch?.id,
       isDefault: defaultSearch,
+      filters: filters,
     };
 
     onSubmit?.(data);
@@ -116,8 +117,8 @@ const SavedSearchForm = ({
                 }))
               }
               className={`border ${showValidation && !filters.searchName?.trim()
-                  ? "border-red-500"
-                  : "border-[#273BE280]"
+                ? "border-red-500"
+                : "border-[#273BE280]"
                 } rounded-lg px-4 py-2 font-inter text-xl`}
             />
             {showValidation && !filters.searchName?.trim() && (
@@ -143,6 +144,8 @@ const SavedSearchForm = ({
                 const selectedId = parseInt(e.target.value, 10);
                 const selected = savedSearches.find((s) => s.id === selectedId);
                 setSelectedSavedSearch(selected || null);
+
+                // ✅ Critical: Tell parent to apply filters from saved search
                 if (selected && typeof onSelectSavedSearch === "function") {
                   onSelectSavedSearch(selected);
                 }
@@ -151,13 +154,13 @@ const SavedSearchForm = ({
               <option value="">Select saved search</option>
               {savedSearches.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} {/* ✅ Only string value here */}
+                  {s.name}
                 </option>
               ))}
             </select>
-
           </div>
         )}
+
 
         {/* Checkbox */}
         <div className="mt-6 flex items-center space-x-2">

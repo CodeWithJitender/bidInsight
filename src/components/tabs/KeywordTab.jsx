@@ -64,10 +64,15 @@ function KeywordTab({
     if (isCreateMode) {
       setTriggerSave?.(true);
     } else if (isReplaceMode) {
+      if (!selectedSavedSearch?.id || !selectedSavedSearch?.name) {
+        setShowValidation?.(true);
+        setActiveTab?.('Save Search Form');
+        return;
+      }
       const payload = {
         action: "replace",
-        name: selectedSavedSearch?.name,
-        id: selectedSavedSearch?.id,
+        name: selectedSavedSearch.name,
+        id: selectedSavedSearch.id,
         isDefault: defaultSearch,
         filters: { ...filters },
       };
@@ -83,6 +88,7 @@ function KeywordTab({
   const handleCancel = () => {
     setShowValidation?.(false);
     setActiveTab?.('Save Search Form');
+      onApply?.();
   };
 
   return (

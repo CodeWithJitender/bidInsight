@@ -8,9 +8,9 @@ import ClosingDateTab from "./tabs/ClosingDateTab";
 import SolicitationTypeTab from "./tabs/SolicitationTypeTab";
 import NAICSCode from "./tabs/NAICSCode";
 import UNSPSCCode from "./tabs/UNSPSCCode";
-import api from "../utils/axios";
-import { parseSavedSearch } from "../utils/parseSavedSearch";
 import { useSearchParams } from "react-router-dom";
+import api from "../utils/axios";
+import { parseSavedSearch } from "../utils/parseSavedSearch"; 
 
 
 const tabs = [
@@ -42,6 +42,59 @@ function FilterPanelSaveSearch({
   const [showValidation, setShowValidation] = useState(false);
   const [triggerSave, setTriggerSave] = useState(false);
   const [, setSearchParams] = useSearchParams();
+
+
+  // 🔁 Listen for triggerSave change and call handleSaveSearchSubmit manually
+React.useEffect(() => {
+  if (triggerSave) {
+    console.log("📣 Parent useEffect detected triggerSave === true");
+
+    // Construct payload
+    const data = {
+      action: searchOption,
+      name:
+        searchOption === "create"
+          ? filters.searchName.trim()
+          : selectedSavedSearch?.name,
+      id: selectedSavedSearch?.id,
+      isDefault: defaultSearch,
+      filters, // Add filters too if needed
+    };
+
+    handleSaveSearchSubmit(data);
+    setTriggerSave(false); // Reset
+  }
+}, [triggerSave]);
+
+// 🔁 Auto-apply and sync URL when filters change (only in replace mode)
+React.useEffect(() => {
+  if (searchOption === "replace" && selectedSavedSearch?.id) {
+    const urlParams = new URLSearchParams();
+    if (filters.status) urlParams.set("status", filters.status);
+    if (filters.personalised) urlParams.set("personalised", filters.personalised);
+    if (filters.keyword) urlParams.set("bid_name", filters.keyword);
+    if (filters.location) urlParams.set("state", filters.location);
+    if (filters.publishedDate?.from) urlParams.set("open_date_after", filters.publishedDate.from);
+    if (filters.publishedDate?.to) urlParams.set("open_date_before", filters.publishedDate.to);
+    if (filters.closingDate?.from) urlParams.set("close_date_after", filters.closingDate.from);
+    if (filters.closingDate?.to) urlParams.set("close_date_before", filters.closingDate.to);
+    if (filters.solicitationType?.length) urlParams.set("solicitation", filters.solicitationType.join(","));
+    if (filters.naics_codes?.length) urlParams.set("naics_codes", filters.naics_codes.join(","));
+    if (filters.unspsc_codes?.length) urlParams.set("unspsc_codes", filters.unspsc_codes.join(","));
+    if (filters.includeKeywords?.length) urlParams.set("include", filters.includeKeywords.join(","));
+    if (filters.excludeKeywords?.length) urlParams.set("exclude", filters.excludeKeywords.join(","));
+
+    urlParams.set("page", "1");
+    urlParams.set("pageSize", "25");
+
+    // ✅ Update the URL
+    setSearchParams(urlParams);
+
+    // ✅ Re-trigger the dashboard apply
+    onApply?.();
+  }
+}, [filters, searchOption, selectedSavedSearch]); // ✅ Only run when replace/search changes
+
 
   const handleSaveSearchSubmit = (data) => {
 
@@ -106,12 +159,80 @@ function FilterPanelSaveSearch({
   };
 
   // ✅ NEW FUNCTION TO HANDLE REPLACE SELECTION
-  const handleSavedSearchSelect = (selected) => {
-    // selected should be the full saved search object
-    setSelectedSavedSearch(selected);
+//   const handleSavedSearchSelect = (selected) => {
+
+//   setSelectedSavedSearch(selected);
+//   setSearchOption("replace");
+//   setActiveTab("Save Search Form");
+
+//   // 🔁 Apply saved filters
+//   if (selected?.filters) {
+//     setFilters({
+//       ...selected.filters,
+//       searchName: selected.name || "",
+//     });
+//   }
+// };
+
+
+
+const handleSavedSearchSelect = async (selected) => {
+  console.log("✅ Saved search selected:", selected);
+
+  const token = localStorage.getItem("access_token");
+
+  try {
+    const res = await api.get("/bids/saved-filters/", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    const matched = res.data.find((item) => item.id === parseInt(selected.id));
+    if (!matched) return;
+
+    const parsedFilters = parseSavedSearch(matched.query_string); // ✅ convert query string to object
+
+    // ✅ Update filters state
+    setFilters({
+      ...parsedFilters,
+      searchName: matched.name || "",
+    });
+
+    setSelectedSavedSearch({ id: matched.id, name: matched.name });
     setSearchOption("replace");
     setActiveTab("Save Search Form");
-  };
+
+    // ✅ Update URL params
+    const urlParams = new URLSearchParams();
+
+    if (parsedFilters.status) urlParams.set("bid_type", parsedFilters.status);
+    if (parsedFilters.keyword) urlParams.set("bid_name", parsedFilters.keyword);
+    if (parsedFilters.location) urlParams.set("state", parsedFilters.location);
+    if (parsedFilters.publishedDate?.from) urlParams.set("open_date_after", parsedFilters.publishedDate.from);
+    if (parsedFilters.publishedDate?.to) urlParams.set("open_date_before", parsedFilters.publishedDate.to);
+    if (parsedFilters.closingDate?.from) urlParams.set("close_date_after", parsedFilters.closingDate.from);
+    if (parsedFilters.closingDate?.to) urlParams.set("close_date_before", parsedFilters.closingDate.to);
+    if (parsedFilters.solicitationType?.length) urlParams.set("solicitation", parsedFilters.solicitationType.join(","));
+    if (parsedFilters.naics_codes?.length) urlParams.set("naics_codes", parsedFilters.naics_codes.join(","));
+    if (parsedFilters.unspsc_codes?.length) urlParams.set("unspsc_codes", parsedFilters.unspsc_codes.join(","));
+    if (parsedFilters.includeKeywords?.length) urlParams.set("include", parsedFilters.includeKeywords.join(","));
+    if (parsedFilters.excludeKeywords?.length) urlParams.set("exclude", parsedFilters.excludeKeywords.join(","));
+
+    urlParams.set("page", "1");
+    urlParams.set("pageSize", "25");
+
+    // ✅ Trigger URL change
+    setSearchParams(urlParams);
+
+    // ✅ Call parent apply
+    setTimeout(() => {
+      console.log("🚀 Calling onApply with filters:", parsedFilters);
+      onApply?.();
+    }, 0);
+  } catch (err) {
+    console.error("❌ Failed to load saved search", err);
+  }
+};
+
 
 
 
@@ -134,6 +255,7 @@ function FilterPanelSaveSearch({
         return (
           <SavedSearchForm
             {...sharedProps}
+            key={selectedSavedSearch?.id || 'new'}
             onCancel={onClose}
             onSubmit={handleSaveSearchSubmit}
             defaultSearch={defaultSearch}
@@ -171,10 +293,25 @@ function FilterPanelSaveSearch({
       case "NAICSCode":
         return <NAICSCode {...sharedProps} />;
       case "UNSPSCCode":
-        return <UNSPSCCode {...sharedProps} />;
+        return <UNSPSCCode {...sharedProps}
+                key={selectedSavedSearch?.id || 'new'}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+        />;
       case "Keyword":
         return <KeywordTab
           {...sharedProps}
+          key={selectedSavedSearch?.id || 'new'}
           defaultSearch={defaultSearch}
           selectedSavedSearch={selectedSavedSearch}
           setDefaultSearch={setDefaultSearch}
@@ -191,6 +328,7 @@ function FilterPanelSaveSearch({
       case "Location":
         return <LocationTab
           {...sharedProps}
+          key={selectedSavedSearch?.id || 'new'}
           defaultSearch={defaultSearch}
           selectedSavedSearch={selectedSavedSearch}
           setDefaultSearch={setDefaultSearch}
@@ -207,6 +345,7 @@ function FilterPanelSaveSearch({
       case "Published Date":
         return <PublishedDateTab
           {...sharedProps}
+          key={selectedSavedSearch?.id || 'new'}
           defaultSearch={defaultSearch}
           selectedSavedSearch={selectedSavedSearch}
           setDefaultSearch={setDefaultSearch}
@@ -221,9 +360,37 @@ function FilterPanelSaveSearch({
           onSelectSavedSearch={handleSavedSearchSelect}
         />;
       case "Closing Date":
-        return <ClosingDateTab {...sharedProps} />;
+        return <ClosingDateTab {...sharedProps}
+               key={selectedSavedSearch?.id || 'new'}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+          />;
       case "Solicitation Type":
-        return <SolicitationTypeTab {...sharedProps} />;
+        return <SolicitationTypeTab {...sharedProps}
+           key={selectedSavedSearch?.id || 'new'}
+          defaultSearch={defaultSearch}
+          selectedSavedSearch={selectedSavedSearch}
+          setDefaultSearch={setDefaultSearch}
+          setSelectedSavedSearch={setSelectedSavedSearch}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
+          showValidation={showValidation}
+          setShowValidation={setShowValidation}
+          triggerSave={triggerSave}
+          setTriggerSave={setTriggerSave}
+          savedFilters={savedSearches}
+          onSelectSavedSearch={handleSavedSearchSelect}
+        />;
       default:
         return null;
     }

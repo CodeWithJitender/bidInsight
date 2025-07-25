@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react"; // 👈 Needed for triggerSave sync
 
 const ClosingDateTab = ({
   filters = {},
@@ -8,13 +8,26 @@ const ClosingDateTab = ({
   setShowValidation = () => {},
   setActiveTab = () => {},
   setTriggerSave = () => {},
+  triggerSave = false, // ✅ required
+  selectedSavedSearch = null, // ✅ required
 }) => {
   const today = new Date().toISOString().slice(0, 10);
   const { from = "", to = "" } = filters.closingDate || {};
-
   const [manualSelected, setManualSelected] = useState("");
+  const triggerSaveRef = useRef(false); // ✅
 
-  // Sync selection when filters.closingDate changes externally
+  // ✅ Restore saved filters
+  useEffect(() => {
+    if (selectedSavedSearch?.filters?.closingDate) {
+      const { from, to } = selectedSavedSearch.filters.closingDate;
+      setFilters((prev) => ({
+        ...prev,
+        closingDate: { from, to },
+      }));
+    }
+  }, [selectedSavedSearch?.id]);
+
+  // ✅ Sync selection mode from filter values
   useEffect(() => {
     if (!from || !to) {
       setManualSelected("timeline");
@@ -31,6 +44,15 @@ const ClosingDateTab = ({
       }
     }
   }, [from, to]);
+
+  // ✅ Auto-save trigger (used for "Replace" flow)
+  useEffect(() => {
+    if (triggerSave && !triggerSaveRef.current) {
+      triggerSaveRef.current = true;
+      setTriggerSave(false);
+      onApply?.(); // submit filters to parent
+    }
+  }, [triggerSave]);
 
   const handleRadioChange = (type) => {
     setManualSelected(type);
