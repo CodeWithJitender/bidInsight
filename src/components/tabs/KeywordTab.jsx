@@ -12,34 +12,34 @@ function KeywordTab({filters = {}, setFilters = () => {}}) {
 
   const handleIncludeChange = useCallback((tags) => {
     setIncludeKeywords(tags);
-    setFilters({
-      ...filters,
+    setFilters(prevFilters => ({
+      ...prevFilters,
       keyword: {
-        ...filters.keyword,
+        ...prevFilters.keyword,
         include: tags
       }
-    });
-  }, [filters, setFilters]);
+    }));
+  }, [setFilters]);
 
   const handleExcludeChange = useCallback((tags) => {
     setExcludeKeywords(tags);
-    setFilters({
-      ...filters,
+    setFilters(prevFilters => ({
+      ...prevFilters,
       keyword: {
-        ...filters.keyword,
+        ...prevFilters.keyword,
         exclude: tags
       }
-    });
-  }, [filters, setFilters]);
+    }));
+  }, [setFilters]);
 
   useEffect(() => {
-    if (filters.keyword?.include) {
+    if (filters.keyword?.include && JSON.stringify(filters.keyword.include) !== JSON.stringify(includeKeywords)) {
       setIncludeKeywords(filters.keyword.include);
     }
-    if (filters.keyword?.exclude) {
+    if (filters.keyword?.exclude && JSON.stringify(filters.keyword.exclude) !== JSON.stringify(excludeKeywords)) {
       setExcludeKeywords(filters.keyword.exclude);
     }
-  }, [filters.keyword]);
+  }, [filters.keyword?.include, filters.keyword?.exclude]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">

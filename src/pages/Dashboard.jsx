@@ -7,26 +7,99 @@ import Pagination from "../components/Pagination";
 import FilterPanel from "../components/FilterPanel";
 import FilterPanelSaveSearch from "../components/FilterPanelSaveSearch";
 import api from "../utils/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getBids } from "../services/bid.service";
+import { useDispatch, useSelector } from "react-redux";
+import { setBids } from "../redux/reducer/bidSlice";
 
 function Dashboard() {
   const data = { title: "Dashboard" };
   const perPage = 25;
   const navigate = useNavigate();
+  const location = useLocation();
   const tableRef = useRef();
   const bidsSectionRef = useRef(null);
 
   // State variables
-  const [bids, setBids] = useState([]);
-  const [count, setCount] = useState(0);
-  const [totalResults, setTotalResults] = useState(0);
+  // const [bids, setBids] = useState([]);
+
+  const dispatch = useDispatch();
+  const { bidsInfo } = useSelector((state) => state.bids);
   const [savedSearches, setSavedSearches] = useState([]);
   const [selectedSavedSearch, setSelectedSavedSearch] = useState(null);
 
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    status:"",
+    keyword:{
+      include: [],
+      exclude: [],
+    },
+    location:[],
+    UNSPSCCode:[],
+    solicitationType:[],
+  });
   const [saveSearchFilters, setSaveSearchFilters] = useState({});
   const [appliedFilters, setAppliedFilters] = useState({});
+
+  // Function to decode URL parameters and populate filters (same as FilterPanel)
+  const decodeUrlToFilters = (searchParams) => {
+    const decodedFilters = {
+      status: "",
+      keyword: {
+        include: [],
+        exclude: [],
+      },
+      location: [],
+      UNSPSCCode: [],
+      solicitationType: [],
+    };
+
+    if (searchParams.get('bid_type')) {
+      decodedFilters.status = searchParams.get('bid_type');
+    }
+
+    if (searchParams.get('state')) {
+      decodedFilters.location = searchParams.get('state').split(',');
+    }
+
+    if (searchParams.get('solicitation')) {
+      decodedFilters.solicitationType = searchParams.get('solicitation').split(',');
+    }
+
+    if (searchParams.get('include')) {
+      decodedFilters.keyword.include = searchParams.get('include').split(',');
+    }
+
+    if (searchParams.get('exclude')) {
+      decodedFilters.keyword.exclude = searchParams.get('exclude').split(',');
+    }
+
+    if (searchParams.get('unspsc_codes')) {
+      const codes = searchParams.get('unspsc_codes').split(',');
+      decodedFilters.UNSPSCCode = codes.map(code => ({ code: code }));
+    }
+
+    return decodedFilters;
+  };
+
+  // UseEffect to decode URL parameters on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    const hasFilterParams = searchParams.get('bid_type') || 
+                           searchParams.get('state') || 
+                           searchParams.get('solicitation') || 
+                           searchParams.get('include') || 
+                           searchParams.get('exclude') || 
+                           searchParams.get('unspsc_codes');
+
+    if (hasFilterParams) {
+      const decodedFilters = decodeUrlToFilters(searchParams);
+      setFilters(decodedFilters);
+      setAppliedFilters(decodedFilters);
+      console.log("Dashboard - Decoded filters from URL:", decodedFilters);
+    }
+  }, [location.search]);
 
   const [sidebarToggle, setSidebarToggle] = useState(false);
   const [saveSearchToggle, setSaveSearchToggle] = useState(false);
@@ -40,13 +113,55 @@ function Dashboard() {
 
   // Summary data for dashboard middle section
   const middle = [
-    { id: 2, title: "Active Bids", num: count },
-    { id: 3, title: "New Bids", num: count },
+    { id: 2, title: "Active Bids", num: bidsInfo?.count || 0 },
+    { id: 3, title: "New Bids", num: bidsInfo?.count || 0 },
     { id: 4, title: "Saved", num: "0" },
     { id: 5, title: "Followed", num: "0/25" },
   ];
 
-  // Function to fetch bids with applied filters (simplified version)
+  // Function to build query string from filters (same as FilterPanel)
+  const buildQueryString = (filters) => {
+    const params = new URLSearchParams();
+    
+    // Add pagination
+    params.append('page', currentPage.toString());
+    params.append('pageSize', perPage.toString());
+    
+    // Convert status (Active/Inactive)
+    if (filters.status) {
+      params.append('bid_type', filters.status);
+    }
+    
+    // Convert location array to comma-separated state values
+    if (filters.location && filters.location.length > 0) {
+      params.append('state', filters.location.join(','));
+    }
+    
+    // Convert solicitationType array to comma-separated solicitation values
+    if (filters.solicitationType && filters.solicitationType.length > 0) {
+      params.append('solicitation', filters.solicitationType.join(','));
+    }
+    
+    // Convert keyword include array to comma-separated include values
+    if (filters.keyword?.include && filters.keyword.include.length > 0) {
+      params.append('include', filters.keyword.include.join(','));
+    }
+    
+    // Convert keyword exclude array to comma-separated exclude values
+    if (filters.keyword?.exclude && filters.keyword.exclude.length > 0) {
+      params.append('exclude', filters.keyword.exclude.join(','));
+    }
+    
+    // Convert UNSPSCCode array to comma-separated code values
+    if (filters.UNSPSCCode && filters.UNSPSCCode.length > 0) {
+      const codes = filters.UNSPSCCode.map(item => item.code);
+      params.append('unspsc_codes', codes.join(','));
+    }
+    
+    return params.toString();
+  };
+
+  // Function to fetch bids with applied filters
   const fetchBids = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -54,37 +169,51 @@ function Dashboard() {
 
     if (!token) {
       setError("User not logged in");
-      setBids([]);
+      dispatch(setBids([]));
       setLoading(false);
       navigate("/login");
       return;
     }
 
     try {
-      const params = new URLSearchParams();
-      params.append("page", currentPage);
-      params.append("pageSize", perPage);
-
-      // Here you could add params from appliedFilters or filters as needed
-
-      // const res = await api.get(`/bids/?${params.toString()}`, {
-      //   headers: { Authorization: `Bearer ${token}` },
-      // });
-
-      const res = await getBids(`?${params.toString()}`);
+      let queryString;
       
+      // Check if we have applied filters
+      const hasFilters = appliedFilters && (
+        appliedFilters.status ||
+        (appliedFilters.location && appliedFilters.location.length > 0) ||
+        (appliedFilters.solicitationType && appliedFilters.solicitationType.length > 0) ||
+        (appliedFilters.keyword?.include && appliedFilters.keyword.include.length > 0) ||
+        (appliedFilters.keyword?.exclude && appliedFilters.keyword.exclude.length > 0) ||
+        (appliedFilters.UNSPSCCode && appliedFilters.UNSPSCCode.length > 0)
+      );
+
+      if (hasFilters) {
+        // Use filters to build query string
+        queryString = buildQueryString(appliedFilters);
+      } else {
+        // Default query string with just pagination
+        const params = new URLSearchParams();
+        params.append("page", currentPage);
+        params.append("pageSize", perPage);
+        queryString = params.toString();
+      }
+
+      console.log("Fetching bids with query:", queryString);
+
+      const res = await getBids(`?${queryString}`);
       
-      setCount(res.count);
-      const bidList = res.results || res;
-      setBids(bidList);
-      setTotalResults(res.count || bidList.length);
+      console.log(res)
+      
+      // Store entire response in Redux
+      dispatch(setBids(res));
     } catch (err) {
       console.error("Failed to fetch bids:", err);
       setError("Failed to fetch bids");
     } finally {
       setLoading(false);
     }
-  }, [currentPage, navigate, perPage]);
+  }, [currentPage, navigate, perPage, appliedFilters]);
 
   // Fetch bids on component mount and page change
   useEffect(() => {
@@ -275,13 +404,13 @@ function Dashboard() {
             ) : error ? (
               <div className="text-red-400 text-center py-10">{error}</div>
             ) : (
-              <BidTable bids={bids} ref={tableRef} />
+              <BidTable bids={bidsInfo?.results || []} ref={tableRef} />
             )}
 
             <Pagination
-              totalResults={totalResults}
-              perPage={perPage}
-              currentPage={currentPage}
+              totalResults={bidsInfo?.count || 0}
+              perPage={bidsInfo?.page_size || perPage}
+              currentPage={bidsInfo?.page || currentPage}
               onPageChange={handlePageChange}
             />
           </div>
@@ -291,4 +420,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Dashboard; 

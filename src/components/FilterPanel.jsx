@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { getBids } from "../services/bid.service.js";
 
 import StatusTab from "./tabs/StatusTab";
 import CategoriesTab from "./tabs/CategoriesTab";
@@ -9,6 +10,9 @@ import ClosingDateTab from "./tabs/ClosingDateTab";
 import SolicitationTypeTab from "./tabs/SolicitationTypeTab";
 import UNSPSCCode from "./tabs/UNSPSCCode";
 import NAICSCode from "./tabs/NAICSCode";
+import { useNavigate, useLocation } from "react-router-dom";
+import { setBids } from "../redux/reducer/bidSlice.js";
+import { useDispatch } from "react-redux";
 
 const tabs = [
   "Status",
@@ -23,8 +27,12 @@ const tabs = [
   "Solicitation Type",
 ];
 
-const FilterPanel = ({ onClose }) => {
+const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
 
   const [filters, setFilters] = useState({
     status:"",
@@ -38,8 +46,13 @@ const FilterPanel = ({ onClose }) => {
     solicitationType:[],
   });
 
-  const clearAllFilters = () => {
-    setFilters({
+  // Use refs to track previous values and avoid infinite loops
+  const prevPropFiltersRef = useRef();
+  const hasInitializedFromURL = useRef(false);
+
+  // Function to decode URL parameters and populate filters
+  const decodeUrlToFilters = (searchParams) => {
+    const decodedFilters = {
       status: "",
       keyword: {
         include: [],
@@ -48,31 +61,196 @@ const FilterPanel = ({ onClose }) => {
       location: [],
       UNSPSCCode: [],
       solicitationType: [],
-    });
+    };
+
+    // Decode bid_type to status
+    if (searchParams.get('bid_type')) {
+      decodedFilters.status = searchParams.get('bid_type');
+    }
+
+    // Decode state to location array
+    if (searchParams.get('state')) {
+      decodedFilters.location = searchParams.get('state').split(',');
+    }
+
+    // Decode solicitation to solicitationType array
+    if (searchParams.get('solicitation')) {
+      decodedFilters.solicitationType = searchParams.get('solicitation').split(',');
+    }
+
+    // Decode include keywords
+    if (searchParams.get('include')) {
+      decodedFilters.keyword.include = searchParams.get('include').split(',');
+    }
+
+    // Decode exclude keywords
+    if (searchParams.get('exclude')) {
+      decodedFilters.keyword.exclude = searchParams.get('exclude').split(',');
+    }
+
+    // Decode unspsc_codes to UNSPSCCode array (need to convert back to objects with code property)
+    if (searchParams.get('unspsc_codes')) {
+      const codes = searchParams.get('unspsc_codes').split(',');
+      decodedFilters.UNSPSCCode = codes.map(code => ({ code: code }));
+    }
+
+    return decodedFilters;
+  };
+
+  // UseEffect to decode URL parameters on component mount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    
+    // Check if there are any filter parameters in the URL
+    const hasFilterParams = searchParams.get('bid_type') || 
+                           searchParams.get('state') || 
+                           searchParams.get('solicitation') || 
+                           searchParams.get('include') || 
+                           searchParams.get('exclude') || 
+                           searchParams.get('unspsc_codes');
+
+    if (hasFilterParams && !hasInitializedFromURL.current) {
+      const decodedFilters = decodeUrlToFilters(searchParams);
+      setFilters(decodedFilters);
+      // Also update parent component's filters if setter is provided
+      if (setPropFilters) {
+        setPropFilters(decodedFilters);
+      }
+      hasInitializedFromURL.current = true;
+      console.log("Decoded filters from URL:", decodedFilters);
+    }
+  }, [location.search]); // Only depend on location.search
+
+  // Separate useEffect to handle propFilters updates
+  useEffect(() => {
+    if (propFilters && !hasInitializedFromURL.current) {
+      const propFiltersString = JSON.stringify(propFilters);
+      const prevPropFiltersString = JSON.stringify(prevPropFiltersRef.current);
+      
+      // Only update if propFilters actually changed and we haven't initialized from URL
+      if (propFiltersString !== prevPropFiltersString && Object.keys(propFilters).length > 0) {
+        setFilters(propFilters);
+        prevPropFiltersRef.current = propFilters;
+      }
+    }
+  }, [propFilters]); // Safe to depend on propFilters now with ref protection
+
+  // Function to update filters in both local state and parent component
+  const updateFilters = (newFilters) => {
+    setFilters(newFilters);
+    if (setPropFilters) {
+      setPropFilters(newFilters);
+    }
+  };
+
+  const clearAllFilters = () => {
+    const clearedFilters = {
+      status: "",
+      keyword: {
+        include: [],
+        exclude: [],
+      },
+      location: [],
+      UNSPSCCode: [],
+      solicitationType: [],
+    };
+    updateFilters(clearedFilters);
+  };
+
+  // Convert filters object to query string format
+  const buildQueryString = (filters) => {
+    const params = new URLSearchParams();
+    
+    // Add default pagination
+    params.append('page', '1');
+    params.append('pageSize', '500');
+    
+    // Convert status (Active/Inactive)
+    if (filters.status) {
+      params.append('bid_type', filters.status);
+    }
+    
+    // Convert location array to comma-separated state values
+    if (filters.location && filters.location.length > 0) {
+      params.append('state', filters.location.join(','));
+    }
+    
+    // Convert solicitationType array to comma-separated solicitation values
+    if (filters.solicitationType && filters.solicitationType.length > 0) {
+      params.append('solicitation', filters.solicitationType.join(','));
+    }
+    
+    // Convert keyword include array to comma-separated include values
+    if (filters.keyword?.include && filters.keyword.include.length > 0) {
+      params.append('include', filters.keyword.include.join(','));
+    }
+    
+    // Convert keyword exclude array to comma-separated exclude values
+    if (filters.keyword?.exclude && filters.keyword.exclude.length > 0) {
+      params.append('exclude', filters.keyword.exclude.join(','));
+    }
+    
+    // Convert UNSPSCCode array to comma-separated code values
+    if (filters.UNSPSCCode && filters.UNSPSCCode.length > 0) {
+      const codes = filters.UNSPSCCode.map(item => item.code);
+      params.append('unspsc_codes', codes.join(','));
+    }
+    
+    return params.toString();
+  };
+
+  // Handle search functionality
+  const handleSearch = async () => {
+    try {
+      // Build query string from filters
+      const queryString = buildQueryString(filters);
+      
+      console.log("Search clicked with filters:", filters);
+      console.log("Generated query string:", queryString);
+      console.log("Full URL would be:", `/bids/?${queryString}`);
+      
+      // Make API call to fetch bids with filters
+      const bidsData = await getBids(`?${queryString}`);
+      console.log("API Response:", bidsData);
+
+      navigate(`/dashboard?${queryString}`);
+
+      dispatch(setBids(bidsData));
+      
+      // Here you can handle the response - maybe pass it to parent component
+      // or update some global state
+      
+      // Close the filter panel after successful search
+      onClose();
+      
+    } catch (error) {
+      console.error("Error fetching filtered bids:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "Status":
-        return <StatusTab filters={filters} setFilters={setFilters} />;
+        return <StatusTab filters={filters} setFilters={updateFilters} />;
       case "NAICS Code":
-        return <NAICSCode filters={filters} setFilters={setFilters} />;
+        return <NAICSCode filters={filters} setFilters={updateFilters} />;
       case "UNSPSC Code":
-        return <UNSPSCCode filters={filters} setFilters={setFilters} />;
+        return <UNSPSCCode filters={filters} setFilters={updateFilters} />;
       case "Keyword":
-        return <KeywordTab filters={filters} setFilters={setFilters} />;
+        return <KeywordTab filters={filters} setFilters={updateFilters} />;
       // case "Include Keywords":
-      //   return <KeywordTab filters={filters} setFilters={setFilters} mode="include" />;
+      //   return <KeywordTab filters={filters} setFilters={updateFilters} mode="include" />;
       // case "Exclude Keywords":
-      //   return <KeywordTab filters={filters} setFilters={setFilters} mode="exclude" />;
+      //   return <KeywordTab filters={filters} setFilters={updateFilters} mode="exclude" />;
       case "Location":
-        return <LocationTab filters={filters} setFilters={setFilters} />;
+        return <LocationTab filters={filters} setFilters={updateFilters} />;
       case "Published Date":
-        return <PublishedDateTab filters={filters} setFilters={setFilters} />;
+        return <PublishedDateTab filters={filters} setFilters={updateFilters} />;
       case "Closing Date":
-        return <ClosingDateTab filters={filters} setFilters={setFilters} />;
+        return <ClosingDateTab filters={filters} setFilters={updateFilters} />;
       case "Solicitation Type":
-        return <SolicitationTypeTab filters={filters} setFilters={setFilters} />;
+        return <SolicitationTypeTab filters={filters} setFilters={updateFilters} />;
       default:
         return null;
     }
@@ -130,11 +308,7 @@ const FilterPanel = ({ onClose }) => {
               Cancel
             </button>
             <button
-              onClick={() => {
-                console.log("Search clicked with filters:", filters);
-                // Handle search logic here
-                onClose();
-              }}
+              onClick={handleSearch}
               className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
             >
               Search

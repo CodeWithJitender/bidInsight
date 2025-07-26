@@ -10,22 +10,39 @@ export default function TagInput({
   const [examples, setExamples] = useState(exampleTags);
   const textareaRef = useRef(null);
 
-  // Avoid infinite loop by only updating if values are different
+  // Use refs to track previous values and avoid infinite loops
+  const prevDefaultTagsRef = useRef();
+  const prevExampleTagsRef = useRef();
+
+  // Only update tags when defaultTags actually changes
   useEffect(() => {
-    if (JSON.stringify(tags) !== JSON.stringify(defaultTags)) {
+    const defaultTagsString = JSON.stringify(defaultTags);
+    const prevDefaultTagsString = JSON.stringify(prevDefaultTagsRef.current);
+    
+    if (defaultTagsString !== prevDefaultTagsString) {
       setTags(defaultTags);
+      prevDefaultTagsRef.current = defaultTags;
     }
   }, [defaultTags]);
 
+  // Only update examples when exampleTags actually changes
   useEffect(() => {
-    if (JSON.stringify(examples) !== JSON.stringify(exampleTags)) {
+    const exampleTagsString = JSON.stringify(exampleTags);
+    const prevExampleTagsString = JSON.stringify(prevExampleTagsRef.current);
+    
+    if (exampleTagsString !== prevExampleTagsString) {
       setExamples(exampleTags);
+      prevExampleTagsRef.current = exampleTags;
     }
   }, [exampleTags]);
 
+  // Call onTagsChange when tags change, but avoid calling it on initial render if tags match defaultTags
   useEffect(() => {
-    onTagsChange(tags);
-  }, [tags]); // Removed onTagsChange from dependencies to prevent infinite loop
+    const isInitialRender = JSON.stringify(tags) === JSON.stringify(defaultTags) && tags.length === 0;
+    if (!isInitialRender) {
+      onTagsChange(tags);
+    }
+  }, [tags]); // Only depend on tags, not onTagsChange
 
   const addTag = useCallback((value) => {
     const trimmed = value.trim();
