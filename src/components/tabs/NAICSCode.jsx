@@ -119,15 +119,7 @@ const NAICSCode = () => {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-4 p-5 ps-0 bg-white sticky bottom-0">
-        <button className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all">
-          Cancel
-        </button>
-        <button className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all">
-          Search
-        </button>
-      </div>
+      
     </div>
   );
 };

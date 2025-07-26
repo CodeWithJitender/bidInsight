@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 export default function TagInput({
   placeholder = "Type and hit Enter",
@@ -25,33 +25,35 @@ export default function TagInput({
 
   useEffect(() => {
     onTagsChange(tags);
-  }, [tags, onTagsChange]);
+  }, [tags]); // Removed onTagsChange from dependencies to prevent infinite loop
 
-  const addTag = (value) => {
+  const addTag = useCallback((value) => {
     const trimmed = value.trim();
     if (!trimmed) return;
 
-    if (examples.includes(trimmed)) {
-      setExamples(prev => prev.filter((ex) => ex !== trimmed));
+    // Don't add if it's an example tag - they are for reference only
+    if (exampleTags.includes(trimmed)) {
+      return;
     }
 
+    // Only add if it's not already in the tags array
     if (!tags.includes(trimmed)) {
       setTags(prev => [...prev, trimmed]);
     }
-  };
+  }, [exampleTags, tags]);
 
-  const removeTag = (idx) => {
+  const removeTag = useCallback((idx) => {
     setTags(prev => prev.filter((_, i) => i !== idx));
-  };
+  }, []);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     if ((e.key === 'Enter' || e.key === ',') && textareaRef.current.value) {
       e.preventDefault();
       addTag(textareaRef.current.value);
       textareaRef.current.value = '';
       textareaRef.current.focus();
     }
-  };
+  }, [addTag]);
 
   return (
     <div className="flex flex-wrap items-start gap-2 p-2 bg-white border-[#273BE280] rounded-[10px] border-[2px]">
@@ -70,7 +72,8 @@ export default function TagInput({
       {examples.map((tag, i) => (
         <span
           key={`example-${i}`}
-          className="flex items-center border border-gray-400 text-gray-400 italic rounded-full text-[16px] px-4 py-2"
+          className="flex items-center border border-gray-300 text-gray-500 italic rounded-full text-[16px] px-4 py-2 bg-gray-50 cursor-not-allowed opacity-70"
+          title="Reference tag - for guidance only"
         >
           {tag}
         </span>

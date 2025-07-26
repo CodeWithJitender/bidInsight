@@ -95,21 +95,7 @@ const ClosingDateTab = ({
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="flex gap-4 mt-10">
-        <button
-          onClick={() => {}}
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {}}
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-        >
-          Search
-        </button>
-      </div>
+     
     </div>
   );
 };

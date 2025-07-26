@@ -1,96 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Search } from "lucide-react";
+import { getAllStates } from "../../services/bid.service.js";
 
-const US_STATES = [
-  "Alabama",
-  "Alaska",
-  "Arizona",
-  "Arkansas",
-  "California",
-  "Colorado",
-  "Connecticut",
-  "Delaware",
-  "Florida",
-  "Georgia",
-  "Hawaii",
-  "Idaho",
-  "Illinois",
-  "Indiana",
-  "Iowa",
-  "Kansas",
-  "Kentucky",
-  "Louisiana",
-  "Maine",
-  "Maryland",
-  "Massachusetts",
-  "Michigan",
-  "Minnesota",
-  "Mississippi",
-  "Missouri",
-  "Montana",
-  "Nebraska",
-  "Nevada",
-  "New Hampshire",
-  "New Jersey",
-  "New Mexico",
-  "New York",
-  "North Carolina",
-  "North Dakota",
-  "Ohio",
-  "Oklahoma",
-  "Oregon",
-  "Pennsylvania",
-  "Rhode Island",
-  "South Carolina",
-  "South Dakota",
-  "Tennessee",
-  "Texas",
-  "Utah",
-  "Vermont",
-  "Virginia",
-  "Washington",
-  "West Virginia",
-  "Wisconsin",
-  "Wyoming",
-];
 
-const LocationTab = () => {
-  const [selectedStates, setSelectedStates] = useState([]);
+
+const LocationTab = ({ filters = {}, setFilters = () => {} }) => {
+  const [selectedStates, setSelectedStates] = useState(filters.location || []);
   const [searchTerm, setSearchTerm] = useState("");
+  const [states, setStates] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filter states based on search input
-  const filteredStates = US_STATES.filter((state) =>
-    state.toLowerCase().includes(searchTerm.toLowerCase())
+  // Fetch states from API
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllStates();
+        console.log('States API Response:', response);
+        setStates(response); // For now, using the response directly until we see the structure
+      } catch (error) {
+        console.error("Error fetching states:", error);
+        // Fallback to hardcoded states if API fails
+        setStates(US_STATES.map(state => ({ name: state })));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  // Sync local state with filters prop when filters change from outside
+  useEffect(() => {
+    if (filters.location && Array.isArray(filters.location)) {
+      setSelectedStates(filters.location);
+    }
+  }, [filters.location]);
+
+  // Filter states based on search input - will need to adjust based on API response structure
+  const filteredStates = states.filter((state) =>
+    (state.name || state).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isAllSelected =
     filteredStates.length > 0 &&
-    filteredStates.every((state) => selectedStates.includes(state));
+    filteredStates.every((state) => selectedStates.includes(state.name || state));
 
-  const toggleState = (state) => {
-    setSelectedStates((prev) =>
-      prev.includes(state)
-        ? prev.filter((s) => s !== state)
-        : [...prev, state]
-    );
+  const toggleState = (stateName) => {
+    const updated = selectedStates.includes(stateName)
+      ? selectedStates.filter((s) => s !== stateName)
+      : [...selectedStates, stateName];
+    
+    setSelectedStates(updated);
+    // Update the filters with the new selection
+    setFilters({
+      ...filters,
+      location: updated
+    });
   };
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       // Remove all visible states from selected
-      setSelectedStates((prev) =>
-        prev.filter((state) => !filteredStates.includes(state))
-      );
+      const visibleStateNames = filteredStates.map(state => state.name || state);
+      const updated = selectedStates.filter((state) => !visibleStateNames.includes(state));
+      setSelectedStates(updated);
+      setFilters({
+        ...filters,
+        location: updated
+      });
     } else {
       // Add all visible states
-      setSelectedStates((prev) =>
-        Array.from(new Set([...prev, ...filteredStates]))
-      );
+      const visibleStateNames = filteredStates.map(state => state.name || state);
+      const updated = Array.from(new Set([...selectedStates, ...visibleStateNames]));
+      setSelectedStates(updated);
+      setFilters({
+        ...filters,
+        location: updated
+      });
     }
   };
 
   const clearAll = () => {
     setSelectedStates([]);
+    setFilters({
+      ...filters,
+      location: []
+    });
   };
 
   return (
@@ -131,16 +127,16 @@ const LocationTab = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
-          {selectedStates.map((state) => (
+          {selectedStates.map((stateName) => (
             <div
-              key={state}
+              key={stateName}
               className="flex border-[2px] gap-1 px-3 rounded-[30px] border-primary items-center justify-between text-lg py-1 font-inter"
             >
-              <div>{state}</div>
+              <div>{stateName}</div>
               <button
-                onClick={() => toggleState(state)}
+                onClick={() => toggleState(stateName)}
                 className="text-primary"
-                aria-label={`Remove ${state}`}
+                aria-label={`Remove ${stateName}`}
               >
                 <Trash2 size={16} />
               </button>
@@ -161,43 +157,35 @@ const LocationTab = () => {
             <span>Select All States</span>
           </div>
 
-          {filteredStates.length === 0 ? (
+          {loading ? (
+            <div className="p-4 text-center text-gray-500">Loading states...</div>
+          ) : filteredStates.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No states found</div>
           ) : (
-            filteredStates.map((state) => (
-              <label
-                key={state}
-                className="flex items-center gap-5 py-2 cursor-pointer font-inter px-4 text-xl border-[#273BE280] border-t-[2px]"
-              >
-                <input
-                  type="checkbox"
-                  className="mt-1 accent-primary"
-                  checked={selectedStates.includes(state)}
-                  onChange={() => toggleState(state)}
-                  aria-label={`Select state ${state}`}
-                />
-                <div className="text-[16px]">{state}</div>
-              </label>
-            ))
+            filteredStates.map((state) => {
+              const stateName = state.name || state;
+              const isSelected = selectedStates.includes(stateName);
+              return (
+                <label
+                  key={stateName}
+                  className="flex items-center gap-5 py-2 cursor-pointer font-inter px-4 text-xl border-[#273BE280] border-t-[2px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1 accent-primary"
+                    checked={isSelected}
+                    onChange={() => toggleState(stateName)}
+                    aria-label={`Select state ${stateName}`}
+                  />
+                  <div className="text-[16px]">{stateName}</div>
+                </label>
+              );
+            })
           )}
         </div>
       </div>
 
-      {/* Sticky Bottom Buttons */}
-      <div className="flex gap-4 p-5 ps-0 bg-white sticky bottom-0">
-        <button
-          onClick={() => setSelectedStates([])}
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => alert("Search clicked with selected states: " + selectedStates.join(", "))}
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-        >
-          Search
-        </button>
-      </div>
+     
     </div>
   );
 };
