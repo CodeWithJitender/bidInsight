@@ -12,6 +12,7 @@ import { getBids } from "../services/bid.service";
 import { useDispatch, useSelector } from "react-redux";
 import { setBids } from "../redux/reducer/bidSlice";
 
+
 function Dashboard() {
   const data = { title: "Dashboard" };
   const perPage = 25;
@@ -20,96 +21,176 @@ function Dashboard() {
   const tableRef = useRef();
   const bidsSectionRef = useRef(null);
 
+
   // State variables
   // const [bids, setBids] = useState([]);
+
 
   const dispatch = useDispatch();
   const { bidsInfo } = useSelector((state) => state.bids);
   const [savedSearches, setSavedSearches] = useState([]);
   const [selectedSavedSearch, setSelectedSavedSearch] = useState(null);
-
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [filters, setFilters] = useState({
-    status:"",
-    keyword:{
+    status: "Active",
+    keyword: {
       include: [],
       exclude: [],
     },
-    location:[],
-    UNSPSCCode:[],
-    solicitationType:[],
+    location: [],
+    UNSPSCCode: [],
+    NAICSCode: [],
+    publishedDate: {},
+    closingDate: {},
+    solicitationType: [],
   });
   const [saveSearchFilters, setSaveSearchFilters] = useState({});
-  const [appliedFilters, setAppliedFilters] = useState({});
+  const [appliedFilters, setAppliedFilters] = useState({
+    status: "active", // ✅ Default active applied filters mein bhi
+    keyword: {
+      include: [],
+      exclude: [],
+    },
+    location: [],
+    UNSPSCCode: [],
+    NAICSCode: [],
+    publishedDate: {},
+    closingDate: {},
+    solicitationType: [],
+  });
+
 
   // Function to decode URL parameters and populate filters (same as FilterPanel)
   const decodeUrlToFilters = (searchParams) => {
-    const decodedFilters = {
-      status: "",
-      keyword: {
-        include: [],
-        exclude: [],
-      },
-      location: [],
-      UNSPSCCode: [],
-      solicitationType: [],
-    };
-
-    if (searchParams.get('bid_type')) {
-      decodedFilters.status = searchParams.get('bid_type');
-    }
-
-    if (searchParams.get('state')) {
-      decodedFilters.location = searchParams.get('state').split(',');
-    }
-
-    if (searchParams.get('solicitation')) {
-      decodedFilters.solicitationType = searchParams.get('solicitation').split(',');
-    }
-
-    if (searchParams.get('include')) {
-      decodedFilters.keyword.include = searchParams.get('include').split(',');
-    }
-
-    if (searchParams.get('exclude')) {
-      decodedFilters.keyword.exclude = searchParams.get('exclude').split(',');
-    }
-
-    if (searchParams.get('unspsc_codes')) {
-      const codes = searchParams.get('unspsc_codes').split(',');
-      decodedFilters.UNSPSCCode = codes.map(code => ({ code: code }));
-    }
-
-    return decodedFilters;
+  const decodedFilters = {
+    status: "",
+    keyword: {
+      include: [],
+      exclude: [],
+    },
+    location: [],
+    UNSPSCCode: [],
+    solicitationType: [],
+    NAICSCode: [],                 // ✅ NEW
+    publishedDate: {},             // ✅ NEW
+    closingDate: {},               // ✅ NEW
   };
+
+
+  if (searchParams.get("bid_type")) {
+    decodedFilters.status = searchParams.get("bid_type");
+  }
+
+
+  if (searchParams.get("state")) {
+    decodedFilters.location = searchParams.get("state").split(",");
+  }
+
+
+  if (searchParams.get("solicitation")) {
+    decodedFilters.solicitationType = searchParams.get("solicitation").split(",");
+  }
+
+
+  if (searchParams.get("include")) {
+    decodedFilters.keyword.include = searchParams.get("include").split(",");
+  }
+
+
+  if (searchParams.get("exclude")) {
+    decodedFilters.keyword.exclude = searchParams.get("exclude").split(",");
+  }
+
+
+  if (searchParams.get("unspsc_codes")) {
+    const codes = searchParams.get("unspsc_codes").split(",");
+    decodedFilters.UNSPSCCode = codes.map(code => ({ code }));
+  }
+
+
+  if (searchParams.get("naics_codes")) {
+    const codes = searchParams.get("naics_codes").split(",");
+    decodedFilters.NAICSCode = codes.map(code => ({ code }));
+  }
+
+
+  if (searchParams.get("open_date_after")) {
+    decodedFilters.publishedDate.after = searchParams.get("open_date_after");
+  }
+
+
+  if (searchParams.get("open_date_before")) {
+    decodedFilters.publishedDate.before = searchParams.get("open_date_before");
+  }
+
+
+  if (searchParams.get("closing_date_after")) {
+    decodedFilters.closingDate.after = searchParams.get("closing_date_after");
+  }
+
+
+  if (searchParams.get("closing_date_before")) {
+    decodedFilters.closingDate.before = searchParams.get("closing_date_before");
+  }
+
+
+  return decodedFilters;
+};
+
+
+
 
   // UseEffect to decode URL parameters on component mount
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    
-    const hasFilterParams = searchParams.get('bid_type') || 
-                           searchParams.get('state') || 
-                           searchParams.get('solicitation') || 
-                           searchParams.get('include') || 
-                           searchParams.get('exclude') || 
-                           searchParams.get('unspsc_codes');
 
-    if (hasFilterParams) {
+
+    const hasFilterParams = searchParams.get('bid_type') ||
+      searchParams.get('state') ||
+      searchParams.get('solicitation') ||
+      searchParams.get('include') ||
+      searchParams.get('exclude') ||
+      searchParams.get('unspsc_codes');
+
+
+    // ✅ First load par filters clear kar do
+    if (isInitialLoad) {
+      const defaultFilters = {
+        status: "Active",
+        keyword: { include: [], exclude: [] },
+        location: [],
+        UNSPSCCode: [],
+        solicitationType: [],
+      };
+
+
+      setFilters(defaultFilters);
+      setAppliedFilters(defaultFilters);
+      navigate("/dashboard?page=1&pageSize=25&bid_type=Active", { replace: true });
+      setIsInitialLoad(false);
+
+
+    } else if (hasFilterParams) {
+      // Normal navigation - URL se filters load karo
       const decodedFilters = decodeUrlToFilters(searchParams);
       setFilters(decodedFilters);
       setAppliedFilters(decodedFilters);
-      console.log("Dashboard - Decoded filters from URL:", decodedFilters);
     }
-  }, [location.search]);
+  }, [location.search, navigate, isInitialLoad]);
+
 
   const [sidebarToggle, setSidebarToggle] = useState(false);
   const [saveSearchToggle, setSaveSearchToggle] = useState(false);
 
+
   const [activeFilterTab, setActiveFilterTab] = useState("Status");
   const [searchOption, setSearchOption] = useState("create");
+
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
 
   // Summary data for dashboard middle section
   const middle = [
@@ -119,53 +200,88 @@ function Dashboard() {
     { id: 5, title: "Followed", num: "0/25" },
   ];
 
+
   // Function to build query string from filters (same as FilterPanel)
-  const buildQueryString = (filters) => {
-    const params = new URLSearchParams();
-    
-    // Add pagination
-    params.append('page', currentPage.toString());
-    params.append('pageSize', perPage.toString());
-    
-    // Convert status (Active/Inactive)
-    if (filters.status) {
-      params.append('bid_type', filters.status);
-    }
-    
-    // Convert location array to comma-separated state values
-    if (filters.location && filters.location.length > 0) {
-      params.append('state', filters.location.join(','));
-    }
-    
-    // Convert solicitationType array to comma-separated solicitation values
-    if (filters.solicitationType && filters.solicitationType.length > 0) {
-      params.append('solicitation', filters.solicitationType.join(','));
-    }
-    
-    // Convert keyword include array to comma-separated include values
-    if (filters.keyword?.include && filters.keyword.include.length > 0) {
-      params.append('include', filters.keyword.include.join(','));
-    }
-    
-    // Convert keyword exclude array to comma-separated exclude values
-    if (filters.keyword?.exclude && filters.keyword.exclude.length > 0) {
-      params.append('exclude', filters.keyword.exclude.join(','));
-    }
-    
-    // Convert UNSPSCCode array to comma-separated code values
-    if (filters.UNSPSCCode && filters.UNSPSCCode.length > 0) {
-      const codes = filters.UNSPSCCode.map(item => item.code);
-      params.append('unspsc_codes', codes.join(','));
-    }
-    
-    return params.toString();
-  };
+ const buildQueryString = (filters) => {
+  const params = new URLSearchParams();
+
+
+  params.append("page", currentPage.toString());
+  params.append("pageSize", perPage.toString());
+
+
+  if (filters.status) {
+    params.append("bid_type", filters.status);
+  }
+
+
+  if (filters.location && filters.location.length > 0) {
+    params.append("state", filters.location.join(","));
+  }
+
+
+  if (filters.solicitationType && filters.solicitationType.length > 0) {
+    params.append("solicitation", filters.solicitationType.join(","));
+  }
+
+
+  if (filters.keyword?.include && filters.keyword.include.length > 0) {
+    params.append("include", filters.keyword.include.join(","));
+  }
+
+
+  if (filters.keyword?.exclude && filters.keyword.exclude.length > 0) {
+    params.append("exclude", filters.keyword.exclude.join(","));
+  }
+
+
+  if (filters.UNSPSCCode && filters.UNSPSCCode.length > 0) {
+    const codes = filters.UNSPSCCode.map((item) => item.code);
+    params.append("unspsc_codes", codes.join(","));
+  }
+
+
+  // ✅ NAICSCode
+  if (filters.NAICSCode && filters.NAICSCode.length > 0) {
+    const codes = filters.NAICSCode.map((item) => item.code);
+    params.append("naics_codes", codes.join(","));
+  }
+
+
+  // ✅ Published Date
+  if (filters.publishedDate?.after) {
+    params.append("open_date_after", filters.publishedDate.after);
+  }
+
+
+  if (filters.publishedDate?.before) {
+    params.append("open_date_before", filters.publishedDate.before);
+  }
+
+
+  // ✅ Closing Date
+  if (filters.closingDate?.after) {
+    params.append("closing_date_after", filters.closingDate.after);
+  }
+
+
+  if (filters.closingDate?.before) {
+    params.append("closing_date_before", filters.closingDate.before);
+  }
+
+
+  return params.toString();
+};
+
+
+
 
   // Function to fetch bids with applied filters
   const fetchBids = useCallback(async () => {
     setLoading(true);
     setError("");
     const token = localStorage.getItem("access_token");
+
 
     if (!token) {
       setError("User not logged in");
@@ -175,37 +291,34 @@ function Dashboard() {
       return;
     }
 
+
     try {
       let queryString;
-      
-      // Check if we have applied filters
-      const hasFilters = appliedFilters && (
-        appliedFilters.status ||
+
+
+      // ✅ Applied filters check karo, agar empty hai to default active use karo
+      const filtersToUse = appliedFilters.status ||
         (appliedFilters.location && appliedFilters.location.length > 0) ||
         (appliedFilters.solicitationType && appliedFilters.solicitationType.length > 0) ||
         (appliedFilters.keyword?.include && appliedFilters.keyword.include.length > 0) ||
         (appliedFilters.keyword?.exclude && appliedFilters.keyword.exclude.length > 0) ||
         (appliedFilters.UNSPSCCode && appliedFilters.UNSPSCCode.length > 0)
-      );
+        ? appliedFilters
+        : { ...appliedFilters, status: "Active" }; // Default Active
 
-      if (hasFilters) {
-        // Use filters to build query string
-        queryString = buildQueryString(appliedFilters);
-      } else {
-        // Default query string with just pagination
-        const params = new URLSearchParams();
-        params.append("page", currentPage);
-        params.append("pageSize", perPage);
-        queryString = params.toString();
-      }
+
+      queryString = buildQueryString(filtersToUse);
+
 
       console.log("Fetching bids with query:", queryString);
 
+
       const res = await getBids(`?${queryString}`);
-      
-      console.log(res)
-      
-      // Store entire response in Redux
+
+
+      console.log(res);
+
+
       dispatch(setBids(res));
     } catch (err) {
       console.error("Failed to fetch bids:", err);
@@ -213,12 +326,14 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, navigate, perPage, appliedFilters]);
+  }, [currentPage, navigate, perPage, appliedFilters, dispatch]);
+
 
   // Fetch bids on component mount and page change
   useEffect(() => {
     fetchBids();
   }, [fetchBids]);
+
 
   // Fetch saved searches on mount
   const fetchSavedSearches = useCallback(async () => {
@@ -234,9 +349,11 @@ function Dashboard() {
     }
   }, []);
 
+
   useEffect(() => {
     fetchSavedSearches();
   }, [fetchSavedSearches]);
+
 
   // Handle selecting a saved search and applying filters
   const handleSavedSearchSelect = async (searchId) => {
@@ -244,14 +361,17 @@ function Dashboard() {
       const token = localStorage.getItem("access_token");
       if (!token) return;
 
+
       const res = await api.get("/bids/saved-filters/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const matched = res.data.find((item) => item.id === searchId);
       if (!matched) return;
 
+
       const urlParams = new URLSearchParams(matched.query_string);
       const filtersToUse = Object.fromEntries(urlParams.entries());
+
 
       setSelectedSavedSearch({ id: matched.id, name: matched.name });
       setSaveSearchFilters(filtersToUse);
@@ -264,11 +384,13 @@ function Dashboard() {
     }
   };
 
+
   // Handle saving or updating a saved search (dummy stub for passing down)
   const handleSaveOrUpdate = (data) => {
     // Implement save/update logic or pass down to FilterPanelSaveSearch
     console.log("Save or Update called with data:", data);
   };
+
 
   // Pagination page change
   const handlePageChange = (page) => {
@@ -278,6 +400,7 @@ function Dashboard() {
     }
   };
 
+
   // Export bids handler
   const handleExport = () => {
     if (tableRef.current) {
@@ -285,11 +408,13 @@ function Dashboard() {
     }
   };
 
+
   // Toggle filter panel visibility
   const handleOpenFilter = () => {
     setActiveFilterTab("Status");
     setSidebarToggle(true);
   };
+
 
   return (
     <>
@@ -305,6 +430,7 @@ function Dashboard() {
           />
         )}
 
+
         {saveSearchToggle && (
           <FilterPanelSaveSearch
             filters={saveSearchFilters}
@@ -317,6 +443,7 @@ function Dashboard() {
             onApply={() => setSaveSearchToggle(false)}
           />
         )}
+
 
         <div className="container-fixed py-10 px-4">
           <div className="dashboard-header flex justify-between items-center">
@@ -331,11 +458,12 @@ function Dashboard() {
                   placeholder="Search titles or organization or location"
                   className="text-white bg-transparent w-[300px] border-none outline-none"
                   value="" // Controlled if you want to add search state
-                  onChange={() => {}} // Add search handler if desired
+                  onChange={() => { }} // Add search handler if desired
                 />
               </div>
             </div>
           </div>
+
 
           <div className="dashboard-middle">
             <div className="max-w-[1200px] py-[80px] flex justify-center mx-auto gap-8">
@@ -349,6 +477,7 @@ function Dashboard() {
               ))}
             </div>
           </div>
+
 
           <div className="dashboard-feature">
             <div className="flex justify-between">
@@ -365,6 +494,7 @@ function Dashboard() {
                   />
                 </div>
               </div>
+
 
               <div className="feature-right">
                 <div className="flex gap-4">
@@ -398,6 +528,7 @@ function Dashboard() {
             </div>
           </div>
 
+
           <div ref={bidsSectionRef}>
             {loading ? (
               <div className="text-white text-center py-10">Loading...</div>
@@ -406,6 +537,7 @@ function Dashboard() {
             ) : (
               <BidTable bids={bidsInfo?.results || []} ref={tableRef} />
             )}
+
 
             <Pagination
               totalResults={bidsInfo?.count || 0}
@@ -420,4 +552,5 @@ function Dashboard() {
   );
 }
 
-export default Dashboard; 
+
+export default Dashboard;

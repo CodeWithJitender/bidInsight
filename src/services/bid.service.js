@@ -28,20 +28,20 @@ export const getSavedSearches = async () => {
   }
 };
 
-export const getSelectedSavedSearches = async () => {
-  const token = localStorage.getItem("access_token");
-  if (!token) return [];
+// export const getSelectedSavedSearches = async () => {
+//   const token = localStorage.getItem("access_token");
+//   if (!token) return [];
 
-  try {
-    const res = await API.get("/bids/saved-filters/", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching saved searches:", err);
-    throw err;
-  }
-};
+//   try {
+//     const res = await API.get("/bids/saved-filters/", {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+//     return res.data;
+//   } catch (err) {
+//     console.error("Error fetching saved searches:", err);
+//     throw err;
+//   }
+// };
 
 export const createSavedSearch = async (body) => {
   const token = localStorage.getItem("access_token");
@@ -92,7 +92,7 @@ export const getUNSPSCCodes = async ({
     const params = new URLSearchParams({
       page,
       pageSize,
-      search
+      search,
     });
 
     const res = await API.get(`/bids/unspsc-codes/?${params.toString()}`);
@@ -116,10 +116,23 @@ export const getAllStates = async () => {
 export const getSolicitationTypes = async () => {
   try {
     const res = await API.get("/bids/solicitation/");
-    console.log(res)
+    console.log(res);
     return res.data;
   } catch (error) {
     console.error("Error fetching solicitation types:", error);
     throw error;
+  }
+};
+
+export const getNAICSCodes = async () => {
+  try {
+    const response = await API.get("/bids/naics-codes/");
+    return response.data.results || [];
+  } catch (error) {
+    console.error(
+      "Error fetching NAICS codes:",
+      error?.response?.data || error.message
+    );
+    throw new Error("Failed to fetch NAICS codes");
   }
 };

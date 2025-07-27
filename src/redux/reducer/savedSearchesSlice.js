@@ -10,6 +10,7 @@ const savedSearchesSlice = createSlice({
   initialState,
   reducers: {
     addSavedSearch: (state, action) => {
+      console.log(action.payload);
       state.savedSearches = action.payload;
       state.savedSearchesCount = action.payload.length;
     },

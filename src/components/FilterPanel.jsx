@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { getBids } from "../services/bid.service.js";
+
 
 import StatusTab from "./tabs/StatusTab";
 import CategoriesTab from "./tabs/CategoriesTab";
@@ -13,6 +15,8 @@ import NAICSCode from "./tabs/NAICSCode";
 import { useNavigate, useLocation } from "react-router-dom";
 import { setBids } from "../redux/reducer/bidSlice.js";
 import { useDispatch } from "react-redux";
+import { buildQueryString } from "../utils/buildQueryString.js";
+
 
 const tabs = [
   "Status",
@@ -20,12 +24,11 @@ const tabs = [
   "Location",
   "NAICS Code",
   "UNSPSC Code",
-  // "Include Keywords",
-  // "Exclude Keywords",
   "Published Date",
   "Closing Date",
   "Solicitation Type",
 ];
+
 
 const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
@@ -34,23 +37,44 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
   const dispatch = useDispatch();
 
 
+  // ✅ Updated filters state with date filters
   const [filters, setFilters] = useState({
-    status:"",
-    keyword:{
+    status: "",
+    keyword: {
       include: [],
       exclude: [],
     },
-    location:[],
-    // NAICSCode:[],
-    UNSPSCCode:[],
-    solicitationType:[],
+    location: [],
+    NAICSCode: [],        // ✅ Fixed field name
+    UNSPSCCode: [],
+    solicitationType: [],
+    publishedDate: {      // ✅ Added published date
+      type: "",
+      within: "",
+      date: "",
+      from: "",
+      to: "",
+      after: "",          // ✅ API parameter
+      before: ""          // ✅ API parameter
+    },
+    closingDate: {        // ✅ Added closing date
+      type: "",
+      within: "",
+      date: "",
+      from: "",
+      to: "",
+      after: "",          // ✅ API parameter
+      before: ""          // ✅ API parameter
+    }
   });
+
 
   // Use refs to track previous values and avoid infinite loops
   const prevPropFiltersRef = useRef();
   const hasInitializedFromURL = useRef(false);
 
-  // Function to decode URL parameters and populate filters
+
+  // ✅ Updated decodeUrlToFilters function with date parameters
   const decodeUrlToFilters = (searchParams) => {
     const decodedFilters = {
       status: "",
@@ -59,55 +83,155 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
         exclude: [],
       },
       location: [],
+      NAICSCode: [],
       UNSPSCCode: [],
       solicitationType: [],
+      publishedDate: {
+        type: "",
+        within: "",
+        date: "",
+        from: "",
+        to: "",
+        after: "",
+        before: ""
+      },
+      closingDate: {
+        type: "",
+        within: "",
+        date: "",
+        from: "",
+        to: "",
+        after: "",
+        before: ""
+      }
     };
+
 
     // Decode bid_type to status
     if (searchParams.get('bid_type')) {
       decodedFilters.status = searchParams.get('bid_type');
     }
 
+
     // Decode state to location array
     if (searchParams.get('state')) {
       decodedFilters.location = searchParams.get('state').split(',');
     }
+
 
     // Decode solicitation to solicitationType array
     if (searchParams.get('solicitation')) {
       decodedFilters.solicitationType = searchParams.get('solicitation').split(',');
     }
 
+
     // Decode include keywords
     if (searchParams.get('include')) {
       decodedFilters.keyword.include = searchParams.get('include').split(',');
     }
+
 
     // Decode exclude keywords
     if (searchParams.get('exclude')) {
       decodedFilters.keyword.exclude = searchParams.get('exclude').split(',');
     }
 
-    // Decode unspsc_codes to UNSPSCCode array (need to convert back to objects with code property)
+
+    // ✅ Decode naics_codes to NAICSCode array
+    if (searchParams.get('naics_codes')) {
+      const codes = searchParams.get('naics_codes').split(',');
+      decodedFilters.NAICSCode = codes.map(code => ({ code: code }));
+    }
+
+
+    // Decode unspsc_codes to UNSPSCCode array
     if (searchParams.get('unspsc_codes')) {
       const codes = searchParams.get('unspsc_codes').split(',');
       decodedFilters.UNSPSCCode = codes.map(code => ({ code: code }));
     }
 
+
+    // ✅ Decode published date parameters
+    if (searchParams.get('open_date_after') || searchParams.get('open_date_before')) {
+      decodedFilters.publishedDate.after = searchParams.get('open_date_after') || "";
+      decodedFilters.publishedDate.before = searchParams.get('open_date_before') || "";
+
+
+      const after = new Date(decodedFilters.publishedDate.after);
+      const before = new Date(decodedFilters.publishedDate.before);
+      const diffDays = (before - after) / (1000 * 60 * 60 * 24);
+
+
+      if (decodedFilters.publishedDate.after && decodedFilters.publishedDate.before) {
+        if (decodedFilters.publishedDate.after === decodedFilters.publishedDate.before) {
+          decodedFilters.publishedDate.type = "date";
+          decodedFilters.publishedDate.date = decodedFilters.publishedDate.after;
+        } else if ([7, 30, 90].includes(diffDays)) {
+          decodedFilters.publishedDate.type = "within";
+          decodedFilters.publishedDate.within = String(diffDays);
+        } else {
+          decodedFilters.publishedDate.type = "timeline";
+          decodedFilters.publishedDate.from = decodedFilters.publishedDate.after;
+          decodedFilters.publishedDate.to = decodedFilters.publishedDate.before;
+        }
+      }
+    }
+
+
+
+
+    // ✅ Decode closing date parameters
+    // ✅ Decode closing date parameters
+    if (searchParams.get('closing_date_after') || searchParams.get('closing_date_before')) {
+      decodedFilters.closingDate.after = searchParams.get('closing_date_after') || "";
+      decodedFilters.closingDate.before = searchParams.get('closing_date_before') || "";
+
+
+      const after = new Date(decodedFilters.closingDate.after);
+      const before = new Date(decodedFilters.closingDate.before);
+      const diffDays = (before - after) / (1000 * 60 * 60 * 24);
+
+
+      if (decodedFilters.closingDate.after && decodedFilters.closingDate.before) {
+        if (decodedFilters.closingDate.after === decodedFilters.closingDate.before) {
+          decodedFilters.closingDate.type = "date";
+          decodedFilters.closingDate.date = decodedFilters.closingDate.after;
+        } else if ([7, 30, 90].includes(diffDays)) {
+          decodedFilters.closingDate.type = "within";
+          decodedFilters.closingDate.within = String(diffDays); // 👈 Set within value
+        } else {
+          decodedFilters.closingDate.type = "timeline";
+          decodedFilters.closingDate.from = decodedFilters.closingDate.after;
+          decodedFilters.closingDate.to = decodedFilters.closingDate.before;
+        }
+      }
+    }
+
+
+
+
     return decodedFilters;
   };
 
-  // UseEffect to decode URL parameters on component mount
+
+  // ✅ Updated useEffect to check for date parameters too
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    
-    // Check if there are any filter parameters in the URL
-    const hasFilterParams = searchParams.get('bid_type') || 
-                           searchParams.get('state') || 
-                           searchParams.get('solicitation') || 
-                           searchParams.get('include') || 
-                           searchParams.get('exclude') || 
-                           searchParams.get('unspsc_codes');
+
+
+    // Check if there are any filter parameters in the URL (including date parameters)
+    const hasFilterParams = searchParams.get('bid_type') ||
+      searchParams.get('state') ||
+      searchParams.get('solicitation') ||
+      searchParams.get('include') ||
+      searchParams.get('exclude') ||
+      searchParams.get('naics_codes') ||
+      searchParams.get('unspsc_codes') ||
+      searchParams.get('open_date_after') ||
+      searchParams.get('open_date_before') ||
+      searchParams.get('closing_date_after') ||
+      searchParams.get('closing_date_before');
+
 
     if (hasFilterParams && !hasInitializedFromURL.current) {
       const decodedFilters = decodeUrlToFilters(searchParams);
@@ -119,21 +243,24 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
       hasInitializedFromURL.current = true;
       console.log("Decoded filters from URL:", decodedFilters);
     }
-  }, [location.search]); // Only depend on location.search
+  }, [location.search]);
+
 
   // Separate useEffect to handle propFilters updates
   useEffect(() => {
     if (propFilters && !hasInitializedFromURL.current) {
       const propFiltersString = JSON.stringify(propFilters);
       const prevPropFiltersString = JSON.stringify(prevPropFiltersRef.current);
-      
+
+
       // Only update if propFilters actually changed and we haven't initialized from URL
       if (propFiltersString !== prevPropFiltersString && Object.keys(propFilters).length > 0) {
         setFilters(propFilters);
         prevPropFiltersRef.current = propFilters;
       }
     }
-  }, [propFilters]); // Safe to depend on propFilters now with ref protection
+  }, [propFilters]);
+
 
   // Function to update filters in both local state and parent component
   const updateFilters = (newFilters) => {
@@ -143,6 +270,8 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     }
   };
 
+
+  // ✅ Updated clearAllFilters with date filters
   const clearAllFilters = () => {
     const clearedFilters = {
       status: "",
@@ -151,83 +280,72 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
         exclude: [],
       },
       location: [],
+      NAICSCode: [],
       UNSPSCCode: [],
       solicitationType: [],
+      publishedDate: {
+        type: "",
+        within: "",
+        date: "",
+        from: "",
+        to: "",
+        after: "",
+        before: ""
+      },
+      closingDate: {
+        type: "",
+        within: "",
+        date: "",
+        from: "",
+        to: "",
+        after: "",
+        before: ""
+      }
     };
+
+
     updateFilters(clearedFilters);
+    // Clean the URL so filters won't come back on refresh
+    navigate("/dashboard");
   };
 
-  // Convert filters object to query string format
-  const buildQueryString = (filters) => {
-    const params = new URLSearchParams();
-    
-    // Add default pagination
-    params.append('page', '1');
-    params.append('pageSize', '500');
-    
-    // Convert status (Active/Inactive)
-    if (filters.status) {
-      params.append('bid_type', filters.status);
-    }
-    
-    // Convert location array to comma-separated state values
-    if (filters.location && filters.location.length > 0) {
-      params.append('state', filters.location.join(','));
-    }
-    
-    // Convert solicitationType array to comma-separated solicitation values
-    if (filters.solicitationType && filters.solicitationType.length > 0) {
-      params.append('solicitation', filters.solicitationType.join(','));
-    }
-    
-    // Convert keyword include array to comma-separated include values
-    if (filters.keyword?.include && filters.keyword.include.length > 0) {
-      params.append('include', filters.keyword.include.join(','));
-    }
-    
-    // Convert keyword exclude array to comma-separated exclude values
-    if (filters.keyword?.exclude && filters.keyword.exclude.length > 0) {
-      params.append('exclude', filters.keyword.exclude.join(','));
-    }
-    
-    // Convert UNSPSCCode array to comma-separated code values
-    if (filters.UNSPSCCode && filters.UNSPSCCode.length > 0) {
-      const codes = filters.UNSPSCCode.map(item => item.code);
-      params.append('unspsc_codes', codes.join(','));
-    }
-    
-    return params.toString();
-  };
+
+  
+
 
   // Handle search functionality
   const handleSearch = async () => {
     try {
       // Build query string from filters
       const queryString = buildQueryString(filters);
-      
+
+
       console.log("Search clicked with filters:", filters);
       console.log("Generated query string:", queryString);
       console.log("Full URL would be:", `/bids/?${queryString}`);
-      
+
+
       // Make API call to fetch bids with filters
       const bidsData = await getBids(`?${queryString}`);
       console.log("API Response:", bidsData);
 
+
       navigate(`/dashboard?${queryString}`);
 
+
       dispatch(setBids(bidsData));
-      
-      // Here you can handle the response - maybe pass it to parent component
-      // or update some global state
-      
+
+
       // Close the filter panel after successful search
       onClose();
-      
+
+
     } catch (error) {
       console.error("Error fetching filtered bids:", error);
       // You might want to show an error message to the user here
     }
   };
+
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -239,10 +357,6 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
         return <UNSPSCCode filters={filters} setFilters={updateFilters} />;
       case "Keyword":
         return <KeywordTab filters={filters} setFilters={updateFilters} />;
-      // case "Include Keywords":
-      //   return <KeywordTab filters={filters} setFilters={updateFilters} mode="include" />;
-      // case "Exclude Keywords":
-      //   return <KeywordTab filters={filters} setFilters={updateFilters} mode="exclude" />;
       case "Location":
         return <LocationTab filters={filters} setFilters={updateFilters} />;
       case "Published Date":
@@ -256,6 +370,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     }
   };
 
+
   return (
     <div className="fixed top-0 left-0 w-full h-screen z-[500] flex">
       {/* Sidebar */}
@@ -268,14 +383,14 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
             </button>
           </div>
 
+
           <ul className="space-y-4">
             {tabs.map((tab) => (
               <li
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`cursor-pointer pt-2 ${
-                  activeTab === tab ? "font-bold" : ""
-                }`}
+                className={`cursor-pointer pt-2 ${activeTab === tab ? "font-bold" : ""
+                  }`}
               >
                 <div className="flex justify-between items-center font-inter text-p font-medium">
                   <span>{tab}</span>
@@ -287,13 +402,15 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
           </ul>
         </div>
 
-        <button 
+
+        <button
           onClick={clearAllFilters}
           className="text-p underline font-inter text-right"
         >
           Clear All
         </button>
       </div>
+
 
       {/* Content Area */}
       <div className="flex-1 bg-white flex flex-col justify-between w-[70%]">
@@ -319,5 +436,6 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     </div>
   );
 };
+
 
 export default FilterPanel;
