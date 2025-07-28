@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, use } from "react";
 import AlertToggle from "../components/AlertToggle";
 import HeroHeading from "../components/HeroHeading";
 import BgCover from "../components/BgCover";
@@ -8,9 +8,10 @@ import FilterPanel from "../components/FilterPanel";
 import FilterPanelSaveSearch from "../components/FilterPanelSaveSearch";
 import api from "../utils/axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getBids } from "../services/bid.service";
+import { getBids, getSavedSearches } from "../services/bid.service";
 import { useDispatch, useSelector } from "react-redux";
 import { setBids } from "../redux/reducer/bidSlice";
+import { addSavedSearch } from "../redux/reducer/savedSearchesSlice";
 
 function Dashboard() {
   const data = { title: "Dashboard" };
@@ -22,7 +23,9 @@ function Dashboard() {
 
   const dispatch = useDispatch();
   const { bidsInfo } = useSelector((state) => state.bids);
-  const [savedSearches, setSavedSearches] = useState([]);
+  // const [savedSearches, setSavedSearches] = useState([]);
+  const { savedSearches } = useSelector((state) => state.savedSearches);
+
   const [selectedSavedSearch, setSelectedSavedSearch] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -69,6 +72,21 @@ function Dashboard() {
     { id: 5, title: "Followed", num: "0/25" },
   ];
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const savedSearches = await getSavedSearches();
+        // console.log(savedSearches);
+        // console.log("🔥 Fetched saved searches:", savedSearches);
+        dispatch(addSavedSearch(savedSearches));
+      } catch (error) {
+        console.error("Error fetching saved searches:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // 🔥 IMPROVED DECODE FUNCTION - Matches FilterPanel exactly
   const decodeUrlToFilters = (searchParams) => {
     const decodedFilters = {
@@ -91,7 +109,9 @@ function Dashboard() {
     }
 
     if (searchParams.get("solicitation")) {
-      decodedFilters.solicitationType = searchParams.get("solicitation").split(",");
+      decodedFilters.solicitationType = searchParams
+        .get("solicitation")
+        .split(",");
     }
 
     if (searchParams.get("include")) {
@@ -104,12 +124,12 @@ function Dashboard() {
 
     if (searchParams.get("unspsc_codes")) {
       const codes = searchParams.get("unspsc_codes").split(",");
-      decodedFilters.UNSPSCCode = codes.map(code => ({ code }));
+      decodedFilters.UNSPSCCode = codes.map((code) => ({ code }));
     }
 
     if (searchParams.get("naics_codes")) {
       const codes = searchParams.get("naics_codes").split(",");
-      decodedFilters.NAICSCode = codes.map(code => ({ code }));
+      decodedFilters.NAICSCode = codes.map((code) => ({ code }));
     }
 
     if (searchParams.get("open_date_after")) {
@@ -117,7 +137,8 @@ function Dashboard() {
     }
 
     if (searchParams.get("open_date_before")) {
-      decodedFilters.publishedDate.before = searchParams.get("open_date_before");
+      decodedFilters.publishedDate.before =
+        searchParams.get("open_date_before");
     }
 
     if (searchParams.get("closing_date_after")) {
@@ -125,7 +146,9 @@ function Dashboard() {
     }
 
     if (searchParams.get("closing_date_before")) {
-      decodedFilters.closingDate.before = searchParams.get("closing_date_before");
+      decodedFilters.closingDate.before = searchParams.get(
+        "closing_date_before"
+      );
     }
 
     return decodedFilters;
@@ -135,17 +158,30 @@ function Dashboard() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
 
-    const hasFilterParams = searchParams.get('bid_type') ||
-      searchParams.get('state') ||
-      searchParams.get('solicitation') ||
-      searchParams.get('include') ||
-      searchParams.get('exclude') ||
-      searchParams.get('unspsc_codes') ||
-      searchParams.get('naics_codes') ||
-      searchParams.get('open_date_after') ||
-      searchParams.get('open_date_before') ||
-      searchParams.get('closing_date_after') ||
-      searchParams.get('closing_date_before');
+    const hasFilterParams =
+      searchParams.get("bid_type") ||
+      searchParams.get("state") ||
+      searchParams.get("solicitation") ||
+      searchParams.get("include") ||
+      searchParams.get("exclude") ||
+      searchParams.get("unspsc_codes") ||
+      searchParams.get("naics_codes") ||
+      searchParams.get("open_date_after") ||
+      searchParams.get("open_date_before") ||
+      searchParams.get("closing_date_after") ||
+      searchParams.get("closing_date_before");
+
+    const id = searchParams.get("id");
+    console.log(id);
+    // Fetch and set the saved search if ID is present
+    const savedSearch = savedSearches.find((search) => search.id == Number(id));
+    console.log("ss", savedSearch);
+    if (savedSearch) {
+      setSelectedSavedSearch(savedSearch);
+    } else {
+      setSelectedSavedSearch(null);
+      handleSavedSearchSelect("_default_");
+    }
 
     if (isInitialLoad) {
       // First load - check if URL has filters
@@ -169,17 +205,22 @@ function Dashboard() {
         };
         setFilters(defaultFilters);
         setAppliedFilters(defaultFilters);
-        navigate("/dashboard?page=1&pageSize=25&bid_type=Active", { replace: true });
+        navigate("/dashboard?page=1&pageSize=25&bid_type=Active", {
+          replace: true,
+        });
       }
       setIsInitialLoad(false);
     } else if (hasFilterParams) {
       // Subsequent navigation with filters - restore them
       const decodedFilters = decodeUrlToFilters(searchParams);
-      console.log("🔥 Navigation detected - restoring filters:", decodedFilters);
+      console.log(
+        "🔥 Navigation detected - restoring filters:",
+        decodedFilters
+      );
       setFilters(decodedFilters);
       setAppliedFilters(decodedFilters);
     }
-  }, [location.search, navigate, isInitialLoad]);
+  }, [location.search, navigate, isInitialLoad, savedSearches]);
 
   // Function to build query string from filters
   const buildQueryString = (filters) => {
@@ -253,11 +294,15 @@ function Dashboard() {
 
     try {
       // 🔥 FIXED: Check if any meaningful filters are applied
-      const hasActiveFilters = appliedFilters.status !== "Active" ||
+      const hasActiveFilters =
+        appliedFilters.status !== "Active" ||
         (appliedFilters.location && appliedFilters.location.length > 0) ||
-        (appliedFilters.solicitationType && appliedFilters.solicitationType.length > 0) ||
-        (appliedFilters.keyword?.include && appliedFilters.keyword.include.length > 0) ||
-        (appliedFilters.keyword?.exclude && appliedFilters.keyword.exclude.length > 0) ||
+        (appliedFilters.solicitationType &&
+          appliedFilters.solicitationType.length > 0) ||
+        (appliedFilters.keyword?.include &&
+          appliedFilters.keyword.include.length > 0) ||
+        (appliedFilters.keyword?.exclude &&
+          appliedFilters.keyword.exclude.length > 0) ||
         (appliedFilters.UNSPSCCode && appliedFilters.UNSPSCCode.length > 0) ||
         (appliedFilters.NAICSCode && appliedFilters.NAICSCode.length > 0) ||
         appliedFilters.publishedDate?.after ||
@@ -265,7 +310,9 @@ function Dashboard() {
         appliedFilters.closingDate?.after ||
         appliedFilters.closingDate?.before;
 
-      const filtersToUse = hasActiveFilters ? appliedFilters : { ...appliedFilters, status: "Active" };
+      const filtersToUse = hasActiveFilters
+        ? appliedFilters
+        : { ...appliedFilters, status: "Active" };
 
       const queryString = buildQueryString(filtersToUse);
       console.log("🔥 Fetching bids with query:", queryString);
@@ -304,10 +351,8 @@ function Dashboard() {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) return;
-      const res = await api.get("/bids/saved-filters/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSavedSearches(res.data);
+      const res = await getSavedSearches();
+      dispatch(addSavedSearch(res));
     } catch (err) {
       console.error("Failed to fetch saved searches", err);
     }
@@ -343,7 +388,7 @@ function Dashboard() {
       };
 
       console.log("🔥 Resetting to default dashboard state");
-      
+
       setFilters(defaultFilters);
       setAppliedFilters(defaultFilters);
       setSelectedSavedSearch(null);
@@ -360,11 +405,7 @@ function Dashboard() {
       const token = localStorage.getItem("access_token");
       if (!token) return;
 
-      const res = await api.get("/bids/saved-filters/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const matched = res.data.find((item) => item.id === searchId);
+      const matched = savedSearches.find((item) => item.id === searchId);
       if (!matched) return;
 
       const urlParams = new URLSearchParams(matched.query_string);
@@ -377,7 +418,7 @@ function Dashboard() {
       setCurrentPage(1);
       setTopSearchTerm(""); // Clear search input
 
-      const fullURL = `/dashboard?page=1&pageSize=25${matched.query_string}`;
+      const fullURL = `/dashboard?page=1&pageSize=25${matched.query_string}&id=${matched.id}`;
       navigate(fullURL);
     } catch (err) {
       console.error("Failed to load saved search filters", err);
@@ -394,7 +435,10 @@ function Dashboard() {
     setCurrentPage(page);
     setTimeout(() => {
       if (bidsSectionRef.current) {
-        bidsSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        bidsSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
     }, 100);
   };
@@ -415,23 +459,23 @@ function Dashboard() {
   // 🔥 REAL-TIME SEARCH FUNCTION
   const handleTopSearch = (searchTerm) => {
     const cleanedTerm = searchTerm.trim();
-    
+
     // If empty search, reset to default filters
     if (!cleanedTerm) {
       const defaultFilters = {
         ...appliedFilters,
         keyword: { include: [], exclude: [] },
       };
-      
+
       setFilters(defaultFilters);
       setAppliedFilters(defaultFilters);
       setCurrentPage(1);
-      
+
       const params = new URLSearchParams();
       params.append("page", "1");
       params.append("pageSize", perPage.toString());
       params.append("bid_type", defaultFilters.status || "Active");
-      
+
       const queryString = params.toString();
       navigate(`/dashboard?${queryString}`);
       return;
@@ -467,15 +511,24 @@ function Dashboard() {
       params.append("state", updatedFilters.location.join(","));
     }
 
-    if (updatedFilters.solicitationType && updatedFilters.solicitationType.length > 0) {
+    if (
+      updatedFilters.solicitationType &&
+      updatedFilters.solicitationType.length > 0
+    ) {
       params.append("solicitation", updatedFilters.solicitationType.join(","));
     }
 
-    if (updatedFilters.keyword?.include && updatedFilters.keyword.include.length > 0) {
+    if (
+      updatedFilters.keyword?.include &&
+      updatedFilters.keyword.include.length > 0
+    ) {
       params.append("include", updatedFilters.keyword.include.join(","));
     }
 
-    if (updatedFilters.keyword?.exclude && updatedFilters.keyword.exclude.length > 0) {
+    if (
+      updatedFilters.keyword?.exclude &&
+      updatedFilters.keyword.exclude.length > 0
+    ) {
       params.append("exclude", updatedFilters.keyword.exclude.join(","));
     }
 
@@ -507,7 +560,7 @@ function Dashboard() {
 
     const queryString = params.toString();
     console.log("🔥 Navigating to:", `/dashboard?${queryString}`);
-    
+
     navigate(`/dashboard?${queryString}`);
   };
 
@@ -581,8 +634,12 @@ function Dashboard() {
               {middle.map((item) => (
                 <BgCover key={item.id}>
                   <div className="flex gap-4">
-                    <div className="text font-inter text-[#DBDBDB]">{item.title}</div>
-                    <p className="num font-inter font-bold text-white">{item.num}</p>
+                    <div className="text font-inter text-[#DBDBDB]">
+                      {item.title}
+                    </div>
+                    <p className="num font-inter font-bold text-white">
+                      {item.num}
+                    </p>
                   </div>
                 </BgCover>
               ))}
@@ -607,18 +664,34 @@ function Dashboard() {
 
               <div className="feature-right">
                 <div className="flex gap-4">
-                  <div className="bg-btn p-4 rounded-[16px] cursor-pointer" onClick={handleExport} id="export">
+                  <div
+                    className="bg-btn p-4 rounded-[16px] cursor-pointer"
+                    onClick={handleExport}
+                    id="export"
+                  >
                     <img src="export.png" className="w-6" alt="Export" />
                   </div>
                   <div className="saved-search bg-btn p-4 px-6 rounded-[30px] border-none font-inter font-medium">
                     <select
                       className="bg-transparent text-white focus:outline-none focus:ring-0"
                       value={selectedSavedSearch?.id || "_default_"}
-                      onChange={(e) => handleSavedSearchSelect(e.target.value === "_default_" ? "_default_" : Number(e.target.value))}
+                      onChange={(e) =>
+                        handleSavedSearchSelect(
+                          e.target.value === "_default_"
+                            ? "_default_"
+                            : Number(e.target.value)
+                        )
+                      }
                     >
-                      <option value="_default_" className="text-black">My Saved Searches</option>
+                      <option value="_default_" className="text-black">
+                        My Saved Searches
+                      </option>
                       {savedSearches.map((search, index) => (
-                        <option key={search.id || index} className="text-black" value={search.id}>
+                        <option
+                          key={search.id || index}
+                          className="text-black"
+                          value={search.id}
+                        >
                           {search.name}
                         </option>
                       ))}

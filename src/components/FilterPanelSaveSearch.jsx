@@ -32,12 +32,20 @@ const tabs = [
   "Solicitation Type",
 ];
 
-const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) => {
+const FilterPanelSaveSearch = ({
+  onClose,
+  selectedSearch,
+  setSelectedSearch,
+}) => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
   // ✅ ADD: States for SavedSearchForm to manage in parent
-  const [searchOption, setSearchOption] = useState(selectedSearch ? "replace" : "create");
-  const [selectedSavedSearch, setSelectedSavedSearch] = useState(selectedSearch?.id || "");
+  const [searchOption, setSearchOption] = useState(
+    selectedSearch ? "replace" : "create"
+  );
+  const [selectedSavedSearch, setSelectedSavedSearch] = useState(
+    selectedSearch?.id || ""
+  );
   const [defaultSearch, setDefaultSearch] = useState(false);
   const [searchName, setSearchName] = useState(""); // <-- NEW
 
@@ -89,7 +97,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
     if (selectedSearch) {
       setSearchOption("replace");
       setSelectedSavedSearch(selectedSearch.id);
-      setSavedSearch(prev => ({
+      setSavedSearch((prev) => ({
         ...prev,
         name: selectedSearch.name,
         id: selectedSearch.id,
@@ -97,7 +105,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
     } else {
       setSearchOption("create");
       setSelectedSavedSearch("");
-      setSavedSearch(prev => ({
+      setSavedSearch((prev) => ({
         ...prev,
         name: "",
         id: null,
@@ -130,13 +138,13 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
     }
 
     // ✅ NEW: Check if any filters are applied
-    const hasFilters = Object.values(filters).some(filter => {
-      if (typeof filter === 'string') return filter.trim() !== '';
+    const hasFilters = Object.values(filters).some((filter) => {
+      if (typeof filter === "string") return filter.trim() !== "";
       if (Array.isArray(filter)) return filter.length > 0;
-      if (typeof filter === 'object' && filter !== null) {
-        return Object.values(filter).some(val => {
+      if (typeof filter === "object" && filter !== null) {
+        return Object.values(filter).some((val) => {
           if (Array.isArray(val)) return val.length > 0;
-          if (val && typeof val === 'string') return val.trim() !== '';
+          if (val && typeof val === "string") return val.trim() !== "";
           return !!val;
         });
       }
@@ -179,7 +187,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
         newSearch = {
           id: selectedSavedSearch,
           name: savedSearch.name.trim(),
-          query_string: savedSearchData.query_string
+          query_string: savedSearchData.query_string,
         };
       } else {
         newSearch = await createSavedSearch(savedSearchData);
@@ -189,8 +197,9 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
       dispatch(addSavedSearch(updatedSearches));
 
       // ✅ FIXED: Better fallback logic
-      const newlyCreatedSearch = newSearch ||
-        updatedSearches.find(s =>
+      const newlyCreatedSearch =
+        newSearch ||
+        updatedSearches.find((s) =>
           searchOption === "replace"
             ? s.id === selectedSavedSearch
             : s.name.toLowerCase() === savedSearch.name.trim().toLowerCase()
@@ -206,15 +215,16 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
         setFilters(parsedFilters);
 
         // ✅ Update the URL - ensure query_string has proper format
-        const queryString = newlyCreatedSearch.query_string.startsWith('?')
+        const queryString = newlyCreatedSearch.query_string.startsWith("?")
           ? newlyCreatedSearch.query_string
           : `?${newlyCreatedSearch.query_string}`;
-        navigate(`/dashboard${queryString}`);
+
+        navigate(`/dashboard${queryString}&id=${newlyCreatedSearch.id}`);
       } else {
         // ✅ IMPROVED: Fallback with current filters
         console.warn("Could not find updated search, using current filters");
         const queryString = buildQueryString(filters);
-        navigate(`/dashboard?${queryString}`);
+        navigate(`/dashboard?${queryString}&id=${newlyCreatedSearch.id}`);
       }
 
       onClose();
@@ -225,7 +235,9 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
       } else if (error.response?.data?.message) {
         setErrors({ name: error.response.data.message });
       } else {
-        setErrors({ name: "An error occurred while saving the search. Please try again." });
+        setErrors({
+          name: "An error occurred while saving the search. Please try again.",
+        });
       }
       console.error("Save failed:", error);
     } finally {
@@ -256,7 +268,9 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
 
     // ✅ NEW: Validate replace option selection
     if (searchOption === "replace" && !selectedSavedSearch) {
-      setErrors({ name: "Please select a saved search to replace before applying filters." });
+      setErrors({
+        name: "Please select a saved search to replace before applying filters.",
+      });
       setShowValidation(true);
       return;
     }
@@ -334,8 +348,9 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
               <li
                 key={tab}
                 onClick={() => handleTabClick(tab)}
-                className={`cursor-pointer pt-2 ${activeTab === tab ? "font-bold" : ""
-                  }`}
+                className={`cursor-pointer pt-2 ${
+                  activeTab === tab ? "font-bold" : ""
+                }`}
               >
                 <div className="flex justify-between items-center font-inter text-p font-medium">
                   <span>{tab}</span>
@@ -368,8 +383,9 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch }) =
             </button>
             <button
               type="submit"
-              className={`bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl transition-all hover:bg-blue-700 ${errors.name ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+              className={`bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl transition-all hover:bg-blue-700 ${
+                errors.name ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               onClick={handleSaveSearch}
               disabled={!!errors.name}
             >

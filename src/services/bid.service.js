@@ -2,7 +2,6 @@ import API from "../utils/axios.js";
 
 // utils/bids.js ya jahan bhi rakha ho
 
-
 export const getBids = async (queryOrId) => {
   try {
     const token = localStorage.getItem("access_token");
@@ -24,25 +23,9 @@ export const getBids = async (queryOrId) => {
   }
 };
 
-
 export const getSavedSearches = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) return null;
-
-  try {
-    const res = await API.get("/bids/saved-filters/", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching saved searches:", err);
-    throw err;
-  }
-};
-
-export const getSelectedSavedSearches = async () => {
-  const token = localStorage.getItem("access_token");
-  if (!token) return [];
 
   try {
     const res = await API.get("/bids/saved-filters/", {
@@ -87,7 +70,7 @@ export const updateSavedSearch = async (id, body) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Saved search updated: ----->", res.data);  
+    console.log("Saved search updated: ----->", res.data);
     return res.data;
   } catch (err) {
     console.error("Error updating saved search:", err);
@@ -116,8 +99,6 @@ export const getUNSPSCCodes = async ({
     throw err;
   }
 };
-
-
 
 export const getAllStates = async () => {
   try {
