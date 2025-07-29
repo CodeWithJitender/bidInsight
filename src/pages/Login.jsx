@@ -10,7 +10,7 @@ import ProcessWrapper from "../components/ProcessWrapper";
 import FormImg from "../components/FormImg";
 import api from "../utils/axios";
 import { useDispatch } from "react-redux";
-import { setLoginData } from "../redux/loginSlice";
+import { setLoginData } from "../redux/reducer/loginSlice";
 
 
 function Login() {

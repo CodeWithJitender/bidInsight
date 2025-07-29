@@ -4,11 +4,11 @@ function Mission({pera, mHeading, mPera }) {
   return (
     <div className="mission">
       <div className="mission-top overflow-hidden">
-        <div className="mission-cover w-[210%] bg-[#D5DAFF] text-topH font-archivo font-bold text-center text-primary  flex py-10 px-3">
+        <div className="mission-cover w-[210%] bg-[#D5DAFF] text-topH font-archivo font-bold text-center text-primary  flex py-10 px-3" data-aos="fade-up" data-aos-delay="300">
          {pera}
         </div>
       </div>
-      <div className="mission-bottom h-screen w-full bg-[#F0F1F8] flex items-center justify-center">
+      <div className="mission-bottom h-screen w-full bg-[#F0F1F8] flex items-center justify-center" data-aos="fade-up" data-aos-delay="400">
         <div className="mission-content">
           <p className="font-inter text-p lg:text-[26px] max-w-3xl text-center">{mPera}</p>
           <img src="./arrow-down.png" className="w-10 mx-auto my-10" alt="" />

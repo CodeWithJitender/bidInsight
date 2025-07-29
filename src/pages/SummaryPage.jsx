@@ -5,8 +5,7 @@ import SummaryContent from "../sections/summary/SummaryContent";
 import BidTracking from "../sections/summary/BidTracking";
 import AiFeature from "../sections/summary/AiFeature";
 import SimilarBids from "../sections/summary/SimilarBids";
-import api from "../utils/axios";
-// import "../custom.css"; // Ensure this is imported for custom styles
+import { getBids } from "../services/bid.service.js";
 
 function SummaryPage() {
   const { id } = useParams();
@@ -19,16 +18,14 @@ function SummaryPage() {
     state: { name: "Unknown Location" },
     open_date: "-",
     closing_date: "-",
+    source: "#",
   };
 
   useEffect(() => {
     const fetchBid = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-        const res = await api.get(`/bids/${id}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setBid(res.data);
+        const data = await getBids(id);
+        setBid(data);
       } catch (err) {
         console.error("❌ Failed to fetch bid", err);
         setBid(null);
@@ -52,37 +49,37 @@ function SummaryPage() {
           {/* Header Card */}
           <div className="rounded-2xl bg-white/5 backdrop-blur-md shadow-xl">
             <BidHeader
-              title={bidData.bid_name || "No Title"}
-              org={bidData.jurisdiction || "Unknown Organization"}
-              location={bidData.state?.name || "Unknown Location"}
+              title={bidData.bid_name || fallback.bid_name}
+              org={bidData.jurisdiction || fallback.jurisdiction}
+              location={bidData.state?.name || fallback.state.name}
               postedDate={
                 bidData.open_date
                   ? new Date(bidData.open_date).toLocaleDateString()
-                  : "-"
+                  : fallback.open_date
               }
-              deadline={bidData.closing_date}
-              sourceLink={bidData.source}
+              deadline={bidData.closing_date || fallback.closing_date}
+              sourceLink={bidData.source || fallback.source}
             />
           </div>
 
           {/* Summary Section */}
           <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-xl">
-            <SummaryContent bid={bidData} />
+            <SummaryContent bidData={bidData} />
           </div>
 
           {/* Bid Tracking + AI Features + Similar Bids */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="col-span-2 space-y-4">
               <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-xl">
-                <BidTracking bid={bidData} />
+                <BidTracking bidData={bidData} />
               </div>
               <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-xl">
-                <SimilarBids bid={bidData} />
+                <SimilarBids bidData={bidData} />
               </div>
             </div>
 
             <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-xl">
-              <AiFeature bid={bidData} />
+              <AiFeature bidData={bidData} />
             </div>
           </div>
         </div>

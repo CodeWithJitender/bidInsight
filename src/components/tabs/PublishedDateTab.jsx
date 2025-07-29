@@ -1,136 +1,172 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { format } from "date-fns";
 
-const PublishedDateTab = ({
-  filters = {},
-  setFilters = () => { },
-  onApply = () => { },
-  searchOption = "create",
-  setShowValidation = () => { },
-  setActiveTab = () => { },
-  setTriggerSave = () => { },
-}) => {
-  const { from = "", to = "" } = filters.publishedDate || {};
-  const today = new Date().toISOString().slice(0, 10);
-  const [manualSelected, setManualSelected] = useState("");
+const PublishedDateTab = ({ filters = {}, setFilters }) => {
+  const { publishedDate = {} } = filters;
+  const { type = "", within = "7", from = "", to = "" } = publishedDate;
 
+  const lastLogin = useSelector((state) => state.login?.user?.last_login);
+  const formattedLastLogin = lastLogin
+    ? new Date(lastLogin).toLocaleDateString("en-US", {
+        dateStyle: "medium",
+      })
+    : "Not Available";
 
-  const loginDateRawRedux = useSelector((state) => state.login?.user?.last_login);
+  const [selectedType, setSelectedType] = useState(type || "");
+  const [withinDays, setWithinDays] = useState(within || "7");
+  const [fromDate, setFromDate] = useState(from || "");
+  const [toDate, setToDate] = useState(to || "");
 
-// Check localStorage if Redux doesn't have login info
-let loginDateRaw = loginDateRawRedux;
+  // Sync local state with incoming filters
+  useEffect(() => {
+  // Smart fallback logic from 'after' and 'before' if type is missing
+  let inferredType = publishedDate.type || "";
+  let inferredWithin = publishedDate.within || "7";
+  let inferredFrom = publishedDate.from || "";
+  let inferredTo = publishedDate.to || "";
 
-if (!loginDateRaw) {
-  try {
-    const authTokens = JSON.parse(localStorage.getItem("auth_tokens"));
-    loginDateRaw = authTokens?.user?.last_login || null;
-  } catch (error) {
-    console.error("Error reading auth_tokens from localStorage:", error);
-  }
-}
+  if (!inferredType && publishedDate.after && publishedDate.before) {
+    const after = publishedDate.after;
+    const before = publishedDate.before;
 
-const loginDate = loginDateRaw
-  ? format(new Date(loginDateRaw), "dd MMM yyyy")
-  : "Not Available";
+    // Try to infer "within"
+    const diffInMs = new Date(before) - new Date(after);
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 
-
-   useEffect(() => {
-  const isValidDate = (dateStr) => !isNaN(new Date(dateStr));
-
-  if (!isValidDate(from) || !isValidDate(to)) {
-    setManualSelected("timeline");
-    return;
-  }
-
-  if (from === to) {
-    setManualSelected("date");
-    return;
+    if (diffInDays === 7 || diffInDays === 30 || diffInDays === 90) {
+      inferredType = "within";
+      inferredWithin = diffInDays.toString();
+    } else {
+      inferredType = "timeline";
+      inferredFrom = after;
+      inferredTo = before;
+    }
   }
 
-  const diff = Math.floor(
-    (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)
-  );
-
-  const toDate = new Date(to).toISOString().slice(0, 10);
-
-  if (toDate === today && [7, 30, 90].includes(diff)) {
-    setManualSelected("within");
-  } else {
-    setManualSelected("timeline");
-  }
-   }, [from, to]);
+  setSelectedType(inferredType);
+  setWithinDays(inferredWithin);
+  setFromDate(inferredFrom);
+  setToDate(inferredTo);
+}, [publishedDate]);
 
 
+  const calculateDateRange = (days) => {
+    const today = new Date();
+    const pastDate = new Date();
+    pastDate.setDate(today.getDate() - parseInt(days));
+    return {
+      after: pastDate.toISOString().split("T")[0],
+      before: today.toISOString().split("T")[0],
+    };
+  };
 
-  const handleRadioChange = (value) => {
-    setManualSelected(value);
-    if (value === "date") {
-      setFilters((prev) => ({
-        ...prev, 
-        publishedDate: { from: today, to: today },
-      }));
-    } else if (value === "within") {
-      const past = new Date();
-      past.setDate(past.getDate() - 7);
-      setFilters((prev) => ({
-        ...prev,
-        publishedDate: {
-          from: past.toISOString().slice(0, 10),
-          to: today,
-        },
-      }));
-    } else if (value === "timeline") {
-      setFilters((prev) => ({
-        ...prev,
-        publishedDate: { from: "", to: "" },
-      }));
+  const updateFilters = (
+    type,
+    days = withinDays,
+    fromDateVal = fromDate,
+    toDateVal = toDate
+  ) => {
+    const updated = { ...filters };
+
+    if (type === "within") {
+      const { after, before } = calculateDateRange(days);
+      updated.publishedDate = {
+        type,
+        within: days,
+        from: "",
+        to: "",
+        after,
+        before,
+      };
+    } else if (type === "timeline") {
+      updated.publishedDate = {
+        type,
+        within: "",
+        from: fromDateVal,
+        to: toDateVal,
+        after: fromDateVal,
+        before: toDateVal,
+      };
+    } else if (type === "lastLogin") {
+      const loginDate = lastLogin
+        ? lastLogin.split("T")[0]
+        : "";
+      updated.publishedDate = {
+        type,
+        within: "",
+        from: "",
+        to: "",
+        after: loginDate,
+        before: loginDate,
+      };
+    } else {
+      updated.publishedDate = {
+        type: "",
+        within: "7",
+        from: "",
+        to: "",
+        after: "",
+        before: "",
+      };
+    }
+
+    setFilters(updated);
+  };
+
+  const handleTypeChange = (type) => {
+    setSelectedType(type);
+    if (type === "within") {
+      updateFilters(type, withinDays);
+    } else if (type === "timeline") {
+      updateFilters(type, withinDays, fromDate, toDate);
+    } else {
+      updateFilters(type);
     }
   };
 
-  const handleCancel = () => {
-    setFilters((prev) => ({
-      ...prev,
-      publishedDate: { from: "", to: "" },
-    }));
-    setManualSelected("");
-    onApply?.();
-  };
-
-  const handleApply = () => {
-    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
-    if (isEmpty) {
-      setShowValidation(true);
-      setActiveTab("Save Search Form");
-      return;
+  const handleWithinChange = (days) => {
+    setWithinDays(days);
+    if (selectedType === "within") {
+      updateFilters("within", days);
     }
-
-    setTriggerSave(true); // Auto-submit SaveSearchForm
-    onApply?.();
   };
 
-  const todayFormatted = new Date().toLocaleDateString("en-US");
+  const handleFromDateChange = (date) => {
+    setFromDate(date);
+    if (selectedType === "timeline") {
+      updateFilters("timeline", withinDays, date, toDate);
+    }
+  };
+
+  const handleToDateChange = (date) => {
+    setToDate(date);
+    if (selectedType === "timeline") {
+      updateFilters("timeline", withinDays, fromDate, date);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div className="flex flex-col gap-6">
-        {/* Date */}
+
+        {/* Last Login */}
         <div>
           <label className="font-semibold block font-inter text-p mb-2">
             Last Login
           </label>
-          <div className="flex items-center space-x-2">
+          <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="radio"
               name="publishedDateFilter"
-              value="date"
-              checked={manualSelected === "date"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              value="lastLogin"
+              checked={selectedType === "lastLogin"}
+              onChange={() => handleTypeChange("lastLogin")}
               className="accent-purple-600"
             />
-            <span className="font-inter text-xl">{loginDate}</span>
-          </div>
+            <span className="font-inter text-xl">{formattedLastLogin}</span>
+          </label>
         </div>
+
 
         {/* Within */}
         <div>
@@ -142,39 +178,23 @@ const loginDate = loginDateRaw
               type="radio"
               name="publishedDateFilter"
               value="within"
-              checked={manualSelected === "within"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              checked={selectedType === "within"}
+              onChange={() => handleTypeChange("within")}
               className="accent-purple-600"
             />
             <select
-              disabled={manualSelected !== "within"}
-              className="border border-gray-300 rounded-md font-inter text-xl px-2 py-1 w-[200px]"
-              value={
-                manualSelected === "within" && from && to && !isNaN(new Date(from)) && !isNaN(new Date(to))
-                  ? Math.floor((new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24))
-                  : ""
-              }
-
-              onChange={(e) => {
-                const days = parseInt(e.target.value);
-                const past = new Date();
-                past.setDate(past.getDate() - days);
-                setFilters((prev) => ({
-                  ...prev,
-                  publishedDate: {
-                    from: past.toISOString().slice(0, 10),
-                    to: today,
-                  },
-                }));
-              }}
+              disabled={selectedType !== "within"}
+              className="border border-gray-300 rounded-md font-inter text-xl px-2 py-1 w-[200px] disabled:bg-gray-100"
+              value={withinDays}
+              onChange={(e) => handleWithinChange(e.target.value)}
             >
-              {/* <option value="">-Select-</option> */}
               <option value="7">Last 7 Days</option>
               <option value="30">Last 30 Days</option>
               <option value="90">Last 90 Days</option>
             </select>
           </div>
         </div>
+
 
         {/* Timeline */}
         <div>
@@ -186,8 +206,8 @@ const loginDate = loginDateRaw
               type="radio"
               name="publishedDateFilter"
               value="timeline"
-              checked={manualSelected === "timeline"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              checked={selectedType === "timeline"}
+              onChange={() => handleTypeChange("timeline")}
               className="accent-purple-600"
             />
             <div>
@@ -196,18 +216,10 @@ const loginDate = loginDateRaw
               </div>
               <input
                 type="date"
-                disabled={manualSelected !== "timeline"}
-                className="border font-inter text-xl border-gray-300 rounded-md px-2 py-1 w-[200px]"
-                value={manualSelected === "timeline" ? from : ""}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    publishedDate: {
-                      from: e.target.value,
-                      to: to || "",
-                    },
-                  }))
-                }
+                disabled={selectedType !== "timeline"}
+                className="border font-inter text-xl border-gray-300 rounded-md px-2 py-1 w-[200px] disabled:bg-gray-100"
+                value={fromDate}
+                onChange={(e) => handleFromDateChange(e.target.value)}
               />
             </div>
           </div>
@@ -215,40 +227,17 @@ const loginDate = loginDateRaw
             <div className="font-inter text-xl text-gray-800 mb-2">Ending</div>
             <input
               type="date"
-              disabled={manualSelected !== "timeline"}
-              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px]"
-              value={manualSelected === "timeline" ? to : ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  publishedDate: {
-                    from: from || "",
-                    to: e.target.value,
-                  },
-                }))
-              }
+              disabled={selectedType !== "timeline"}
+              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px] disabled:bg-gray-100"
+              value={toDate}
+              onChange={(e) => handleToDateChange(e.target.value)}
             />
           </div>
         </div>
       </div>
-
-      {/* Buttons */}
-      <div className="flex gap-4 mt-10">
-        <button
-          onClick={handleCancel}
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleApply}
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-        >
-          Search
-        </button>
-      </div>
     </div>
   );
 };
+
 
 export default PublishedDateTab;

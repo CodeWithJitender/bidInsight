@@ -19,7 +19,7 @@ const LayoutWrapper = ({ children }) => {
     // "/dashboard",
     "/plan",
     "/loader",
-    // "/summary",
+    "/super-admin",
     // "/pricing"
   ];
 

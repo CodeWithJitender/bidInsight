@@ -1,72 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import TagInput from './TagInput';
 
-function KeywordTab({
-  filters,
-  setFilters,
-  onApply,
-  setActiveTab,
-  searchOption,
-  setShowValidation,
-  setTriggerSave,
-}) {
-  const [showExampleInclude, setShowExampleInclude] = useState(true);
-  const [showExampleExclude, setShowExampleExclude] = useState(true);
+function KeywordTab({filters = {}, setFilters = () => {}}) {
 
-  const defaultIncludeExample = ['example include'];
-  const defaultExcludeExample = ['example exclude'];
+  const [includeKeywords, setIncludeKeywords] = useState([]);
+  const [excludeKeywords, setExcludeKeywords] = useState([]);
 
-  const includeTags = showExampleInclude && (!filters.includeKeywords || filters.includeKeywords.length === 0)
-    ? defaultIncludeExample
-    : filters.includeKeywords;
+  // Reference/example tags for user guidance
+  // const includeReferenceTags = ["government contracts", "software development"];
+  // const excludeReferenceTags = ["international", "classified"];
 
-  const excludeTags = showExampleExclude && (!filters.excludeKeywords || filters.excludeKeywords.length === 0)
-    ? defaultExcludeExample
-    : filters.excludeKeywords;
-
-  const handleIncludeChange = (tags) => {
-    const realTags = tags.includes(defaultIncludeExample[0]) ? tags.filter(tag => tag !== defaultIncludeExample[0]) : tags;
-
-    if (showExampleInclude) setShowExampleInclude(false); // turn off example
-
-    setFilters((prev) => ({
-      ...prev,
-      includeKeywords: realTags,
+  const handleIncludeChange = useCallback((tags) => {
+    setIncludeKeywords(tags);
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      keyword: {
+        ...prevFilters.keyword,
+        include: tags
+      }
     }));
-  };
+  }, [setFilters]);
 
-  const handleExcludeChange = (tags) => {
-    const realTags = tags.includes(defaultExcludeExample[0]) ? tags.filter(tag => tag !== defaultExcludeExample[0]) : tags;
-
-    if (showExampleExclude) setShowExampleExclude(false); // turn off example
-
-    setFilters((prev) => ({
-      ...prev,
-      excludeKeywords: realTags,
+  const handleExcludeChange = useCallback((tags) => {
+    setExcludeKeywords(tags);
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      keyword: {
+        ...prevFilters.keyword,
+        exclude: tags
+      }
     }));
-  };
+  }, [setFilters]);
 
-  const handleSearchClick = () => {
-    const isCreateMode = searchOption === 'create';
-    const isEmpty = isCreateMode && !filters.searchName?.trim();
-
-    if (isEmpty) {
-      setShowValidation?.(true);
-      setActiveTab?.('Save Search Form');
-      return;
+  useEffect(() => {
+    if (filters.keyword?.include && JSON.stringify(filters.keyword.include) !== JSON.stringify(includeKeywords)) {
+      setIncludeKeywords(filters.keyword.include);
     }
-
-    if (isCreateMode) {
-      setTriggerSave?.(true);
-    } else {
-      onApply?.();
+    if (filters.keyword?.exclude && JSON.stringify(filters.keyword.exclude) !== JSON.stringify(excludeKeywords)) {
+      setExcludeKeywords(filters.keyword.exclude);
     }
-  };
-
-  const handleCancel = () => {
-    setShowValidation?.(false);
-    setActiveTab?.('Save Search Form');
-  };
+  }, [filters.keyword?.include, filters.keyword?.exclude]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
@@ -76,7 +49,8 @@ function KeywordTab({
           <h3 className="font-semibold block font-inter text-p mb-4">Include</h3>
           <TagInput
             placeholder="Add Keywords"
-            defaultTags={includeTags}
+            defaultTags={includeKeywords}
+            // exampleTags={includeReferenceTags}
             onTagsChange={handleIncludeChange}
           />
         </div>
@@ -86,27 +60,14 @@ function KeywordTab({
           <h3 className="font-semibold block font-inter text-p mb-4">Exclude</h3>
           <TagInput
             placeholder="Add Keywords"
-            defaultTags={excludeTags}
+            defaultTags={excludeKeywords}
+            // exampleTags={excludeReferenceTags}
             onTagsChange={handleExcludeChange}
           />
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="flex gap-4">
-        <button
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-          onClick={handleCancel}
-        >
-          Cancel
-        </button>
-        <button
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-          onClick={handleSearchClick}
-        >
-          Search
-        </button>
-      </div>
+    
     </div>
   );
 }

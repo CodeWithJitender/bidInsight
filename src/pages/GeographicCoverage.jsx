@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import {
   saveGeographicCoverage,
   saveIndustryCategory,
-} from "../redux/onboardingSlice";
+} from "../redux/reducer/onboardingSlice";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
 import FormFooter from "../components/FormFooter";

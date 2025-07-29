@@ -12,18 +12,29 @@ const instance = axios.create({
   },
 });
 
-
 instance.interceptors.request.use(
   (config) => {
-    
-    const publicEndpoints = ["/auth/signup/", "/auth/login/", "/auth/verify-otp/", "/auth/resend-otp/"];
-    const isPublic = publicEndpoints.some((endpoint) => config.url && config.url.includes(endpoint));
-    if (!isPublic) {
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        config.headers["Authorization"] = `Bearer ${token}`;
-      }
+    const publicEndpoints = [
+      "/auth/signup/",
+      "/auth/login/",
+      "/auth/verify-otp/",
+      "/auth/resend-otp/",
+      "/auth/states/",
+    ];
+
+    const isPublic = publicEndpoints.some(
+      (endpoint) => config.url && config.url.includes(endpoint)
+    );
+
+    const token = localStorage.getItem("access_token");
+
+    if (!isPublic && token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    } else {
+      // Ensure token is not sent for public routes
+      delete config.headers["Authorization"];
     }
+
     return config;
   },
   (error) => Promise.reject(error)

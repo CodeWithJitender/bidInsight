@@ -10,7 +10,7 @@ import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
 import SubmissionModal from "../components/SubmissionModal";
 import api from "../utils/axios";
-import { setSkippedInsurance } from "../redux/onboardingSlice";
+import { setSkippedInsurance } from "../redux/reducer/onboardingSlice";
 
 function ExtraData() {
   const navigate = useNavigate();

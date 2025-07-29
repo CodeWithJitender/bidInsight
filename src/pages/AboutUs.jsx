@@ -12,7 +12,7 @@ function AboutUs() {
   // rendering various sections that describe the company's mission, vision, story, values, and brand
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <Hero />
       <Mission
         pera="Our Mission Our Mission Our Mission Our Mission Our Mission Our

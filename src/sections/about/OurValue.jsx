@@ -25,13 +25,13 @@ const OurValue = () => {
   return (
     <div className="container-fixed">
     <div className="container-section">
-        <h2 className="text-h2 font-bold text-blue-700 mb-10">
+        <h2 className="text-h2 font-bold text-blue-700 mb-10" data-aos="fade-up" data-aos-delay="300">
         Our Values
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {values.map((value) => (
-          <div key={value.id}>
+        {values.map((value, index) => (
+          <div key={value.id} data-aos="fade-left" data-aos-delay={300 + index * 100}>
             <div className=" mb-2 font-archivo font-medium text-h3">{value.id}</div>
             <hr className="border-black mb-4" />
             <h3 className="font-archivo font-semibold text-h3 mb-4">{value.title}</h3>

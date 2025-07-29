@@ -11,7 +11,7 @@ import FormSelect from "../components/FormSelect";
 import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
 import api from "../utils/axios"; // <-- Import your custom axios instance
-
+import { getAllStates } from "../services/bid.service"; 
 
 function CompanyBuild() {
   
@@ -60,25 +60,21 @@ function CompanyBuild() {
   const [stateOptions, setStateOptions] = useState([]);
 
   // Fetch states from API on mount
-  useEffect(() => {
-    async function fetchStates() {
-      try {
-        const res = await api.get("/auth/states/");
-        // Assuming API returns: [{ id: 1, name: "California" }, ...]
-        if (Array.isArray(res.data)) {
-          setStateOptions(
-            res.data.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }))
-          );
-        }
-      } catch (err) {
-        setStateOptions([{ value: "", label: "Error loading states" }]);
+ useEffect(() => {
+  const loadStates = async () => {
+    try {
+      const states = await getAllStates();
+      console.log(states);
+      if (Array.isArray(states)) {
+        setStateOptions(states.map(({ id, name }) => ({ value: id, label: name })));
       }
+    } catch {
+      setStateOptions([{ value: "", label: "Error loading states" }]);
     }
-    fetchStates();
-  }, []);
+  };
+  loadStates();
+}, []);
+
 
   // Validation rules
   const validateField = (name, value) => {

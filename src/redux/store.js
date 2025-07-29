@@ -1,7 +1,9 @@
 // src/store/store.js
 import { configureStore } from "@reduxjs/toolkit";
-import onboardingReducer from "./onboardingSlice";
-import loginReducer from "./loginSlice";
+import onboardingReducer from "./reducer/onboardingSlice";
+import loginReducer from "./reducer/loginSlice";
+import savedSearchesReducer from "./reducer/savedSearchesSlice";
+import bidReducer from "./reducer/bidSlice";
 
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // uses localStorage
@@ -11,6 +13,8 @@ import { combineReducers } from "redux";
 const rootReducer = combineReducers({
   onboarding: onboardingReducer,
   login: loginReducer,
+  savedSearches: savedSearchesReducer,
+  bids: bidReducer,
 });
 
 // config for redux persist

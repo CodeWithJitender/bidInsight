@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ClosingDateTab = ({
   filters = {},
@@ -9,147 +9,246 @@ const ClosingDateTab = ({
   setActiveTab = () => {},
   setTriggerSave = () => {},
 }) => {
+  const { closingDate = {} } = filters;
+  const { type = "", within = "", date = "", from = "", to = "" } = closingDate;
+
+  // Local state for component
+  const [selectedType, setSelectedType] = useState(type || "");
+  const [withinDays, setWithinDays] = useState(within || "");
+  const [singleDate, setSingleDate] = useState(date || "");
+  const [fromDate, setFromDate] = useState(from || "");
+  const [toDate, setToDate] = useState(to || "");
+
   const today = new Date().toISOString().slice(0, 10);
-  const { from = "", to = "" } = filters.closingDate || {};
 
-  const [manualSelected, setManualSelected] = useState("");
+  // Function to calculate date ranges for "within" option
+  const calculateDateRange = (days) => {
+    const today = new Date();
+    const pastDate = new Date();
+    pastDate.setDate(today.getDate() - parseInt(days)); // Changed to minus for "last" days
+    
+    return {
+      after: pastDate.toISOString().split('T')[0], // YYYY-MM-DD format
+      before: today.toISOString().split('T')[0]
+    };
+  };
 
-  // Sync selection when filters.closingDate changes externally
-  useEffect(() => {
-    if (!from || !to) {
-      setManualSelected("timeline");
-    } else if (from === to) {
-      setManualSelected("date");
+  // Update filters when selections change - Fixed version
+  const updateFilters = (type, days = "", singleDateValue = "", fromDateValue = "", toDateValue = "") => {
+    let updatedFilters = { ...filters };
+    
+    if (type === "date") {
+      // Single date selection - set both after and before to same date
+      updatedFilters.closingDate = {
+        type: "date",
+        date: singleDateValue,
+        within: "",
+        from: "",
+        to: "",
+        // ✅ API parameters
+        after: singleDateValue,
+        before: singleDateValue
+      };
+    } else if (type === "within") {
+      const dateRange = calculateDateRange(days);
+      updatedFilters.closingDate = {
+        type: "within",
+        within: days,
+        date: "",
+        from: "",
+        to: "",
+        // ✅ API parameters
+        after: dateRange.after,
+        before: dateRange.before
+      };
+    } else if (type === "timeline") {
+      updatedFilters.closingDate = {
+        type: "timeline",
+        within: "",
+        date: "",
+        from: fromDateValue,
+        to: toDateValue,
+        // ✅ API parameters
+        after: fromDateValue,
+        before: toDateValue
+      };
     } else {
-      const diff = Math.floor(
-        (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)
-      );
-      if (to === today && [7, 30, 90].includes(diff)) {
-        setManualSelected("within");
-      } else {
-        setManualSelected("timeline");
+      // Clear filters
+      updatedFilters.closingDate = {
+        type: "",
+        within: "",
+        date: "",
+        from: "",
+        to: "",
+        after: "",
+        before: ""
+      };
+    }
+
+    if (setFilters) {
+      setFilters(updatedFilters);
+    }
+  };
+
+  // Handle radio button change - Fixed version
+  const handleTypeChange = (type) => {
+    setSelectedType(type);
+    
+    // Clear other fields when switching type
+    if (type === "date") {
+      setWithinDays("");
+      setFromDate("");
+      setToDate("");
+      updateFilters(type, "", singleDate, "", "");
+    } else if (type === "within") {
+      setSingleDate("");
+      setFromDate("");
+      setToDate("");
+      // Don't call updateFilters here, wait for dropdown selection
+    } else if (type === "timeline") {
+      setSingleDate("");
+      setWithinDays("");
+      updateFilters(type, "", "", fromDate, toDate);
+    } else {
+      // Clear all local state when clearing
+      setWithinDays("");
+      setSingleDate("");
+      setFromDate("");
+      setToDate("");
+      updateFilters(type, "", "", "", "");
+    }
+  };
+
+  // Handle single date change
+  const handleSingleDateChange = (date) => {
+    setSingleDate(date);
+    if (selectedType === "date") {
+      updateFilters("date", "", date, "", "");
+    }
+  };
+
+  // Handle within days change
+  const handleWithinChange = (days) => {
+    setWithinDays(days);
+    if (selectedType === "within" && days) {
+      // Ensure selectedType stays as "within"
+      const updatedFilters = { ...filters };
+      const dateRange = calculateDateRange(days);
+      updatedFilters.closingDate = {
+        type: "within",
+        within: days,
+        date: "",
+        from: "",
+        to: "",
+        // ✅ API parameters
+        after: dateRange.after,
+        before: dateRange.before
+      };
+      
+      if (setFilters) {
+        setFilters(updatedFilters);
       }
     }
-  }, [from, to]);
+  };
 
-  const handleRadioChange = (type) => {
-    setManualSelected(type);
-    if (type === "date") {
-      setFilters((prev) => ({
-        ...prev,
-        closingDate: { from: today, to: today },
-      }));
-    } else if (type === "within") {
-      const past = new Date();
-      past.setDate(past.getDate() - 7);
-      setFilters((prev) => ({
-        ...prev,
-        closingDate: {
-          from: past.toISOString().slice(0, 10),
-          to: today,
-        },
-      }));
-    } else if (type === "timeline") {
-      setFilters((prev) => ({
-        ...prev,
-        closingDate: { from: "", to: "" },
-      }));
+  // Handle timeline dates change
+  const handleFromDateChange = (date) => {
+    setFromDate(date);
+    if (selectedType === "timeline") {
+      updateFilters("timeline", "", "", date, toDate);
     }
   };
 
-  const handleCancel = () => {
-    setFilters((prev) => ({
-      ...prev,
-      closingDate: { from: "", to: "" },
-    }));
-    setManualSelected("");
-    onApply?.();
-  };
-
-  const handleApply = () => {
-    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
-    if (isEmpty) {
-      setShowValidation(true);
-      setActiveTab("Save Search Form");
-      return;
+  const handleToDateChange = (date) => {
+    setToDate(date);
+    if (selectedType === "timeline") {
+      updateFilters("timeline", "", "", fromDate, date);
     }
-
-    setTriggerSave(true); // Auto-submit SaveSearchForm
-    onApply?.();
   };
+
+  // Initialize component state from filters - only on mount or when explicitly cleared
+  useEffect(() => {
+  let inferredType = closingDate.type || "";
+  let inferredWithin = closingDate.within || "";
+  let inferredDate = closingDate.date || "";
+  let inferredFrom = closingDate.from || "";
+  let inferredTo = closingDate.to || "";
+
+  if (!inferredType && closingDate.after && closingDate.before) {
+    const after = closingDate.after;
+    const before = closingDate.before;
+
+    // Check for exact match (same date)
+    if (after === before) {
+      inferredType = "date";
+      inferredDate = after;
+    } else {
+      const diffInMs = new Date(before) - new Date(after);
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+      if ([7, 30, 90].includes(diffInDays)) {
+        inferredType = "within";
+        inferredWithin = diffInDays.toString();
+      } else {
+        inferredType = "timeline";
+        inferredFrom = after;
+        inferredTo = before;
+      }
+    }
+  }
+
+  setSelectedType(inferredType);
+  setWithinDays(inferredWithin);
+  setSingleDate(inferredDate);
+  setFromDate(inferredFrom);
+  setToDate(inferredTo);
+}, [closingDate]);
+ // Only depend on type, not all fields
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
       <div className="flex flex-col gap-6">
-        {/* Date */}
+        {/* Single Date */}
         <div>
-          <label className="font-semibold block font-inter text-p mb-2">
-            Date
-          </label>
+          <label className="font-semibold block font-inter text-p mb-2">Date</label>
           <div className="flex items-center space-x-2">
             <input
               type="radio"
               name="closingDateFilter"
               value="date"
-              checked={manualSelected === "date"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              checked={selectedType === "date"}
+              onChange={() => handleTypeChange("date")}
               className="accent-purple-600"
             />
             <input
               type="date"
-              disabled={manualSelected !== "date"}
-              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px]"
-              value={manualSelected === "date" ? from : ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  closingDate: {
-                    from: e.target.value,
-                    to: e.target.value,
-                  },
-                }))
-              }
+              disabled={selectedType !== "date"}
+              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px] disabled:bg-gray-100"
+              value={singleDate}
+              onChange={(e) => handleSingleDateChange(e.target.value)}
+              min={today} // Prevent past dates for closing date
             />
           </div>
         </div>
 
+
         {/* Within */}
         <div>
-          <label className="font-semibold block font-inter text-p mb-2">
-            Within
-          </label>
+          <label className="font-semibold block font-inter text-p mb-2">Within</label>
           <div className="flex items-center space-x-2">
             <input
               type="radio"
               name="closingDateFilter"
               value="within"
-              checked={manualSelected === "within"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              checked={selectedType === "within"}
+              onChange={() => handleTypeChange("within")}
               className="accent-purple-600"
             />
             <select
-              disabled={manualSelected !== "within"}
-              className="border border-gray-300 rounded-md font-inter text-xl px-2 py-1 w-[200px]"
-              value={
-                manualSelected === "within"
-                  ? String(
-                      (new Date(to) - new Date(from)) /
-                      (1000 * 60 * 60 * 24)
-                    )
-                  : ""
-              }
-              onChange={(e) => {
-                const days = parseInt(e.target.value);
-                const past = new Date();
-                past.setDate(past.getDate() - days);
-                setFilters((prev) => ({
-                  ...prev,
-                  closingDate: {
-                    from: past.toISOString().slice(0, 10),
-                    to: today,
-                  },
-                }));
-              }}
+              disabled={selectedType !== "within"}
+              className="border border-gray-300 rounded-md font-inter text-xl px-2 py-1 w-[200px] disabled:bg-gray-100"
+              value={withinDays}
+              onChange={(e) => handleWithinChange(e.target.value)}
             >
               <option value="">-Select-</option>
               <option value="7">Last 7 Days</option>
@@ -159,38 +258,28 @@ const ClosingDateTab = ({
           </div>
         </div>
 
+
         {/* Timeline */}
         <div>
-          <label className="font-semibold block font-inter text-p mb-2">
-            Timeline
-          </label>
+          <label className="font-semibold block font-inter text-p mb-2">Timeline</label>
           <div className="flex items-start space-x-2 mb-1">
             <input
               type="radio"
               name="closingDateFilter"
               value="timeline"
-              checked={manualSelected === "timeline"}
-              onChange={(e) => handleRadioChange(e.target.value)}
+              checked={selectedType === "timeline"}
+              onChange={() => handleTypeChange("timeline")}
               className="accent-purple-600"
             />
             <div>
-              <div className="font-inter text-xl text-gray-800 mb-2">
-                Starting
-              </div>
+              <div className="font-inter text-xl text-gray-800 mb-2">Starting</div>
               <input
                 type="date"
-                disabled={manualSelected !== "timeline"}
-                className="border font-inter text-xl border-gray-300 rounded-md px-2 py-1 w-[200px]"
-                value={manualSelected === "timeline" ? from : ""}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    closingDate: {
-                      from: e.target.value,
-                      to: to || "",
-                    },
-                  }))
-                }
+                disabled={selectedType !== "timeline"}
+                className="border font-inter text-xl border-gray-300 rounded-md px-2 py-1 w-[200px] disabled:bg-gray-100"
+                value={fromDate}
+                onChange={(e) => handleFromDateChange(e.target.value)}
+                min={today} // Prevent past dates
               />
             </div>
           </div>
@@ -198,38 +287,14 @@ const ClosingDateTab = ({
             <div className="font-inter text-xl text-gray-800 mb-2">Ending</div>
             <input
               type="date"
-              disabled={manualSelected !== "timeline"}
-              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px]"
-              value={manualSelected === "timeline" ? to : ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  closingDate: {
-                    from: from || "",
-                    to: e.target.value,
-                  },
-                }))
-              }
+              disabled={selectedType !== "timeline"}
+              className="border border-gray-300 rounded-md px-2 py-1 font-inter text-xl w-[200px] disabled:bg-gray-100"
+              value={toDate}
+              onChange={(e) => handleToDateChange(e.target.value)}
+              min={fromDate || today} // Ending date should be after starting date
             />
           </div>
         </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex gap-4 mt-10">
-        <button
-          onClick={handleCancel}
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={handleApply}
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-        >
-          Search
-        </button>
       </div>
     </div>
   );

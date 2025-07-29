@@ -69,6 +69,7 @@ const sortFunctions = {
 };
 
 const BidTable = forwardRef(({ bids = [] }, ref) => {
+  console.log(bids)
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, order: "az" });

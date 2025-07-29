@@ -1,50 +1,8 @@
 import React from 'react';
 
-function StatusTab({
-  filters,
-  setFilters,
-  onApply,
-  setActiveTab,
-  searchOption,
-  setShowValidation,
-  setTriggerSave,
-  onClose,
-  
-}) {
-  const handleSearchClick = () => {
-  console.log("🔵 Search button clicked!");
+function StatusTab({filters = {}, setFilters = () => {}}) {
 
-  const isCreating = searchOption === "create";
-  const nameMissing = !filters.searchName?.trim();
-
-  if (isCreating && nameMissing) {
-    setShowValidation?.(true);
-    setActiveTab?.("Save Search Form");
-    return;
-  }
-
-  if (isCreating) {
-    console.log("🟢 Trigger Save: searchOption is 'create'");
-    setTriggerSave?.(true);
-    onClose?.();
-  } else {
-    console.log("🟢 Applying filters");
-    onApply?.();
-    onClose?.();
-  }
-};
-
-
-  const handleCancel = () => {
-    setFilters((prev) => ({
-      ...prev,
-      status: "",
-      personalised: "",
-    }));
-    setShowValidation?.(false);
-    setActiveTab?.("Save Search Form");
-    onApply?.(); // Apply cleared filters
-  };
+  console.log("❤️ StatusTab rendered with filters:", filters);
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-between p-10 ps-14">
@@ -52,64 +10,32 @@ function StatusTab({
         <div className="space-y-6">
           {/* Solicitations Radio Group */}
           <div>
-            <h2 className="text-p font-inter font-medium mb-2">Solicitations</h2>
+            <h2 className="text-p font-inter font-bold mb-2">Solicitations</h2>
             <div className="space-y-3">
-              {["Open Solicitations", "Closed Solicitations", "Awarded Solicitations"].map((option) => (
-                <label key={option} className="flex items-center space-x-2 cursor-pointer">
+              {[
+                { label: "Open Solicitations", value: "Active" },
+                { label: "Closed Solicitations", value: "Inactive" }
+              ].map((option) => (
+                <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="radio"
                     name="solicitation"
-                    value={option}
-                    checked={filters.status === option}
-                    onChange={() =>
-                      setFilters((prev) => ({ ...prev, status: option }))
-                    }
+                    value={option.value}
                     className="accent-purple-600"
+                    checked={filters.status === option.value}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
                   />
-                  <span className="font-inter text-xl">{option}</span>
+                  <span className="font-inter text-xl">{option.label}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Personalised Filter */}
-          {/* <div className=''>
-            <h2 className="text-p font-inter font-medium mb-2">Personalised</h2>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="personalised"
-                value="My Invitations Only"
-                checked={filters.personalised === "My Invitations Only"}
-                onChange={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    personalised: "My Invitations Only",
-                  }))
-                }
-                className="accent-purple-600"
-              />
-              <span className="font-inter text-xl">My Invitations Only</span>
-            </label>
-          </div> */}
+       
         </div>
       </div>
 
-      {/* Footer Buttons */}
-      <div className="flex gap-4 pt-10">
-        <button
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-          onClick={handleCancel}
-        >
-          Cancel
-        </button>
-        <button
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-          onClick={handleSearchClick}
-        >
-          Search
-        </button>
-      </div>
+      
     </div>
   );
 }

@@ -1,123 +1,92 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Search } from "lucide-react";
-import api from "../../utils/axios";
+import { getAllStates } from "../../services/bid.service.js";
 
-const LocationTab = ({
-  filters = {},
-  setFilters = () => {},
-  onApply = () => {},
-  setActiveTab = () => {},
-  searchOption = "create",
-  setShowValidation = () => {},
-  setTriggerSave = () => {},
-}) => {
-  const [statesData, setStatesData] = useState([]);
+
+
+const LocationTab = ({ filters = {}, setFilters = () => {} }) => {
+  const [selectedStates, setSelectedStates] = useState(filters.location || []);
   const [searchTerm, setSearchTerm] = useState("");
+  const [states, setStates] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("dashboardSavedSearches");
-    if (saved) {
-      setSavedSearches(JSON.parse(saved));
-    }
-  }, []);
-
+  // Fetch states from API
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await api.get("/auth/states/");
-        const sorted = res.data.sort((a, b) => a.name.localeCompare(b.name));
-        setStatesData(sorted);
-      } catch (err) {
-        console.error("Error fetching states:", err);
+        setLoading(true);
+        const response = await getAllStates();
+        // console.log('States API Response:', response);
+        setStates(response); // For now, using the response directly until we see the structure
+      } catch (error) {
+        console.error("Error fetching states:", error);
+        // Fallback to hardcoded states if API fails
+        setStates(US_STATES.map(state => ({ name: state })));
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchStates();
   }, []);
 
-  const selectedNames = filters.location
-    ? filters.location.split(",").map((name) => name.trim())
-    : [];
+  // Sync local state with filters prop when filters change from outside
+  useEffect(() => {
+    if (filters.location && Array.isArray(filters.location)) {
+      setSelectedStates(filters.location);
+    }
+  }, [filters.location]);
 
-  const selected = statesData.filter((state) =>
-    selectedNames.includes(state.name)
+  // Filter states based on search input - will need to adjust based on API response structure
+  const filteredStates = states.filter((state) =>
+    (state.name || state).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleSelect = (state) => {
-    const isAlreadySelected = selectedNames.includes(state.name);
-    const updatedNames = isAlreadySelected
-      ? selectedNames.filter((name) => name !== state.name)
-      : [...selectedNames, state.name];
-
-    setFilters((prev) => ({
-      ...prev,
-      location: updatedNames.join(","),
-    }));
-  };
-
-  const removeSelected = (name) => {
-    const updated = selectedNames.filter((n) => n !== name);
-    setFilters((prev) => ({
-      ...prev,
-      location: updated.join(","),
-    }));
-  };
-
-  const handleCancel = () => {
-    setFilters((prev) => ({ ...prev, location: "" }));
-
-    if (searchOption === "create") {
-      setActiveTab("Save Search Form");
-      setTimeout(() => setTriggerSave(true), 0);
-    } else {
-      onApply?.();
-    }
-  };
-
-  const handleApply = () => {
-    const isEmpty = searchOption === "create" && !filters.searchName?.trim();
-
-    if (isEmpty) {
-      setShowValidation(true);
-      setActiveTab("Save Search Form");
-      return;
-    }
-
-    if (searchOption === "create") {
-      setTriggerSave(true);
-    } else {
-      onApply?.();
-    }
-  };
-
-  const filteredStates = searchTerm
-    ? statesData.filter((state) =>
-        state.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : statesData;
-
-  const allVisibleStateNames = filteredStates.map((state) => state.name);
   const isAllSelected =
-    allVisibleStateNames.length > 0 &&
-    allVisibleStateNames.every((name) => selectedNames.includes(name));
+    filteredStates.length > 0 &&
+    filteredStates.every((state) => selectedStates.includes(state.name || state));
 
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      const allNames = Array.from(
-        new Set([...selectedNames, ...allVisibleStateNames])
-      );
-      setFilters((prev) => ({
-        ...prev,
-        location: allNames.join(","),
-      }));
+  const toggleState = (stateName) => {
+    const updated = selectedStates.includes(stateName)
+      ? selectedStates.filter((s) => s !== stateName)
+      : [...selectedStates, stateName];
+    
+    setSelectedStates(updated);
+    // Update the filters with the new selection
+    setFilters({
+      ...filters,
+      location: updated
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      // Remove all visible states from selected
+      const visibleStateNames = filteredStates.map(state => state.name || state);
+      const updated = selectedStates.filter((state) => !visibleStateNames.includes(state));
+      setSelectedStates(updated);
+      setFilters({
+        ...filters,
+        location: updated
+      });
     } else {
-      const remaining = selectedNames.filter(
-        (name) => !allVisibleStateNames.includes(name)
-      );
-      setFilters((prev) => ({
-        ...prev,
-        location: remaining.join(","),
-      }));
+      // Add all visible states
+      const visibleStateNames = filteredStates.map(state => state.name || state);
+      const updated = Array.from(new Set([...selectedStates, ...visibleStateNames]));
+      setSelectedStates(updated);
+      setFilters({
+        ...filters,
+        location: updated
+      });
     }
+  };
+
+  const clearAll = () => {
+    setSelectedStates([]);
+    setFilters({
+      ...filters,
+      location: []
+    });
   };
 
   return (
@@ -143,28 +112,31 @@ const LocationTab = ({
         {/* Selected States */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-p font-medium font-inter">
-            Selected States <span className="text-primary">({selected.length})</span>
+            Selected States{" "}
+            <span className="text-primary">({selectedStates.length})</span>
           </h2>
-          {selected.length > 0 && (
+          {selectedStates.length > 0 && (
             <button
-              onClick={() => setFilters((prev) => ({ ...prev, location: "" }))}
+              onClick={clearAll}
               className="text-lg underline font-inter"
+              aria-label="Clear all selected states"
             >
               Clear All
             </button>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {selected.map((item) => (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {selectedStates.map((stateName) => (
             <div
-              key={item.name}
+              key={stateName}
               className="flex border-[2px] gap-1 px-3 rounded-[30px] border-primary items-center justify-between text-lg py-1 font-inter"
             >
-              <div>{item.name}</div>
+              <div>{stateName}</div>
               <button
-                onClick={() => removeSelected(item.name)}
+                onClick={() => toggleState(stateName)}
                 className="text-primary"
+                aria-label={`Remove ${stateName}`}
               >
                 <Trash2 size={16} />
               </button>
@@ -173,49 +145,47 @@ const LocationTab = ({
         </div>
 
         {/* States List with Select All */}
-        <div className="border-[#273BE280] border-[2px] rounded-[10px] mt-6 max-h-[400px] overflow-y-auto">
+        <div className="border-[#273BE280] border-[2px] rounded-[10px] max-h-[400px] overflow-y-auto">
           <div className="flex items-center px-4 py-3 border-b font-medium font-inter text-p">
             <input
               type="checkbox"
               className="accent-primary mr-3"
               checked={isAllSelected}
-              onChange={handleSelectAll}
+              onChange={toggleSelectAll}
+              aria-label="Select all visible states"
             />
             <span>Select All States</span>
           </div>
 
-          {filteredStates.map((state) => (
-            <label
-              key={state.name}
-              className="flex items-center gap-5 py-2 cursor-pointer font-inter px-4 text-xl border-[#273BE280] border-t-[2px]"
-            >
-              <input
-                type="checkbox"
-                className="mt-1 accent-primary"
-                checked={selectedNames.includes(state.name)}
-                onChange={() => toggleSelect(state)}
-              />
-              <div className="text-[16px]">{state.name}</div>
-            </label>
-          ))}
+          {loading ? (
+            <div className="p-4 text-center text-gray-500">Loading states...</div>
+          ) : filteredStates.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">No states found</div>
+          ) : (
+            filteredStates.map((state) => {
+              const stateName = state.name || state;
+              const isSelected = selectedStates.includes(stateName);
+              return (
+                <label
+                  key={stateName}
+                  className="flex items-center gap-5 py-2 cursor-pointer font-inter px-4 text-xl border-[#273BE280] border-t-[2px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1 accent-primary"
+                    checked={isSelected}
+                    onChange={() => toggleState(stateName)}
+                    aria-label={`Select state ${stateName}`}
+                  />
+                  <div className="text-[16px]">{stateName}</div>
+                </label>
+              );
+            })
+          )}
         </div>
       </div>
 
-      {/* Sticky Bottom Buttons */}
-      <div className="flex gap-4 p-5 ps-0 bg-white sticky bottom-0">
-        <button
-          onClick={handleCancel}
-          className="border-[2px] px-10 py-3 rounded-[20px] font-archivo text-xl transition-all"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleApply}
-          className="bg-primary text-white px-10 py-3 rounded-[20px] font-archivo text-xl hover:bg-blue-700 transition-all"
-        >
-          Search
-        </button>
-      </div>
+     
     </div>
   );
 };
