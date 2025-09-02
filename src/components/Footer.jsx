@@ -24,9 +24,9 @@ const Footer = () => {
                 title: "Home", 
                 links: [
                   { name: "A.I. Toolkit", url: "/ai-toolset" },
-                  { name: "Why BidInsight?", url: "/#why-bidinsight" },
+                  { name: "Why BidInsight?", url: "/why-bidinsight" },
                   { name: "Register Now!", url: "/register" },
-                  // { name: "Plans & Pricing", url: "/pricing" }
+                  { name: "Plans & Pricing", url: "/pricing" }
                 ], 
                 delay:"100" 
               },
@@ -34,18 +34,18 @@ const Footer = () => {
                 title: "Plans & Pricing", 
                 links: [
                   { name: "Pricing", url: "/pricing" },
-                  { name: "Features", url: "/pricing#features" },
-                  // { name: "FAQs", url: "/faqs" }
+                  { name: "Features", url: "/features" },
+                  { name: "FAQs", url: "/faqs" }
                 ], 
                 delay:"400" 
               },
               { 
                 title: "About Us", 
                 links: [
-                  { name: "Mission", url: "/about#mission" },
-                  { name: "Vision", url: "/about#vision" },
-                  { name: "Our Story", url: "/about#our-story" },
-                  { name: "Core Values", url: "/about#core-values" }
+                  { name: "Mission", url: "/mission" },
+                  { name: "Vision", url: "/vision" },
+                  { name: "Our Story", url: "/our-story" },
+                  { name: "Core Values", url: "/core-values" }
                 ], 
                 delay:"400" 
               },

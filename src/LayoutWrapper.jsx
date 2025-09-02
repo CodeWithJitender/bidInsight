@@ -1,29 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import LoadingScreen from "./components/LoadingScreen";
 
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    setIsLoading(true);
-    setProgress(0);
-
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev < 100) return prev + 2;
-        clearInterval(interval);
-        setIsLoading(false);
-        return 100;
-      });
-    }, 30);
-
-    return () => clearInterval(interval);
-  }, [location.pathname]);
 
   const hiddenRoutes = [
     "/login",
@@ -36,37 +17,21 @@ const LayoutWrapper = ({ children }) => {
     "/industry-categories",
     "/extra-data",
     "/verification",
+    // "/dashboard",
     "/plan",
     "/loader",
     "/super-admin",
+    // "/pricing"
   ];
 
   const isHidden = hiddenRoutes.includes(location.pathname);
 
   return (
-    <div className="relative">
+    <>
       {!isHidden && <Header />}
-
-      {isHidden ? (
-        // Hidden routes: render children directly
-        <main>{children}</main>
-      ) : (
-        <>
-          {/* Show children only after loading finishes */}
-          {!isLoading && <main>{children}</main>}
-
-          {/* Show footer only when not loading AND children exist */}
-          {!isLoading && !!children && <Footer />}
-
-          {/* Loader only shows for non-hidden routes */}
-          {isLoading && (
-            <div className="absolute inset-0 z-[5000] bg-white">
-              <LoadingScreen progress={progress} />
-            </div>
-          )}
-        </>
-      )}
-    </div>
+      <main>{children}</main>
+      {!isHidden && <Footer />}
+    </>
   );
 };
 

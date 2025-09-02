@@ -7,17 +7,12 @@ import HowItWorks from '../sections/home/HowItWorks'
 import CallToAction from '../sections/home/CallToAction'
 import ComparisonGrid from '../sections/home/ComparisonGrid'
 import PricingHero from '../sections/pricing/PricingHero'
-import LoadingScreen from '../components/LoadingScreen'
-
 
 function Home() {
   return (
     <div className='overflow-x-hidden'>
-      {/* <LoadingScreen /> */}
      <Hero/>
-     <div className="" id='why-bidinsight'>
      <KeyValuePro/>
-     </div>
      <LockedFeature />
      <HowItWorks/>
      {/* <PricingSection /> */}
