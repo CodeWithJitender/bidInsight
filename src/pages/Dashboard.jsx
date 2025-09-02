@@ -581,6 +581,10 @@ const handleFollowBid = async (bidId) => {
     }
   }, [fetchBids, isInitialLoad, isBookmarkView]);
 
+
+
+  
+
   useEffect(() => {
     console.log("🔥 Dashboard Debug Info:");
     console.log("Current route:", location.pathname);
