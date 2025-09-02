@@ -7,7 +7,9 @@ function Pricing() {
   return (
     <div className='pricing-page'>
         <PricingHero />
+        <div className="feature" id='features'>
         <Billing />
+        </div>
         {/* <Faq /> */}
     </div>
   )

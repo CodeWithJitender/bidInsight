@@ -15,12 +15,12 @@ const LayoutWrapper = ({ children }) => {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev < 100) return prev + 2;
+        if (prev < 100) return prev + 2; // step size
         clearInterval(interval);
         setIsLoading(false);
         return 100;
       });
-    }, 30);
+    }, 30); // speed of progress
 
     return () => clearInterval(interval);
   }, [location.pathname]);
@@ -36,9 +36,11 @@ const LayoutWrapper = ({ children }) => {
     "/industry-categories",
     "/extra-data",
     "/verification",
+    // "/dashboard",
     "/plan",
     "/loader",
     "/super-admin",
+    // "/pricing"
   ];
 
   const isHidden = hiddenRoutes.includes(location.pathname);
@@ -46,25 +48,13 @@ const LayoutWrapper = ({ children }) => {
   return (
     <div className="relative">
       {!isHidden && <Header />}
+      {!isLoading && <main>{children}</main>}
+      {!isLoading && !isHidden && <Footer />}
 
-      {isHidden ? (
-        // Hidden routes: render children directly
-        <main>{children}</main>
-      ) : (
-        <>
-          {/* Show children only after loading finishes */}
-          {!isLoading && <main>{children}</main>}
-
-          {/* Show footer only when not loading AND children exist */}
-          {!isLoading && !!children && <Footer />}
-
-          {/* Loader only shows for non-hidden routes */}
-          {isLoading && (
-            <div className="absolute inset-0 z-[5000] bg-white">
-              <LoadingScreen progress={progress} />
-            </div>
-          )}
-        </>
+      {isLoading && (
+        <div className="">
+          <LoadingScreen progress={progress} />
+        </div>
       )}
     </div>
   );

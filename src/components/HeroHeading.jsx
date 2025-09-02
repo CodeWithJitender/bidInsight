@@ -78,7 +78,7 @@ function HeroHeading({ data, profileBids, profileLoading, profileError }) {
               text={btnText}
               link={btnLink}
               arrowBg={"bg-primary text-white"}
-              btnBg={"bg-white"}
+              btnBg={"bg-white text-black"}
             />
           </div>
         )}
