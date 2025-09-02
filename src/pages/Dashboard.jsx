@@ -1312,7 +1312,7 @@ useEffect(() => {
                   id="filter"
                 >
                   <img
-                    src={sidebarToggle ? "close.png" : "filter.png"}
+                    src={sidebarToggle ? "/close.png" : "/filter.png"}
                     className="w-6"
                     alt="Filter Toggle"
                   />
@@ -1356,7 +1356,7 @@ useEffect(() => {
                     {exportLoading ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      <img src="export.png" className="w-6" alt="Export" />
+                      <img src="/export.png" className="w-6" alt="Export" />
                     )}
                   </div>
 

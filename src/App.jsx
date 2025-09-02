@@ -10,6 +10,7 @@ import ShimmerSummaryCard from "./components/shimmereffects/ShimmerSummaryCard.j
 import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
 import OTPVerification from "./components/OTPVerification.jsx";
+import ScrollToHashElement from "./components/ScrollToHashElement.jsx";
 
 
 
@@ -46,6 +47,7 @@ const App = () => {
 
   return (
     <LayoutWrapper>
+        <ScrollToHashElement />
       <ScrollToTop />
       <Suspense>
         <Routes>
@@ -71,7 +73,7 @@ const App = () => {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           {/* <Route path="/bidskeleton" element={<BidTableSkeleton />} /> */}
-          <Route path="/*" element={<Error404 />} />
+          <Route path="/*" element={<Error404 btnLink={'/'} btnText={"Go to Home"} title={"404 - Page Not Found"} para={"Sorry, the page you are looking for does not exist."} />} />
         </Routes>
       </Suspense>
     </LayoutWrapper>

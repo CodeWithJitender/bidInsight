@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React from "react";
 import Heading from "../../components/Heading";
 import Button from "../../components/Button";
 import { useGSAP } from "@gsap/react";
@@ -91,7 +91,7 @@ function HowItWorks() {
       </div>
       <div className="work-content relative">
         {data.map((item, index) => (
-          <div className="work-item bg-blue" key={index}>
+          <div className="work-item bg-blue h-screen" key={index}>
             <div className="container-section">
               <div className="main-title font-bold text-[100px] font-h text-white">
                 {item.number}
