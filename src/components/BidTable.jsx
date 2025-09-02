@@ -76,14 +76,17 @@ const [popupData, setPopupData] = useState({});
 
 
   const handleRowClick = (id, bidIndex) => {
-  if (planInfo?.isFree) {
+  // Check if bid summary feature is restricted (same pattern as follow button)
+  if (restrictions?.bidSummary) {
     onFeatureRestriction(
-      "🔒 Bid Summary Locked",
-      "Upgrade your plan to view full bid summaries and details.",
+      "🔒 Bid Summary Feature Locked",
+      "Upgrade your plan to view detailed bid summaries and analysis.",
       "Bid Summary Feature",
       true
     );
   } else {
+    // For users without restriction - directly navigate
+    console.log("✅ Navigating to bid summary:", id);
     navigate(`/summary/${id}`);
   }
 };
