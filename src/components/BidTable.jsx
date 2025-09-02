@@ -1,5 +1,4 @@
 
-
 import React, {
   useEffect,
   useState,
@@ -46,7 +45,8 @@ const convertToCSV = (rows) => {
   return [headers.join(","), ...csvRows.map((r) => r.join(","))].join("\n");
 };
 
-const BidTable = forwardRef(({ bids = [], totalCount = 0, currentSortField = "", currentSortOrder = "", onSort = () => { }, onEntityTypeChange = () => { },  onFeatureRestriction = () => { } }, ref) => {
+const BidTable = forwardRef(({ bids = [], totalCount = 0, currentSortField = "", currentSortOrder = "", onSort = () => { }, onEntityTypeChange = () => { },onFollowBid = () => { }, followedBids = new Set(), followLoading = new Set()}, ref) => {
+  // onFeatureRestriction = () => { } 
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -67,46 +67,58 @@ const BidTable = forwardRef(({ bids = [], totalCount = 0, currentSortField = "",
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
     
-  const handleRowClick = async (id) => {
-  try {
-    console.log("🔥 Fetching bid details for ID:", id);
+//   const handleRowClick = async (id) => {
+//   try {
+//     console.log("🔥 Fetching bid details for ID:", id);
     
-    // API call karke bid details fetch karo
-    const bidDetails = await getBids(id); // Single bid fetch
+//     // API call karke bid details fetch karo
+//     const bidDetails = await getBids(id); // Single bid fetch
     
-    console.log("✅ Bid details fetched successfully");
-    // Agar success hai to navigate karo
-    navigate(`/summary/${id}`);
+//     console.log("✅ Bid details fetched successfully");
+//     // Agar success hai to navigate karo
+//     navigate(`/summary/${id}`);
     
-  } catch (error) {
-    console.error("❌ Error fetching bid details:", error);
+//   } catch (error) {
+//     console.error("❌ Error fetching bid details:", error);
     
-    // Check if it's a restriction error (403 status)
-    if (error.response?.status === 403) {
-      const errorMessage = error.response?.data?.detail || "Upgrade your plan to view this bid summary.";
+//     // Check if it's a restriction error (403 status)
+//     if (error.response?.status === 403) {
+//       const errorMessage = error.response?.data?.detail || "Upgrade your plan to view this bid summary.";
       
-      // Popup show karo using parent function
-      if (onFeatureRestriction) {
-        onFeatureRestriction(
-          "Bid Summary Restricted",
-          errorMessage,
-          "Bid Summary Access",
-          true
-        );
-      }
-    } else {
-      // Other errors ke liye generic message
-      if (onFeatureRestriction) {
-        onFeatureRestriction(
-          "Error Loading Bid",
-          "Unable to load bid details. Please try again.",
-          "Bid Access",
-          false
-        );
-      }
-    }
-  }
-};
+//       // Popup show karo using parent function
+//       if (onFeatureRestriction) {
+//         onFeatureRestriction(
+//           "Bid Summary Restricted",
+//           errorMessage,
+//           "Bid Summary Access",
+//           true
+//         );
+//       }
+//     } else {
+//       // Other errors ke liye generic message
+//       if (onFeatureRestriction) {
+//         onFeatureRestriction(
+//           "Error Loading Bid",
+//           "Unable to load bid details. Please try again.",
+//           "Bid Access",
+//           false
+//         );
+//       }
+//     }
+//   }
+// };
+
+
+
+  const handleRowClick = (id) => {
+    console.log(id);
+    navigate(`/summary/${id}`);
+  };
+
+   const handleFollowClick = (e, bidId) => {
+    e.stopPropagation(); // Prevent row click when follow button is clicked
+    onFollowBid(bidId);
+  };
 
   const exportToCSV = () => {
     const csv = convertToCSV(data);
@@ -235,6 +247,9 @@ const BidTable = forwardRef(({ bids = [], totalCount = 0, currentSortField = "",
                 }
               }
 
+               const isFollowed = followedBids.has(bid.id);
+              const isLoading = followLoading.has(bid.id);
+
               return (
                 <tr key={bid.id} className="border-b border-white/10 hover:bg-white/5 transition cursor-pointer" onClick={() => handleRowClick(bid.id)}>
                   <td className="px-4 py-4 font-semibold font-inter">{truncate(bid.entity_type)}</td>
@@ -251,8 +266,29 @@ const BidTable = forwardRef(({ bids = [], totalCount = 0, currentSortField = "",
 
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <button>
-                      <i className={`fas ${bid.followed ? "fa-minus-circle" : "fa-plus-circle"}`}></i>
+                    <button
+                      onClick={(e) => handleFollowClick(e, bid.id)}
+                      disabled={isLoading}
+                      className={`w-8 h-8 rounded-full   flex items-center justify-center transition-all duration-200 ${
+                        isLoading 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:scale-110 cursor-pointer'
+                      }`}
+                      title={isFollowed ? "Unfollow this bid" : "Follow this bid"}
+                    >
+                      {isLoading ? (
+                        // Loading spinner
+                        <div className="w-4 h-4 border-2 border-white  border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        // Follow/Unfollow icon
+                        <i 
+                          className={`fas text-lg transition-colors ${
+                            isFollowed 
+                              ? "fa-minus-circle text-white-400 hover:text-white-300" 
+                              : "fa-plus-circle text-white-400 hover:text-white-300"
+                          }`}
+                        ></i>
+                      )}
                     </button>
                   </td>
                 </tr>
