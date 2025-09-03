@@ -7,7 +7,19 @@ import { ScrollTrigger } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger);
 
 function HowItWorks() {
-  
+  //   useGSAP(() => {
+
+  //   gsap.utils.toArray(".work-item").forEach((item) => {
+  //     ScrollTrigger.create({
+  //       trigger: item,
+  //       start: "top top",
+  //       pin: true,
+  //       pinSpacing: false, // Optional: disables space after unpinning
+  //     });
+  //   });
+
+  //   ScrollTrigger.refresh();
+  // }, []);
   useGSAP(() => {
     let sections = gsap.utils.toArray(".work-item");
     sections.forEach((container, i) => {
@@ -30,7 +42,7 @@ function HowItWorks() {
       title: "Register",
       para: "Create your free BidInsight account in under two minutes - just your name, email, and a secure password to get started.",
       btnText: "Register/ Login",
-      link: "/login",
+      link: "/",
       img: "work-img-1.png",
     },
     {
@@ -38,13 +50,13 @@ function HowItWorks() {
       title: "Select Plan & Payment",
       para: "Choose the subscription tier that fits your needs and enter your payment details securely to unlock full access.",
       btnText: "View Plan",
-      link: "/pricing",
+      link: "/",
       img: "work-img-2.jpg",
     },
     {
       number: "03:",
       title: "Profile Set-up",
-      para: "Tell us about your business - industry codes, cont ract history, geographic focus - so we can surface the most relevant opportunities.",
+      para: "Tell us about your business - industry codes, contract history, geographic focus - so we can surface the most relevant opportunities.",
       btnText: "Set Profile",
       link: "/",
       img: "work-img-3.jpg",

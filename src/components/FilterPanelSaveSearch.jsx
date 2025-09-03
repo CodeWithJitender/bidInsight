@@ -86,254 +86,248 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
 
   // ✅ ADD: useEffect to sync states when selectedSearch changes
   useEffect(() => {
-  console.log("🔍 FilterPanelSaveSearch useEffect - selectedSearch:", selectedSearch);
-  
-  if (selectedSearch && selectedSearch.id) {
-    console.log("✅ Setting up replace mode for selectedSearch:", selectedSearch.name);
-    
-    setSearchOption("replace");
-    setSelectedSavedSearch(selectedSearch);
-    setSavedSearch(prev => ({
-      ...prev,
-      name: selectedSearch.name,
-      id: selectedSearch.id,
-    }));
-    
-    // ✅ Clear any existing errors
-    setErrors({ name: "" });
-  } else {
-    console.log("✅ Setting up create mode - no selectedSearch");
-    
-    setSearchOption("create");
-    setSelectedSavedSearch("");
-    setSavedSearch(prev => ({
-      ...prev,
-      name: "",
-      id: null,
-    }));
-  }
-}, [selectedSearch]);
+    console.log("🔍 FilterPanelSaveSearch useEffect - selectedSearch:", selectedSearch);
+
+    if (selectedSearch && selectedSearch.id) {
+      console.log("✅ Setting up replace mode for selectedSearch:", selectedSearch.name);
+
+      setSearchOption("replace");
+      setSelectedSavedSearch(selectedSearch);
+      setSavedSearch(prev => ({
+        ...prev,
+        name: selectedSearch.name,
+        id: selectedSearch.id,
+      }));
+
+      // ✅ Clear any existing errors
+      setErrors({ name: "" });
+    } else {
+      console.log("✅ Setting up create mode - no selectedSearch");
+
+      setSearchOption("create");
+      setSelectedSavedSearch("");
+      setSavedSearch(prev => ({
+        ...prev,
+        name: "",
+        id: null,
+      }));
+    }
+  }, [selectedSearch]);
 
 
 
 
   // ✅ IMPROVED: Enhanced validation function
- const validateSaveSearch = () => {
-  console.log("🔍 validateSaveSearch - searchOption:", searchOption);
-  console.log("🔍 validateSaveSearch - selectedSavedSearch:", selectedSavedSearch);
-  console.log("🔍 validateSaveSearch - savedSearch:", savedSearch);
+  const validateSaveSearch = () => {
+    console.log("🔍 validateSaveSearch - searchOption:", searchOption);
+    console.log("🔍 validateSaveSearch - selectedSavedSearch:", selectedSavedSearch);
+    console.log("🔍 validateSaveSearch - savedSearch:", savedSearch);
 
-  // ✅ FIXED: Only validate name for CREATE mode
-  if (searchOption === "create") {
-    const trimmedName = savedSearch.name.trim();
-    
-    if (!trimmedName) {
-      return "Please enter a name for the saved search.";
+    // ✅ FIXED: Only validate name for CREATE mode
+    if (searchOption === "create") {
+      const trimmedName = savedSearch.name.trim();
+
+      if (!trimmedName) {
+        return "Please enter a unique name for this search.";
+      }
+
+      // Check for duplicates only in create mode
+      const isDuplicate = savedSearches.some(
+        (s) => s.name.toLowerCase() === trimmedName.toLowerCase()
+      );
+      if (isDuplicate) {
+        return "A saved search with this name already exists.";
+      }
     }
 
-    // Check for duplicates only in create mode
-    const isDuplicate = savedSearches.some(
-      (s) => s.name.toLowerCase() === trimmedName.toLowerCase()
-    );
-    if (isDuplicate) {
-      return "A saved search with this name already exists.";
+    // ✅ FIXED: Only validate selection for REPLACE mode
+    if (searchOption === "replace") {
+      // ✅ Check both selectedSavedSearch and savedSearch for ID
+      const hasValidSelection = (selectedSavedSearch?.id) || (savedSearch?.id);
+
+      if (!hasValidSelection) {
+        console.log("❌ No valid selection for replace mode");
+        return "Please select a saved search to replace.";
+      }
+
+      console.log("✅ Valid selection found for replace mode");
     }
-  }
 
-  // ✅ FIXED: Only validate selection for REPLACE mode
-  if (searchOption === "replace") {
-    // ✅ Check both selectedSavedSearch and savedSearch for ID
-    const hasValidSelection = (selectedSavedSearch?.id) || (savedSearch?.id);
-    
-    if (!hasValidSelection) {
-      console.log("❌ No valid selection for replace mode");
-      return "Please select a saved search to replace.";
+    // ✅ Check if any filters are applied (for both modes)
+    const hasFilters = Object.values(filters).some(filter => {
+      if (typeof filter === 'string') return filter.trim() !== '';
+      if (Array.isArray(filter)) return filter.length > 0;
+      if (typeof filter === 'object' && filter !== null) {
+        return Object.values(filter).some(val => {
+          if (Array.isArray(val)) return val.length > 0;
+          if (val && typeof val === 'string') return val.trim() !== '';
+          return !!val;
+        });
+      }
+      return false;
+    });
+
+    if (!hasFilters) {
+      return "Please apply at least one filter before saving the search.";
     }
-    
-    console.log("✅ Valid selection found for replace mode");
-  }
 
-  // ✅ Check if any filters are applied (for both modes)
-  const hasFilters = Object.values(filters).some(filter => {
-    if (typeof filter === 'string') return filter.trim() !== '';
-    if (Array.isArray(filter)) return filter.length > 0;
-    if (typeof filter === 'object' && filter !== null) {
-      return Object.values(filter).some(val => {
-        if (Array.isArray(val)) return val.length > 0;
-        if (val && typeof val === 'string') return val.trim() !== '';
-        return !!val;
-      });
-    }
-    return false;
-  });
-
-  if (!hasFilters) {
-    return "Please apply at least one filter before saving the search.";
-  }
-
-  return null; // No errors
-};
-
-
-
-
-
-
-
-
-
+    return null; // No errors
+  };
 
 
   const handleSaveSearch = async (e) => {
-  e.preventDefault();
-  setShowValidation(true);
+    e.preventDefault();
 
-  // Clear previous errors
-  setErrors({ name: "" });
+  //   if (searchOption === "create" && planInfo?.isStarter && savedSearches.length >= 1) {
+  //   setErrors({ 
+  //     name: "You've reached the maximum of 1 saved search. Upgrade to Essentials for unlimited saved searches." 
+  //   });
+  //   return;
+  // }
 
-  // ✅ IMPROVED: Use validation function
-  const validationError = validateSaveSearch();
-  if (validationError) {
-    setErrors({ name: validationError });
-    return;
-  }
+    setShowValidation(true);
 
-  try {
-    const filtersWithOrdering = {
-      ...filters,
-      ordering: filters.ordering || "closing_date"
-    };
-    const queryString = buildQueryString(filtersWithOrdering);
-    
-    let savedSearchData;
-    let newSearch;
+    // Clear previous errors
+    setErrors({ name: "" });
 
-    if (searchOption === "replace" && selectedSavedSearch?.id) {
-      // ✅ REPLACE MODE: Update existing search
-      savedSearchData = {
-        name: selectedSavedSearch.name, // Use existing name
-        query_string: `?${queryString}`,
-      };
-      
-      await updateSavedSearch(selectedSavedSearch.id, savedSearchData);
-      
-      // ✅ Create proper search object for navigation
-      newSearch = {
-        id: selectedSavedSearch.id,
-        name: selectedSavedSearch.name,
-        query_string: `?${queryString}`
-      };
-      
-    } else {
-      // ✅ CREATE MODE: Create new search
-      savedSearchData = {
-        name: savedSearch.name.trim(),
-        query_string: `?${queryString}`,
-      };
-      
-      newSearch = await createSavedSearch(savedSearchData);
+    // ✅ IMPROVED: Use validation function
+    const validationError = validateSaveSearch();
+    if (validationError) {
+      setErrors({ name: validationError });
+      return;
     }
-    
-    // ✅ Refresh saved searches list
-    const updatedSearches = await getSavedSearches();
-    dispatch(addSavedSearch(updatedSearches));
-    
-    // ✅ CRITICAL: Set the selected search in parent component BEFORE navigation
-    if (newSearch) {
-      console.log("🚀 Setting selected search before navigation:", newSearch);
-      setSelectedSearch(newSearch);
-    }
-    
-    // ✅ Navigate with proper URL structure
-    let queryStringForNav = newSearch.query_string.startsWith('?')
-      ? newSearch.query_string.substring(1)
-      : newSearch.query_string;
-      
+
+    try {
+      const filtersWithOrdering = {
+        ...filters,
+        ordering: filters.ordering || "closing_date"
+      };
+      const queryString = buildQueryString(filtersWithOrdering);
+
+      let savedSearchData;
+      let newSearch;
+
+      if (searchOption === "replace" && selectedSavedSearch?.id) {
+        // ✅ REPLACE MODE: Update existing search
+        savedSearchData = {
+          name: selectedSavedSearch.name, // Use existing name
+          query_string: `?${queryString}`,
+        };
+
+        await updateSavedSearch(selectedSavedSearch.id, savedSearchData);
+
+        // ✅ Create proper search object for navigation
+        newSearch = {
+          id: selectedSavedSearch.id,
+          name: selectedSavedSearch.name,
+          query_string: `?${queryString}`
+        };
+
+      } else {
+        // ✅ CREATE MODE: Create new search
+        savedSearchData = {
+          name: savedSearch.name.trim(),
+          query_string: `?${queryString}`,
+        };
+
+        newSearch = await createSavedSearch(savedSearchData);
+      }
+
+      // ✅ Refresh saved searches list
+      const updatedSearches = await getSavedSearches();
+      dispatch(addSavedSearch(updatedSearches));
+
+      // ✅ CRITICAL: Set the selected search in parent component BEFORE navigation
+      if (newSearch) {
+        console.log("🚀 Setting selected search before navigation:", newSearch);
+        setSelectedSearch(newSearch);
+      }
+
+      // ✅ Navigate with proper URL structure
+      let queryStringForNav = newSearch.query_string.startsWith('?')
+        ? newSearch.query_string.substring(1)
+        : newSearch.query_string;
+
       const urlParamsForNav = new URLSearchParams(queryStringForNav);
       if (!urlParamsForNav.has('ordering')) {
         urlParamsForNav.set('ordering', 'closing_date');
       }
       urlParamsForNav.set('page', '1');
       urlParamsForNav.set('pageSize', '25');
-      
+
       // ✅ MOST IMPORTANT: Add the ID parameter for dashboard to recognize
       urlParamsForNav.set('id', newSearch.id);
-      
+
       const finalURL = `/dashboard?${urlParamsForNav.toString()}`;
       console.log("🚀 Navigating to:", finalURL);
-      
-      navigate(finalURL);
+
+      navigate(finalURL, { replace: true });
       onClose(); // Close the panel
-      
+
       handleSavedSearchSelect(newSearch.id)
 
 
 
-  } catch (error) {
-    // Error handling...
-    if (error.response?.status === 409) {
-      setErrors({ name: "A saved search with this name already exists." });
-    } else if (error.response?.data?.message) {
-      setErrors({ name: error.response.data.message });
-    } else {
-      setErrors({ name: "An error occurred while saving the search. Please try again." });
+    } catch (error) {
+      // Error handling...
+      if (error.response?.status === 409) {
+        setErrors({ name: "A saved search with this name already exists." });
+      } else if (error.response?.data?.message) {
+        setErrors({ name: error.response.data.message });
+      } else {
+        setErrors({ name: "An error occurred while saving the search. Please try again." });
+      }
+      console.error("Save failed:", error);
     }
-    console.error("Save failed:", error);
-  }
-};
-
+  };
 
 
   // ✅ IMPROVED: Enhanced tab validation
- const handleTabClick = (tab) => {
-  console.log("🔍 handleTabClick - tab:", tab);
-  console.log("🔍 handleTabClick - searchOption:", searchOption);
-  console.log("🔍 handleTabClick - selectedSavedSearch:", selectedSavedSearch);
-  console.log("🔍 handleTabClick - savedSearch:", savedSearch);
-  
-  if (tab === "Saved Searches") {
+  const handleTabClick = (tab) => {
+    console.log("🔍 handleTabClick - tab:", tab);
+    console.log("🔍 handleTabClick - searchOption:", searchOption);
+    console.log("🔍 handleTabClick - selectedSavedSearch:", selectedSavedSearch);
+    console.log("🔍 handleTabClick - savedSearch:", savedSearch);
+
+    if (tab === "Saved Searches") {
+      setActiveTab(tab);
+      return;
+    }
+
+    // ✅ FIXED: Only validate based on current mode
+    if (searchOption === "create") {
+      const trimmedName = savedSearch.name.trim();
+      if (!trimmedName) {
+        setErrors({ name: "Please enter a name before applying filters." });
+        setShowValidation(true);
+        return;
+      }
+    } else if (searchOption === "replace") {
+      // ✅ FIXED: Check both sources for valid selection
+      const hasValidSelection = (selectedSavedSearch?.id) || (savedSearch?.id);
+
+      if (!hasValidSelection) {
+        console.log("❌ Tab validation failed - no valid selection");
+        setErrors({ name: "Please select a saved search to replace before applying filters." });
+        setShowValidation(true);
+        return;
+      }
+
+      console.log("✅ Tab validation passed - valid selection found");
+    }
+
+    // Clear errors if validation passes
+    setErrors({ name: "" });
     setActiveTab(tab);
-    return;
-  }
+  };
 
-  // ✅ FIXED: Only validate based on current mode
-  if (searchOption === "create") {
-    const trimmedName = savedSearch.name.trim();
-    if (!trimmedName) {
-      setErrors({ name: "Please enter a name before applying filters." });
-      setShowValidation(true);
-      return;
-    }
-  } else if (searchOption === "replace") {
-    // ✅ FIXED: Check both sources for valid selection
-    const hasValidSelection = (selectedSavedSearch?.id) || (savedSearch?.id);
-    
-    if (!hasValidSelection) {
-      console.log("❌ Tab validation failed - no valid selection");
-      setErrors({ name: "Please select a saved search to replace before applying filters." });
-      setShowValidation(true);
-      return;
-    }
-    
-    console.log("✅ Tab validation passed - valid selection found");
-  }
-
-  // Clear errors if validation passes
-  setErrors({ name: "" });
-  setActiveTab(tab);
-};
-
-
-
-
-  console.log(searchName);
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "Saved Searches":
         return (
           <SavedSearchForm
-          handleSavedSearchSelect={handleSavedSearchSelect} // ✅ ADD: Pass the handler
+            handleSavedSearchSelect={handleSavedSearchSelect} // ✅ ADD: Pass the handler
             // ✅ PASS: New props for state management
             searchOption={searchOption}
             setSearchOption={setSearchOption}
@@ -402,7 +396,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
                   <span>{tab}</span>
                   <span>{activeTab === tab ? "−" : "+"}</span>
                 </div>
-                <img src="line.png" className="mt-3" alt="divider" />
+                <img src="/line.png" className="mt-3" alt="divider" />
               </li>
             ))}
           </ul>

@@ -1,5 +1,4 @@
 // src/hooks/useFilterHandling.js
-
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { decodeUrlToFilters, buildQueryString } from '../utils/urlHelpers';
@@ -9,8 +8,8 @@ export const useFilterHandling = (perPage) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  
-  const [filters, setFilters] = useState(DASHBOARD_CONSTANTS.DEFAULT_FILTERS);
+
+  const [filters, setFilters] = useState({ ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS });
   const [appliedFilters, setAppliedFilters] = useState(DASHBOARD_CONSTANTS.DEFAULT_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -21,6 +20,9 @@ export const useFilterHandling = (perPage) => {
     const hasFilterParams =
       searchParams.get("bid_type") ||
       searchParams.get("state") ||
+      searchParams.get("local") ||           // 🔥 ADD: local param check
+      searchParams.get("entity_type") ||
+      searchParams.getAll("entity_type").length > 0 || // 🔥 ADD: entity_type param check
       searchParams.get("solicitation") ||
       searchParams.get("include") ||
       searchParams.get("exclude") ||
@@ -57,45 +59,45 @@ export const useFilterHandling = (perPage) => {
 
   // Filter apply handler
   // Filter apply handler - FIXED VERSION
-const handleFiltersApply = useCallback((newFilters) => {
-  setFilters(newFilters);
-  setAppliedFilters(newFilters);
-  setCurrentPage(1);
+  const handleFiltersApply = useCallback((newFilters) => {
+    setFilters(newFilters);
+    setAppliedFilters(newFilters);
+    setCurrentPage(1);
 
-  // 🔥 PRESERVE search term from current URL
-  const searchParams = new URLSearchParams(location.search);
-  const searchTerm = searchParams.get("search");
-  const savedSearchId = searchParams.get("id");
+    // 🔥 PRESERVE search term from current URL
+    const searchParams = new URLSearchParams(location.search);
+    const searchTerm = searchParams.get("search");
+    const savedSearchId = searchParams.get("id");
 
-  const queryString = buildQueryString(newFilters, 1, perPage);
-  
-  // 🔥 Build final URL with preserved parameters
-  let finalURL = `/dashboard?${queryString}`;
-  
-  const additionalParams = new URLSearchParams();
-  
-  if (savedSearchId) {
-    additionalParams.set("id", savedSearchId);
-  }
-  
-  if (searchTerm) {
-    additionalParams.set("search", searchTerm);
-  }
-  
-  if (additionalParams.toString()) {
-    finalURL += `&${additionalParams.toString()}`;
-  }
+    const queryString = buildQueryString(newFilters, 1, perPage);
 
-  navigate(finalURL);
-}, [navigate, perPage, location.search]);
+    // 🔥 Build final URL with preserved parameters
+    let finalURL = `/dashboard?${queryString}`;
+
+    const additionalParams = new URLSearchParams();
+
+    if (savedSearchId) {
+      additionalParams.set("id", savedSearchId);
+    }
+
+    if (searchTerm) {
+      additionalParams.set("search", searchTerm);
+    }
+
+    if (additionalParams.toString()) {
+      finalURL += `&${additionalParams.toString()}`;
+    }
+
+    navigate(finalURL);
+  }, [navigate, perPage, location.search]);
 
   // Sort handler - 🔥 FIXED: Preserve existing URL parameters including search term
   const handleSort = useCallback((field) => {
     const searchParams = new URLSearchParams(location.search);
-    
+
     // Get current ordering from URL or appliedFilters
     const currentOrdering = searchParams.get("ordering") || appliedFilters.ordering;
-    
+
     // Determine new ordering
     let newOrder;
     if (currentOrdering === field) {
@@ -107,24 +109,24 @@ const handleFiltersApply = useCallback((newFilters) => {
     }
 
     // Create updated filters by preserving current appliedFilters and only changing ordering
-    const updatedFilters = { 
+    const updatedFilters = {
       ...appliedFilters,  // This preserves entityType and all other filters
-      ordering: newOrder 
+      ordering: newOrder
     };
-    
+
     // Update state
     setFilters(updatedFilters);
     setAppliedFilters(updatedFilters);
 
     // Build query string with all preserved filters
     const queryString = buildQueryString(updatedFilters, currentPage, perPage);
-    
+
     // 🔥 Preserve saved search ID and search term if they exist
     const savedSearchId = searchParams.get("id");
     const searchTerm = searchParams.get("search");
-    
+
     let finalURL = `/dashboard?${queryString}`;
-    
+
     // Add preserved parameters
     const additionalParams = new URLSearchParams();
     if (savedSearchId) {
@@ -133,7 +135,7 @@ const handleFiltersApply = useCallback((newFilters) => {
     if (searchTerm) {
       additionalParams.set("search", searchTerm);
     }
-    
+
     if (additionalParams.toString()) {
       finalURL += `&${additionalParams.toString()}`;
     }
