@@ -11,6 +11,30 @@ import ProcessWrapper from "../components/ProcessWrapper";
 import { checkTTLAndClear } from "../utils/ttlCheck";
 import { fetchIndustryCategories } from "../services/user.service";
 
+// Static fallback data as array of objects
+const fallbackIndustries = [
+  { id: 1, name: "Agriculture, Forestry, Fishing and Hunting" },
+  { id: 2, name: "Mining, Quarrying, and Oil and Gas Extraction" },
+  { id: 3, name: "Utilities" },
+  { id: 4, name: "Construction" },
+  { id: 5, name: "Manufacturing" },
+  { id: 6, name: "Wholesale Trade" },
+  { id: 7, name: "Retail Trade" },
+  { id: 8, name: "Transportation and Warehousing" },
+  { id: 9, name: "Information" },
+  { id: 10, name: "Finance and Insurance" },
+  { id: 11, name: "Real Estate and Rental and Leasing" },
+  { id: 12, name: "Professional, Scientific, and Technical Services" },
+  { id: 13, name: "Management of Companies and Enterprises" },
+  { id: 14, name: "Administrative and Support and Waste Management and Remediation Services" },
+  { id: 15, name: "Educational Services" },
+  { id: 16, name: "Health Care and Social Assistance" },
+  { id: 17, name: "Arts, Entertainment, and Recreation" },
+  { id: 18, name: "Accommodation and Food Services" },
+  { id: 19, name: "Other Services (except Public Administration)" },
+  { id: 20, name: "Public Administration" }
+];
+
 function IndustryCategories() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -50,7 +74,7 @@ function IndustryCategories() {
   // State management
   const [allIndustries, setAllIndustries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIndustry, setSelectedIndustry] = useState("");
+  const [selectedIndustry, setSelectedIndustry] = useState(null);
   const [showValidation, setShowValidation] = useState(false);
   const [skipClicked, setSkipClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,68 +93,15 @@ function IndustryCategories() {
       setError(null);
       const industries = await fetchIndustryCategories();
       
-      if (Array.isArray(industries) && industries.length > 0) {
-        // Extract industry names or use the full object based on API response structure
-        const industryNames = industries.map(industry => 
-          typeof industry === 'string' ? industry : industry.name || industry.title || industry
-        );
-        const sortedIndustries = industryNames.sort((a, b) => a.localeCompare(b));
-        setAllIndustries(sortedIndustries);
+      if (Array.isArray(industries) && industries.length > 0 && industries[0].id) {
+        // Use API data directly if it has id and name
+        setAllIndustries(industries);
       } else {
-        // Fallback to static data if API returns empty or invalid data
-        const fallbackIndustries = [
-          "Agriculture, Forestry, Fishing and Hunting",
-          "Mining, Quarrying, Oil and Gas Extraction",
-          "Utilities",
-          "Construction",
-          "Manufacturing",
-          "Wholesale Trade",
-          "Information Technology",
-          "Health Care and Social Assistance",
-          "Finance and Insurance",
-          "Real Estate and Rental Leasing",
-          "Education Services",
-          "Transportation and Warehousing",
-          "Retail Trade",
-          "Professional, Scientific, and Technical Services",
-          "Arts, Entertainment, and Recreation",
-          "Accommodation and Food Services",
-          "Administrative and Support Services",
-          "Public Administration",
-          "Other Services (except Public Administration)",
-        ];
-        
-        // Sort fallback data alphabetically too
-        setAllIndustries(fallbackIndustries.sort((a, b) => a.localeCompare(b)));
+        setAllIndustries(fallbackIndustries);
       }
     } catch (err) {
-      console.error("Failed to load industry categories:", err);
       setError("Failed to load industries. Using default categories.");
-      
-      // Use fallback static data on error
-     const fallbackIndustries = [
-        "Agriculture, Forestry, Fishing and Hunting",
-        "Mining, Quarrying, Oil and Gas Extraction",
-        "Utilities",
-        "Construction",
-        "Manufacturing",
-        "Wholesale Trade",
-        "Information Technology",
-        "Health Care and Social Assistance",
-        "Finance and Insurance",
-        "Real Estate and Rental Leasing",
-        "Education Services",
-        "Transportation and Warehousing",
-        "Retail Trade",
-        "Professional, Scientific, and Technical Services",
-        "Arts, Entertainment, and Recreation",
-        "Accommodation and Food Services",
-        "Administrative and Support Services",
-        "Public Administration",
-        "Other Services (except Public Administration)",
-      ];
-      
-      setAllIndustries(fallbackIndustries.sort((a, b) => a.localeCompare(b)));
+      setAllIndustries(fallbackIndustries);
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +147,7 @@ function IndustryCategories() {
     // Apply search filter if search term exists
     if (searchTerm) {
       filtered = allIndustries.filter((industry) =>
-        industry.toLowerCase().includes(searchTerm.toLowerCase())
+        industry.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     } else {
       // If no search term, show only first 6 industries
@@ -184,14 +155,14 @@ function IndustryCategories() {
     }
     
     // Move selected industry to top if it exists in filtered results
-    if (selectedIndustry && filtered.includes(selectedIndustry)) {
-      const selectedIndex = filtered.indexOf(selectedIndustry);
-      const reorderedIndustries = [
-        selectedIndustry, // Selected industry at top
-        ...filtered.slice(0, selectedIndex), // Industries before selected
-        ...filtered.slice(selectedIndex + 1) // Industries after selected
+    if (selectedIndustry && filtered.some(i => i.id === selectedIndustry.id)) {
+      const selectedIndex = filtered.findIndex(i => i.id === selectedIndustry.id);
+      const reordered = [
+        selectedIndustry,
+        ...filtered.slice(0, selectedIndex),
+        ...filtered.slice(selectedIndex + 1)
       ];
-      return reorderedIndustries;
+      return reordered;
     }
     
     return filtered;
@@ -202,7 +173,7 @@ function IndustryCategories() {
     setShowValidation(true);
 
     if (selectedIndustry) {
-      dispatch(saveIndustryCategory([selectedIndustry]));
+      dispatch(saveIndustryCategory([selectedIndustry])); // Save full object
       console.log("✅ Selected Industry (saved to Redux):", selectedIndustry);
       navigate("/help-our-ai");
     }
@@ -296,12 +267,12 @@ function IndustryCategories() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {filteredIndustries.map((industry, i) => (
                       <FormRadio2
-                        key={`${industry}-${i}`} // Better key for dynamic data
-                        label={industry}
+                        key={industry.id}
+                        label={industry.name}
                         name="industry"
-                        value={industry}
-                        selectedValue={selectedIndustry}
-                        onChange={(e) => setSelectedIndustry(e.target.value)}
+                        value={industry.id}
+                        selectedValue={selectedIndustry?.id}
+                        onChange={() => setSelectedIndustry(industry)}
                         delay={i * 100}
                       />
                     ))}

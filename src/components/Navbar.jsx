@@ -10,6 +10,10 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
+// ✅ ADD THESE IMPORTS AT TOP
+import { useDispatch } from 'react-redux';
+import { clearProfile } from '../redux/reducer/profileSlice'; // Update path as needed
+import { persistor } from '../redux/store'; // Update path as needed
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -23,7 +27,6 @@ const navItems = [
 // Profile Dropdown Component
 const ProfileDropdown = ({ isOpen, onClose, scrolled, onLogout }) => {
   const dropdownRef = useRef(null);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,15 +34,15 @@ const ProfileDropdown = ({ isOpen, onClose, scrolled, onLogout }) => {
         onClose();
       }
     };
-
+    
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isOpen, onClose]);
-
+  
   if (!isOpen) return null;
-
+  
   const getDropdownClasses = () => {
     let baseClasses = "absolute right-0 top-full mt-2 w-48 rounded-xl shadow-2xl border z-[60] animate-in slide-in-from-top-2 duration-200";
     
@@ -51,7 +54,7 @@ const ProfileDropdown = ({ isOpen, onClose, scrolled, onLogout }) => {
     
     return baseClasses;
   };
-
+  
   return (
     <div ref={dropdownRef} className={getDropdownClasses()}>
       <div className="p-2">
@@ -59,25 +62,25 @@ const ProfileDropdown = ({ isOpen, onClose, scrolled, onLogout }) => {
           to="/dashboard"
           onClick={onClose}
           className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 transition-all duration-200 group w-full text-left"
-        >
-          <FontAwesomeIcon 
-            icon={faChartBar} 
-            className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform duration-200" 
+          >
+          <FontAwesomeIcon
+            icon={faChartBar}
+            className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform duration-200"
           />
           <span className="font-medium text-white">Dashboard</span>
         </Link>
-        
+
         <button
           onClick={() => {
             onLogout();
             onClose();
           }}
           className="flex items-center space-x-3 p-3 rounded-lg hover:bg-red-500/20 transition-all duration-200 group w-full text-left"
-        >
-          <FontAwesomeIcon 
-            icon={faSignOutAlt} 
-            className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform duration-200" 
-          />
+          >
+          <FontAwesomeIcon
+            icon={faSignOutAlt}
+            className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform duration-200"
+            />
           <span className="font-medium text-white group-hover:text-red-200">Logout</span>
         </button>
       </div>
@@ -93,7 +96,8 @@ const Navbar = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   
   const navigate = useNavigate();
-  
+  const dispatch = useDispatch();
+
   // Check if user is authenticated
   const isAuthenticated = Boolean(localStorage.getItem("access_token"));
 
@@ -101,10 +105,10 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Background detection - if scrolled past certain point, consider it white background
       setScrolled(currentScrollY > 100);
-      
+
       // Navbar hide/show logic
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         // Scrolling down & past threshold - hide navbar
@@ -113,7 +117,7 @@ const Navbar = () => {
         // Scrolling up or at top - show navbar
         setIsVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -122,20 +126,29 @@ const Navbar = () => {
   }, [lastScrollY]);
 
   // Handle logout functionality
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     try {
-      // Clear all stored authentication data
+      // 1. Clear localStorage & sessionStorage
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Navigate to login page
+
+      // 2. Clear Redux profile state
+      dispatch(clearProfile());
+
+      // 3. Purge persist store (MOST IMPORTANT)
+      await persistor.purge();
+      await persistor.flush();
+
+      // 4. Navigate to login page
       navigate('/login');
+
+      console.log('✅ Complete logout - All data cleared');
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('❌ Error during logout:', error);
       // Fallback navigation
       window.location.href = '/login';
     }
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
   // Close mobile menu when route changes
   const handleNavClick = useCallback(() => {
@@ -155,7 +168,7 @@ const Navbar = () => {
   // Dynamic navbar styling based on scroll position
   const getNavbarClasses = () => {
     let baseClasses = "fixed top-0 left-0 right-0 z-50 text-white px-4 py-4 transition-all duration-500 ease-out transform";
-    
+
     if (scrolled) {
       // On white background - use professional gradient with better shadow
       baseClasses += " bg-gradient-to-r from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl shadow-2xl";
@@ -163,20 +176,20 @@ const Navbar = () => {
       // On colored background - use transparent with subtle glow
       baseClasses += " bg-transparent";
     }
-    
+
     if (isVisible) {
       baseClasses += " translate-y-0 opacity-100";
     } else {
       baseClasses += " -translate-y-full opacity-80";
     }
-    
+
     return baseClasses;
   };
 
   // Dynamic content styling
   const getContentClasses = (isLogo = false) => {
     let baseClasses = "transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.98]";
-    
+
     if (scrolled) {
       if (isLogo) {
         baseClasses += " bg-gradient-to-r from-slate-700/60 to-slate-600/60 backdrop-blur-xl border border-white/5 shadow-lg";
@@ -186,7 +199,7 @@ const Navbar = () => {
     } else {
       baseClasses += " bg-white/10 backdrop-blur-md border border-white/10 shadow-sm hover:bg-white/15";
     }
-    
+
     return baseClasses;
   };
 
@@ -194,7 +207,7 @@ const Navbar = () => {
     <>
       {/* Spacer to prevent content jump when navbar becomes fixed */}
       <div className="h-20" />
-      
+
       <nav className={getNavbarClasses()}>
         <div className="container-fixed flex items-center justify-between space-x-3">
           {/* Logo */}
@@ -202,10 +215,10 @@ const Navbar = () => {
             to="/"
             className={`flex items-center space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] group ${getContentClasses(true)}`}
           >
-            <img 
-              src="/icon.png" 
+            <img
+              src="/icon.png"
               alt="BidInsight Logo"
-              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" 
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
             />
             <span className="text-lg font-semibold font-h bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
               BidInsight
@@ -238,17 +251,17 @@ const Navbar = () => {
                   aria-expanded={profileDropdownOpen}
                   aria-haspopup="true"
                 >
-                  <FontAwesomeIcon 
-                    icon={faUser} 
-                    className="transition-transform duration-300 group-hover:scale-110" 
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    className="transition-transform duration-300 group-hover:scale-110"
                   />
-                  <FontAwesomeIcon 
-                    icon={faChevronDown} 
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
                     className={`w-3 h-3 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180' : ''}`}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 </button>
-                
+
                 <ProfileDropdown
                   isOpen={profileDropdownOpen}
                   onClose={closeProfileDropdown}
@@ -271,7 +284,7 @@ const Navbar = () => {
 
           {/* Hamburger (Mobile) */}
           <div className="md:hidden">
-            <button 
+            <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 group"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -300,15 +313,15 @@ const Navbar = () => {
                   {item.label}
                 </Link>
               ))}
-              
+
               <div className="flex justify-between items-center pt-3 border-t border-white/20 animate-in slide-in-from-bottom-3 duration-300" style={{ animationDelay: '300ms' }}>
-                <button 
+                <button
                   className="p-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
                   aria-label="Search"
                 >
                   <FontAwesomeIcon icon={faMagnifyingGlass} />
                 </button>
-                
+
                 {isAuthenticated ? (
                   <div className="flex items-center space-x-2">
                     <Link
@@ -316,9 +329,9 @@ const Navbar = () => {
                       onClick={handleNavClick}
                       className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
                     >
-                      <FontAwesomeIcon 
-                        icon={faChartBar} 
-                        className="group-hover:scale-110 transition-transform duration-300" 
+                      <FontAwesomeIcon
+                        icon={faChartBar}
+                        className="group-hover:scale-110 transition-transform duration-300"
                       />
                       <span>Dashboard</span>
                     </Link>
@@ -329,9 +342,9 @@ const Navbar = () => {
                       }}
                       className="flex items-center space-x-2 bg-red-500/20 px-4 py-2 rounded-full hover:bg-red-500/30 transition-all duration-300 hover:scale-105 group"
                     >
-                      <FontAwesomeIcon 
-                        icon={faSignOutAlt} 
-                        className="group-hover:scale-110 transition-transform duration-300" 
+                      <FontAwesomeIcon
+                        icon={faSignOutAlt}
+                        className="group-hover:scale-110 transition-transform duration-300"
                       />
                       <span>Logout</span>
                     </button>
@@ -342,9 +355,9 @@ const Navbar = () => {
                     onClick={handleNavClick}
                     className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
                   >
-                    <FontAwesomeIcon 
-                      icon={faUser} 
-                      className="group-hover:scale-110 transition-transform duration-300" 
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      className="group-hover:scale-110 transition-transform duration-300"
                     />
                     <span>Register / Login</span>
                   </Link>

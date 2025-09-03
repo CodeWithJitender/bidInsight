@@ -31,7 +31,10 @@ export const PLAN_RESTRICTIONS = {
     saved_search: { restricted: false, has_limit: true, limit: 1, message: "You've reached the maximum of 1 saved search. Upgrade to Essentials for unlimited saved searches." },
     sorting: { restricted: false }, // ✅ Allow sorting for Starter
     blur_bids: { enabled: false }, // ✅ No blur for Starter
-    blur_entity_dropdown: { restricted: false } // ✅ Allow entity dropdown for Starter
+    blur_entity_dropdown: { restricted: false }, // ✅ Allow entity dropdown for Starter
+    geographic_nationwide: { restricted: true, message: "Upgrade to Essentials plan to select nationwide coverage." },
+    geographic_region: { restricted: true, message: "Upgrade to Essentials plan to select specific regions." },
+    geographic_multi_state: { restricted: true, message: "Upgrade to Essentials plan to select multiple states.", limit: 1 }
   },
   '003': { // Essentials Plan - Full Access
     bid_summary: { restricted: false },
@@ -45,7 +48,7 @@ export const PLAN_RESTRICTIONS = {
     blur_bids: { enabled: false },
     blur_entity_dropdown: { restricted: false }
   }
-  
+
 };
 
 /**
@@ -181,7 +184,24 @@ export const getRestrictionPopupData = (feature, userPlan) => {
       message: restriction.message || "Upgrade your plan to filter bids by entity types.",
       icon: "fa-filter",
       ctaText: "Upgrade to Filter"
+    },
+
+    geographic_nationwide: {
+      title: "🔒 Nationwide Coverage Locked",
+      message: "Upgrade to Essentials plan to access nationwide coverage.",
+      ctaText: "Upgrade to Essentials"
+    },
+    geographic_region: {
+      title: "🔒 Regional Selection Locked",
+      message: "Upgrade to Essentials plan to select regions.",
+      ctaText: "Upgrade to Essentials"
+    },
+    geographic_multi_state: {
+      title: "🔒 Multiple States Locked",
+      message: "Upgrade to Essentials to select multiple states.",
+      ctaText: "Upgrade to Essentials"
     }
+
   };
 
   return {

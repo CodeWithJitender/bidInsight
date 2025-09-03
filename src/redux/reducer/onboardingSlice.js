@@ -30,11 +30,14 @@ const onboardingSlice = createSlice({
   initialState,
   reducers: {
     saveGeographicCoverage: (state, action) => {
-      state.geographicCoverage = {
-        region: action.payload.region || "",
-        states: action.payload.states || [],
-      };
-    },
+  state.geographicCoverage = {
+    region: action.payload.region || "",
+    // Extract only IDs if objects are passed
+    states: action.payload.states?.map(stateItem => 
+      typeof stateItem === 'object' && stateItem.value ? stateItem.value : stateItem
+    ) || [],
+  };
+},
     saveIndustryCategory: (state, action) => {
       // Expects array of selected industries from MultiSelect
       state.industryCategory = action.payload || [];

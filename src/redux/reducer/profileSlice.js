@@ -16,7 +16,6 @@ export const fetchUserProfile = createAsyncThunk(
         // console.log(data);
         return rest;
       } 
-      
 
       return data;
     } catch (error) {
@@ -32,7 +31,19 @@ const profileSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // ✅ Add action to clear profile data
+    clearProfile: (state) => {
+      state.profile = null;
+      state.loading = false;
+      state.error = null;
+    },
+    // ✅ Add action to reset loading state
+    resetProfileState: (state) => {
+      state.loading = false;
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserProfile.pending, (state) => {
@@ -50,4 +61,6 @@ const profileSlice = createSlice({
   },
 });
 
+// Export actions
+export const { clearProfile, resetProfileState } = profileSlice.actions;
 export default profileSlice.reducer;

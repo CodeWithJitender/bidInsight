@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { saveGeographicCoverage, saveIndustryCategory } from "../redux/reducer/onboardingSlice";
+import { saveGeographicCoverage } from "../redux/reducer/onboardingSlice";
+import { fetchUserProfile } from "../redux/reducer/profileSlice";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
 import FormFooter from "../components/FormFooter";
@@ -9,10 +10,13 @@ import FormImg from "../components/FormImg";
 import FormMultiSelect from "../components/FormMultiSelect";
 import ProcessWrapper from "../components/ProcessWrapper";
 import { useNavigate } from "react-router-dom";
-import { checkTTLAndClear } from "../utils/ttlCheck";
 import { getAllStates } from "../services/user.service";
+import { usePlan } from "../hooks/usePlan";
+import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
 
-function GeographicCoverage() {
+function GeographicCoverage({ onFeatureRestriction = () => { } }) {
+
+  
   const data = {
     title: "Where Should We Look?",
     para: "Select states, regions or industries so we only surface relevant bids.",
@@ -39,12 +43,15 @@ function GeographicCoverage() {
     "West",
   ];
 
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { planInfo, isRestricted } = usePlan();
 
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [nationwideSelected, setNationwideSelected] = useState(false);
-  const [selectedIndustries, setSelectedIndustries] = useState([]);
+  const [selectedStates, setSelectedStates] = useState([]);
   const [selectionError, setSelectionError] = useState("");
   const [selectionSuccess, setSelectionSuccess] = useState("");
   const [touched, setTouched] = useState(false);
@@ -52,9 +59,42 @@ function GeographicCoverage() {
 
   const [skipClicked, setSkipClicked] = useState(false); // 🆕 Skip flag
 
+
+  const [popupState, setPopupState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    featureName: "",
+    showUpgradeButton: true
+  });
+
+  const handleFeatureRestriction = (title, message, featureName, needsUpgrade = true) => {
+    setPopupState({
+      isOpen: true,
+      title: title || "Feature Restricted",
+      message: message || "This feature is not available in your current plan.",
+      featureName: featureName || "Premium Feature",
+      showUpgradeButton: needsUpgrade
+    });
+  };
+
+  const handleClosePopup = () => {
+    setPopupState(prev => ({
+      ...prev,
+      isOpen: false
+    }));
+  };
+
+  const handleUpgrade = () => {
+    navigate("/pricing");
+    handleClosePopup();
+  };
+
+
   useEffect(() => {
-    checkTTLAndClear(navigate);
-  }, []);
+    dispatch(fetchUserProfile());
+    console.log("🔥 Profile fetched on Geographic Coverage page");
+  }, [dispatch]);
 
   useEffect(() => {
     // current entry lock kar do
@@ -77,7 +117,7 @@ function GeographicCoverage() {
       const geo = parsed.geographic || {};
       setSelectedRegions(geo.selectedRegions || []);
       setNationwideSelected(geo.nationwideSelected || false);
-      setSelectedIndustries(geo.selectedIndustries || []);
+      setSelectedStates(geo.selectedStates || []);
     }
   }, []);
 
@@ -91,11 +131,11 @@ function GeographicCoverage() {
       geographic: {
         selectedRegions,
         nationwideSelected,
-        selectedIndustries,
+        selectedStates,
       },
     };
     sessionStorage.setItem("onboardingForm", JSON.stringify(updated));
-  }, [selectedRegions, nationwideSelected, selectedIndustries, skipClicked]);
+  }, [selectedRegions, nationwideSelected, selectedStates, skipClicked]);
 
   // 🌐 Fetch states
   useEffect(() => {
@@ -119,33 +159,120 @@ function GeographicCoverage() {
   }, []);
 
   const handleNationwide = () => {
+    console.log("🔥 Nationwide clicked, planInfo:", planInfo);
+    console.log("🔥 Restrictions:", restrictions);
+
+    // Check if it's Starter plan and restricted
+    if (planInfo?.isStarter && restrictions?.geographic_nationwide) {
+      console.log("🔥 Triggering nationwide restriction popup");
+      validateAndExecute(
+        'geographic_nationwide',
+        (popupData) => {
+          onFeatureRestriction(
+            popupData.title || "🔒 Nationwide Coverage Locked",
+            popupData.message || "Upgrade to Essentials plan to select nationwide coverage.",
+            popupData.feature || "Geographic Nationwide",
+            popupData.needsUpgrade || true
+          );
+        },
+        () => {
+          // Success callback - allow selection
+          console.log("✅ Nationwide allowed");
+          setNationwideSelected(true);
+          setSelectedRegions([]);
+          setSelectedStates([]);
+        }
+      );
+      return;
+    }
+
+    // For non-restricted users
     setNationwideSelected(true);
     setSelectedRegions([]);
-    setSelectedIndustries([]);
+    setSelectedStates([]);
   };
 
   const handleRegionChange = (value) => {
+    console.log("🔥 Region clicked:", value, "planInfo:", planInfo);
+
+    // Check if it's Starter plan and restricted
+    if (planInfo?.isStarter && restrictions?.geographic_region) {
+      console.log("🔥 Triggering region restriction popup");
+      validateAndExecute(
+        'geographic_region',
+        (popupData) => {
+          onFeatureRestriction(
+            popupData.title || "🔒 Regional Selection Locked",
+            popupData.message || "Upgrade to Essentials plan to select specific regions.",
+            popupData.feature || "Geographic Region",
+            popupData.needsUpgrade || true
+          );
+        },
+        () => {
+          // Success callback - allow selection
+          console.log("✅ Region selection allowed");
+          if (selectedRegions.includes(value)) {
+            setSelectedRegions((prev) => prev.filter((v) => v !== value));
+          } else if (selectedRegions.length < 3) {
+            setSelectedRegions((prev) => [...prev, value]);
+          }
+          setNationwideSelected(false);
+          setSelectedStates([]);
+        }
+      );
+      return;
+    }
+
+    // For non-restricted users
     if (selectedRegions.includes(value)) {
       setSelectedRegions((prev) => prev.filter((v) => v !== value));
     } else if (selectedRegions.length < 3) {
       setSelectedRegions((prev) => [...prev, value]);
     }
     setNationwideSelected(false);
-    setSelectedIndustries([]);
+    setSelectedStates([]);
   };
 
-  const handleIndustryChange = (selected) => {
-    setSelectedIndustries(selected);
+  const handleStateChange = (selected) => {
+    console.log("🔥 States selected:", selected, "planInfo:", planInfo);
+
+    // Check if it's Starter plan trying to select multiple states
+    if (planInfo?.isStarter && selected.length > 1 && restrictions?.geographic_multi_state) {
+      console.log("🔥 Triggering multi-state restriction popup");
+      validateAndExecute(
+        'geographic_multi_state',
+        (popupData) => {
+          onFeatureRestriction(
+            popupData.title || "🔒 Multiple States Locked",
+            popupData.message || "Upgrade to Essentials plan to select multiple states.",
+            popupData.feature || "Geographic Multi State",
+            popupData.needsUpgrade || true
+          );
+        },
+        () => {
+          // Success callback - allow selection
+          console.log("✅ Multi-state selection allowed");
+          setSelectedStates(selected);
+          setNationwideSelected(false);
+          setSelectedRegions([]);
+        }
+      );
+      return;
+    }
+
+    // For non-restricted users or single state selection
+    setSelectedStates(selected);
     setNationwideSelected(false);
     setSelectedRegions([]);
   };
+
 
   useEffect(() => {
     if (!touched) return;
     if (
       !nationwideSelected &&
       selectedRegions.length === 0 &&
-      selectedIndustries.length === 0
+      selectedStates.length === 0
     ) {
       setSelectionError("Please select any of the three");
       setSelectionSuccess("");
@@ -153,7 +280,7 @@ function GeographicCoverage() {
       setSelectionError("");
       setSelectionSuccess("The field is selected");
     }
-  }, [nationwideSelected, selectedRegions, selectedIndustries, touched]);
+  }, [nationwideSelected, selectedRegions, selectedStates, touched]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -162,7 +289,7 @@ function GeographicCoverage() {
     if (
       !nationwideSelected &&
       selectedRegions.length === 0 &&
-      selectedIndustries.length === 0
+      selectedStates.length === 0
     ) {
       setSelectionError("Please select any of the three");
       setSelectionSuccess("");
@@ -173,12 +300,14 @@ function GeographicCoverage() {
       ? { region: "Nationwide", states: [] }
       : selectedRegions.length > 0
         ? { region: "Region", states: selectedRegions }
-        : { region: "", states: [] };
+        : selectedStates.length > 0
+          ? { region: "State", states: selectedStates }
+          : { region: "", states: [] };
 
-    const industryData = selectedIndustries;
+    // const industryData = selectedIndustries;
 
     dispatch(saveGeographicCoverage(geoData));
-    dispatch(saveIndustryCategory(industryData));
+    // dispatch(saveIndustryCategory(industryData));
 
     navigate("/industry-categories");
   };
@@ -256,8 +385,8 @@ function GeographicCoverage() {
                 name="industries"
                 placeholder="Choose State (Max 10)"
                 options={stateOptions}
-                value={selectedIndustries}
-                onChange={handleIndustryChange}
+                value={selectedStates}
+                onChange={handleStateChange}
                 menuPlacement="auto"
               />
 
@@ -288,6 +417,16 @@ function GeographicCoverage() {
       <div className="sticky top-0">
         <FormImg src={"geographic-coverage.png"} />
       </div>
+      <FeatureRestrictionPopup
+        isOpen={popupState.isOpen}
+        onClose={handleClosePopup}
+        onUpgrade={handleUpgrade}
+        title={popupState.title}
+        message={popupState.message}
+        featureName={popupState.featureName}
+        showUpgradeButton={popupState.showUpgradeButton}
+      />
+
     </ProcessWrapper>
   );
 }

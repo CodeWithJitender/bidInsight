@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,7 +10,6 @@ import ProcessWrapper from "../components/ProcessWrapper";
 import SubmissionModal from "../components/SubmissionModal";
 import api from "../utils/axios";
 import { clearInsuranceData, clearOnboardingData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice";
-import { checkTTLAndClear } from "../utils/ttlCheck";
 
 function ExtraData() {
   const navigate = useNavigate();
@@ -20,8 +18,7 @@ function ExtraData() {
   const insuranceData = useSelector((state) => state.onboarding.insuranceData);
   const skippedInsurance = useSelector((state) => state.onboarding.skippedInsurance);
   const allNoInsurance = useSelector((state) => state.onboarding.allNoInsurance);
-
-  // ✅ Enhanced states for different modal scenarios
+  const onboardingData = useSelector((state) => state.onboarding);
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [showAllNoModal, setShowAllNoModal] = useState(false);
   const [isSkipMode, setIsSkipMode] = useState(false);
@@ -29,9 +26,6 @@ function ExtraData() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // useEffect(() => {
-  //   checkTTLAndClear(navigate);
-  // }, []);
 
   // Field mapping with proper labels
   const insuranceFields = {
@@ -106,18 +100,18 @@ function ExtraData() {
   }, [allPossibleFields]);
 
   useEffect(() => {
-  try {
-    const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
-    const updated = {
-      ...prev,
-      extraData: fields,
-    };
-    sessionStorage.setItem("onboardingForm", JSON.stringify(updated));
-    console.log("💾 ExtraData saved to sessionStorage:", fields);
-  } catch (err) {
-    console.error("❌ Failed to save extraData:", err);
-  }
-}, [fields]);
+    try {
+      const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
+      const updated = {
+        ...prev,
+        extraData: fields,
+      };
+      sessionStorage.setItem("onboardingForm", JSON.stringify(updated));
+      console.log("💾 ExtraData saved to sessionStorage:", fields);
+    } catch (err) {
+      console.error("❌ Failed to save extraData:", err);
+    }
+  }, [fields]);
 
   // ✅ Handle different incoming states
   useEffect(() => {
@@ -198,10 +192,18 @@ function ExtraData() {
       cyberInsurance: "cyber_security_insurance",
     };
 
+    const regionMap = {
+      "Nationwide": 1,
+      "Region": 2,
+      "State": 3
+    };
+
     const payload = {
-      region: 1,
-      industry: 1,
-      states: [1, 5, 6],
+      region: regionMap[onboardingData.geographicCoverage.region] || 1,
+      industry: onboardingData.industryCategory[0]?.id || 1, // ✅ send only id
+      states: (onboardingData.geographicCoverage.states || []).map(
+        s => typeof s === "object" ? s.id ?? s.value : s
+      ), // ✅ always send array of ids
     };
 
     // ✅ Handle different modes
@@ -223,6 +225,8 @@ function ExtraData() {
         }
       });
     }
+
+    console.log(payload, "🚀 Submitting profile payload");
 
     try {
       const res = await api.post("/auth/profile/", payload);

@@ -1,30 +1,74 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { postPricingPlans } from "../services/admin.service"; // Update path as needed
 
 function PricingCard({ title, price, features, delay, icon, planDetails, isComingSoon }) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Navigation handler function
-  const handleNavigation = () => {
+  // Get plan_id based on title
+  const getPlanId = (planTitle) => {
+    switch(planTitle) {
+      case "Free":
+        return 1;
+      case "Starter":
+        return 2;
+      case "Essentials":
+        return 3;
+      case "A.I. Powerhouse":
+        return 4; // For future use
+      default:
+        return null;
+    }
+  };
+
+  // Handle plan selection and API call
+  const handlePlanSelection = async (planTitle) => {
     if (isComingSoon) return;
     
-    switch(title) {
-      case "Free":
-        navigate("/dashboard?page=1&pageSize=25&bid_type=Active&ordering=closing_date");
-        break;
-      case "Starter":
-      case "Essentials":
-        navigate("/geographic-coverage");
-        break;
-      default:
-        break;
+    const planId = getPlanId(planTitle);
+    if (!planId) {
+      console.error("Invalid plan title:", planTitle);
+      return;
     }
+
+    setIsLoading(true);
+    
+    try {
+      // Call API to set plan
+      await postPricingPlans(planId);
+      console.log(`✅ Successfully set plan: ${planTitle} (ID: ${planId})`);
+      
+      // Navigate based on plan type
+      switch(planTitle) {
+        case "Free":
+          navigate("/dashboard?page=1&pageSize=25&bid_type=Active&ordering=closing_date");
+          break;
+        case "Starter":
+        case "Essentials":
+          navigate("/geographic-coverage");
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error("Failed to set plan:", error);
+      // You can show an error message to user here
+      alert("Failed to select plan. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Navigation handler function
+  const handleNavigation = () => {
+    handlePlanSelection(title);
   };
 
   // Button click handler
   const handleButtonClick = (e) => {
     e.stopPropagation(); // Card click se interfere avoid karna
-    handleNavigation();
+    handlePlanSelection(title);
   };
 
   console.log(planDetails, "🔥 Plan details in card");
@@ -59,11 +103,16 @@ function PricingCard({ title, price, features, delay, icon, planDetails, isComin
       </div>
       
       <button 
-        className={`bg-btn border border-white text-white p-4 font-inter font-medium rounded-2xl my-3 ${isComingSoon ? 'opacity-50 cursor-not-allowed' : ' hover:text-blue transition-colors'}`} 
-        disabled={isComingSoon}
+        className={`bg-btn border border-white text-white p-4 font-inter font-medium rounded-2xl my-3 ${isComingSoon || isLoading ? 'opacity-50 cursor-not-allowed' : ' hover:text-blue transition-colors'}`} 
+        disabled={isComingSoon || isLoading}
         onClick={handleButtonClick} // Button click handler
       >
-        {isComingSoon ? "Coming Soon" : "Upgrade to Plus"}
+        {isComingSoon 
+          ? "Coming Soon" 
+          : isLoading 
+            ? "Processing..." 
+            : "Upgrade to Plus"
+        }
       </button>
       
       <ul className="text-sm text-start flex-1 overflow-y-auto">

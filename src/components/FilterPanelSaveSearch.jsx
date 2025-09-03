@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusTab from "./tabs/StatusTab";
-import CategoriesTab from "./tabs/CategoriesTab";
 import KeywordTab from "./tabs/KeywordTab";
 import LocationTab from "./tabs/LocationTab";
 import PublishedDateTab from "./tabs/PublishedDateTab";
@@ -19,6 +18,8 @@ import {
 import { addSavedSearch } from "../redux/reducer/savedSearchesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { parseFiltersFromURL } from "../utils/parseFiltersFromURL";
+import SavedSearchPopup from "../components/SavedSearchPopup";
+
 
 const tabs = [
   "Saved Searches",
@@ -40,7 +41,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
   const [selectedSavedSearch, setSelectedSavedSearch] = useState(selectedSearch?.id || "");
   const [defaultSearch, setDefaultSearch] = useState(false);
   const [searchName, setSearchName] = useState(""); // <-- NEW
-
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
   const [filters, setFilters] = useState({
     status: "",
     keyword: {
@@ -178,12 +179,12 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
   const handleSaveSearch = async (e) => {
     e.preventDefault();
 
-  //   if (searchOption === "create" && planInfo?.isStarter && savedSearches.length >= 1) {
-  //   setErrors({ 
-  //     name: "You've reached the maximum of 1 saved search. Upgrade to Essentials for unlimited saved searches." 
-  //   });
-  //   return;
-  // }
+    //   if (searchOption === "create" && planInfo?.isStarter && savedSearches.length >= 1) {
+    //   setErrors({ 
+    //     name: "You've reached the maximum of 1 saved search. Upgrade to Essentials for unlimited saved searches." 
+    //   });
+    //   return;
+    // }
 
     setShowValidation(true);
 
@@ -270,6 +271,12 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
 
     } catch (error) {
       // Error handling...
+      if (error.response?.status === 403) {
+        setShowUpgradePopup(true);
+        return;
+      }
+
+
       if (error.response?.status === 409) {
         setErrors({ name: "A saved search with this name already exists." });
       } else if (error.response?.data?.message) {
@@ -431,6 +438,14 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
           </div>
         </div>
       </div>
+       <SavedSearchPopup
+      isOpen={showUpgradePopup}
+      onClose={() => setShowUpgradePopup(false)}
+      title="Saved Search Limit Reached"
+      message="Upgrade to plan for more saved searches and advanced features."
+      upgradeButtonText="Upgrade Now"
+      cancelButtonText="Cancel"
+    />
     </div>
   );
 };
