@@ -79,7 +79,6 @@ function Dashboard() {
     validateFeatureUsage
   } = usePlan();
 
-
   console.log("=== PLAN DEBUG START ===");
   console.log("userPlan from redux:", useSelector((state) => state.login?.user?.plan));
   console.log("planInfo:", planInfo);
@@ -107,8 +106,6 @@ function Dashboard() {
   } = useDashboardUI(restrictions, showFeatureRestriction);
 
 
-
-  // 🔥 REMAINING LOCAL STATE
   const [bidCount, setBidCount] = useState({ count: 0, new_bids: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -127,8 +124,6 @@ function Dashboard() {
 
   // 🚀 NEW STATE - Export Loading
   const [exportLoading, setExportLoading] = useState(false);
-
-
   const [followedBids, setFollowedBids] = useState(new Set());
   const [followLoading, setFollowLoading] = useState(new Set());
 
@@ -137,12 +132,6 @@ function Dashboard() {
   const companyName = profile?.company_name || "";
   const formattedName = companyName.charAt(0).toUpperCase() + companyName.slice(1);
   const data = { title: `${formattedName}'s Dashboard` };
-
-
-
-
-
-
 
   const closeFeatureRestriction = () => {
     setRestrictionPopup({
@@ -153,7 +142,6 @@ function Dashboard() {
       showUpgradeButton: true
     });
   };
-
 
   const handleUpgrade = () => {
     closeFeatureRestriction();
@@ -307,8 +295,6 @@ function Dashboard() {
     }
   };
 
-
-
   // Fetch followed bids on component mount
   useEffect(() => {
     const fetchFollowedBids = async () => {
@@ -329,8 +315,6 @@ function Dashboard() {
     }
   }, []); // Run once on mount
 
-
-  // 🔥 REPLACE YOUR EXISTING popstate useEffect WITH THIS:
 
   useEffect(() => {
     const handlePopState = (e) => {
@@ -368,8 +352,6 @@ function Dashboard() {
   }, [currentPage, setFilters, setAppliedFilters, setTopSearchTerm]);
 
 
-
-  // 🔥 FETCH BID COUNT
   useEffect(() => {
     const fetchBidCount = async () => {
       try {
@@ -816,8 +798,6 @@ function Dashboard() {
   return (
     <>
       <div className="py-[120px] bg-blue">
-
-
         <FeatureRestrictionPopup
           isOpen={restrictionPopup.isOpen}
           onClose={closeFeatureRestriction}
