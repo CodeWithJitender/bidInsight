@@ -7,10 +7,17 @@ import HeroHeading from "../../components/HeroHeading";
 import { get } from "jquery";
 import { getPricingPlans } from "../../services/bid.service";
 import '../../index.css';
+import { useSelector } from "react-redux";
 
 function PricingHero() {
   const [billingCycle, setBillingCycle] = useState("Annual");
   const [planDetails, setPlanDetails] = useState(null);
+  //   const subscriptionPlanName = useSelector(
+  //   (state) => state.profile.profile.subscription_plan['plan_code']
+  // );
+
+  // console.log(subscriptionPlanName, "Selected subscription plan name");
+
 
   const plans = [
     {

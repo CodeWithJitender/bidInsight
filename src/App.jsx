@@ -10,6 +10,7 @@ import ShimmerSummaryCard from "./components/shimmereffects/ShimmerSummaryCard.j
 import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
 import OTPVerification from "./components/OTPVerification.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
 
 
 
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/user-profile" element={<UserProfile />} />
           {/* <Route path="/bidskeleton" element={<BidTableSkeleton />} /> */}
           <Route path="/*" element={<Error404 />} />
         </Routes>

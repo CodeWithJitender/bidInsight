@@ -97,9 +97,9 @@ function PricingCard({ title, price, features, delay, icon, planDetails, isComin
       <h3 className="text-[30px] font-h font-semibold text-start">{title}</h3>
       <div className="flex items-center gap-3">
         <div className="text-[50px] font-bold font-h">${price}</div>
-        <div className="">
+        {/* <div className="">
           <img src="discount.png" className="w-[100%] max-w-[130px]" alt="" />
-        </div>
+        </div> */}
       </div>
       
       <button 
