@@ -200,7 +200,9 @@ function ExtraData() {
 
     const payload = {
       region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
-      industry: onboardingData.industryCategory,         // ✅ Direct number access
+        industry: Array.isArray(onboardingData.industryCategory)
+    ? onboardingData.industryCategory[0] || null
+    : onboardingData.industryCategory,
       states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
     };
 

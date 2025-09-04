@@ -292,3 +292,23 @@ export const totalFollowedBids = async () => {
     throw err;
   }
 };
+
+
+export const deleteFollowedBid = async (id) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    throw new Error("No access token found");
+  }
+  try {
+    const res = await API.delete(`/bids/follow/${id}/`, {
+      headers: {  
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log("Unfollowed bid:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("Error unfollowing bid:", err);
+    throw err;
+  } 
+};

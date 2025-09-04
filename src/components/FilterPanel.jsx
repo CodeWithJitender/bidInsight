@@ -120,12 +120,6 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     }
 
 
-
-
-
-
-    
-
      const entityTypeParam = searchParams.get('entity_type');
     if (entityTypeParam) {
       const entityTypes = entityTypeParam.split(',');
@@ -163,16 +157,6 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
         decodedFilters.location.local = searchParams.get('local').split(',');
       }
     }
-
-
-
-
-
-
-
-
-
-
 
 
     // Decode solicitation to solicitationType array
@@ -326,10 +310,9 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
 
   // 🔥 FIXED: Function to update filters in both local state and parent component
   const updateFilters = (newFilters) => {
-    console.log("🔥 FilterPanel updateFilters called with:", newFilters);
     setFilters(newFilters);
     if (setPropFilters) {
-      setPropFilters(newFilters);
+      setPropFilters(newFilters); // Dashboard ko bhej raha hai
     }
   };
 
@@ -564,3 +547,13 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
 };
 
 export default FilterPanel;
+
+// // Dashboard.jsx ya parent me
+// useEffect(() => {
+//   // Jab bhi filters change ho, API call karo aur URL update karo
+//   fetchBids(); // ya jo bhi aapka API call function hai
+
+//   // URL update karo (optional, agar aap URL sync karte ho)
+//   const params = buildQueryString(filters);
+//   window.history.replaceState(null, '', `?${params}`);
+// }, [filters]);

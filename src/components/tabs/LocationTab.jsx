@@ -1,8 +1,10 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Trash2, Search, ChevronDown, ChevronUp } from "lucide-react";
 // 👇 Import the real API function
 import { getAllStates } from "../../services/user.service";
+import { useSelector, useDispatch } from "react-redux";
+import FeatureRestrictionPopup from "../FeatureRestrictionPopup"; // adjust path if needed
+import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
 
 // Mock local entities data
 const LOCAL_ENTITIES = [
@@ -68,6 +70,10 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
   // Data states
   const [states, setStates] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Plan and profile data from Redux
+  const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
+  const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
 
   // 🔥 CRITICAL: Sync with external filters when they change
   useEffect(() => {
@@ -185,6 +191,12 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
   // State handlers
   const toggleState = useCallback((stateName) => {
+    // If on Starter and already 1 state selected, show popup
+    if (planCode === "002" && locationState.states.length >= 1 && !locationState.states.includes(stateName)) {
+      setShowRestrictionPopup(true);
+      return;
+    }
+
     const newStates = locationState.states.includes(stateName)
       ? locationState.states.filter(s => s !== stateName)
       : [...locationState.states, stateName];
@@ -196,7 +208,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
     console.log("🔥 State toggled:", stateName, "New states:", newStates);
     updateLocationFilters(newLocationState);
-  }, [locationState, updateLocationFilters]);
+  }, [planCode, locationState.states, updateLocationFilters]);
 
   const toggleAllStates = useCallback(() => {
     const visibleStateNames = filteredStates.map(state => state.name || state);
@@ -279,6 +291,68 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
   const totalSelected = useMemo(() => {
     return (locationState.federal ? 1 : 0) + locationState.states.length + locationState.local.length;
   }, [locationState.federal, locationState.states.length, locationState.local.length]);
+
+  // Enforce single state selection for Starter plan
+  useEffect(() => {
+    if (planCode === "002" && profileStates.length > 0) {
+      // Only select the first state (Starter plan allows 1)
+      setLocationState(prev => ({
+        ...prev,
+        federal: true, // <-- Yeh line add karo!
+        states: [profileStates[0].name]
+      }));
+      setFilters(prev => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          federal: true, // <-- Yeh bhi add karo!
+          states: [profileStates[0].name]
+        }
+      }));
+    }
+  }, [planCode, profileStates, setFilters]);
+
+  const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
+  const [showSavedSearchPopup, setShowSavedSearchPopup] = useState(false);
+
+  // Redux state for saved search popup
+  const showSavedSearchPopupRedux = useSelector(state => state.ui?.showSavedSearchPopup);
+
+  // Effect to handle saved search popup
+  useEffect(() => {
+    if (showSavedSearchPopupRedux) {
+      setShowSavedSearchPopup(true);
+      // Optionally, dispatch an action to reset the flag here
+    }
+  }, [showSavedSearchPopupRedux]);
+
+  // State/local click handler:
+  const handleStateClick = (stateName) => {
+    if (profileStates.length === 0) {
+      setShowSavedSearchPopup(true);
+      return;
+    }
+    // ...baaki normal logic...
+  };
+
+  const handleLocalClick = () => {
+    setShowSavedSearchPopup(true);
+  };
+
+  // Bids fetching function (example)
+  const fetchBids = async () => {
+    try {
+      await getBids(...params);
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 403 &&
+        error.response.data?.detail?.includes("Your subscription plan only allow filtering")
+      ) {
+        setShowSavedSearchPopup(true);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col p-6 bg-gray-50">
@@ -373,6 +447,17 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
                 checked={locationState.states.length > 0}
                 onChange={(e) => {
                   e.stopPropagation();
+                  // Starter plan: block select all if more than 1 state
+                  if (
+                    planCode === "002" &&
+                    profileStates.length > 0 &&
+                    filteredStates.some(
+                      (state) => (state.name || state) !== profileStates[0].name
+                    )
+                  ) {
+                    setShowSavedSearchPopup(true);
+                    return;
+                  }
                   toggleAllStates();
                 }}
                 ref={(el) => {
@@ -442,7 +527,19 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
                           type="checkbox"
                           className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                           checked={checked}
-                          onChange={() => toggleState(name)}
+                          onChange={() => {
+                            // Starter plan: only allow profileStates[0].name
+                            if (
+                              planCode === "002" &&
+                              profileStates.length > 0 &&
+                              name !== profileStates[0].name
+                            ) {
+                              setShowSavedSearchPopup(true);
+                              return;
+                            }
+                            toggleState(name);
+                          }}
+                          disabled={profileStates.length === 0}
                         />
                         <span className="text-gray-900">{name}</span>
                       </label>
@@ -457,9 +554,15 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         {/* Local Section */}
         <div className="bg-white rounded-lg border-2 border-purple-400">
           <div
-            className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => setLocalDropdownOpen(!localDropdownOpen)}
-          >
+  className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+  onClick={() => {
+    if (planCode === "002" || profileStates.length === 0) {
+      setShowSavedSearchPopup(true);
+      return;
+    }
+    setLocalDropdownOpen(!localDropdownOpen);
+  }}
+>
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
@@ -468,6 +571,10 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
                 checked={locationState.local.length > 0}
                 onChange={(e) => {
                   e.stopPropagation();
+                  if (planCode === "002" || profileStates.length === 0) {
+                    setShowSavedSearchPopup(true);
+                    return;
+                  }
                   toggleAllLocal();
                 }}
                 ref={(el) => {
@@ -520,7 +627,14 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
               </div>
 
               <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
-                {filteredLocal.length === 0 ? (
+                {planCode === "002" || profileStates.length === 0 ? (
+                  <div className="bg-white rounded-lg border-2 border-purple-400 opacity-50 pointer-events-none select-none">
+                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                      <span className="text-lg font-medium text-gray-400">Local (Upgrade to use)</span>
+                    </div>
+                    <div className="p-4 text-gray-400">Local filtering is not available on your plan.</div>
+                  </div>
+                ) : filteredLocal.length === 0 ? (
                   <div className="p-4 text-center text-gray-500">No local entities found</div>
                 ) : (
                   filteredLocal.map((entity) => {
@@ -547,6 +661,27 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
           )}
         </div>
       </div>
+
+      {/* Feature restriction popup */}
+      {showRestrictionPopup && (
+        <FeatureRestrictionPopup
+          title="Upgrade Required"
+          message="Upgrade your plan to select more states or use local filters."
+          onClose={() => setShowRestrictionPopup(false)}
+        />
+      )}
+
+      {/* Saved search popup */}
+      {showSavedSearchPopup && (
+  <SavedSearchPopup 
+    isOpen={showSavedSearchPopup}
+    onClose={() => setShowSavedSearchPopup(false)}
+    title="Location Access Restricted"
+    message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
+    upgradeButtonText="Upgrade Plan"
+    cancelButtonText="Got It"
+  />
+)}
     </div>
   );
 };

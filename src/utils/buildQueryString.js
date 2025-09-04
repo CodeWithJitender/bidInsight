@@ -1,27 +1,3 @@
-// // ✅ buildQueryString.js
-// export function buildQueryString(obj) {
-//   const params = new URLSearchParams();
-
-//   for (const key in obj) {
-//     const value = obj[key];
-
-//     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-//       for (const subKey in value) {
-//         if (value[subKey]) {
-//           params.append(`${key}[${subKey}]`, value[subKey]);
-//         }
-//       }
-//     } else if (Array.isArray(value)) {
-//       value.forEach((val) => {
-//         if (val) params.append(`${key}[]`, val);
-//       });
-//     } else if (value) {
-//       params.append(key, value);
-//     }
-//   }
-
-//   return params.toString();
-// }
 
 export const buildQueryString = (filters) => {
   const params = new URLSearchParams();
@@ -44,11 +20,11 @@ export const buildQueryString = (filters) => {
       // New structure: { federal: boolean, states: [], local: [] }
       
       if (filters.location.federal) {
-        entityTypes.push('Federal');
+        params.append('entity_type', 'Federal');
       }
 
       if (filters.location.states && filters.location.states.length > 0) {
-        entityTypes.push('State');
+        params.append('entity_type', 'State');
         params.append('state', filters.location.states.join(','));
       }
 

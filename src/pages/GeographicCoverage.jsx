@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllStates } from "../services/user.service";
 import { usePlan } from "../hooks/usePlan";
 import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
+import SavedSearchPopup from "../components/SavedSearchPopup"; // Add this if not already
 
 function GeographicCoverage({ onFeatureRestriction = () => { } }) {
 
@@ -90,6 +91,8 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     handleClosePopup();
   };
 
+  // Add this state for SavedSearchPopup
+  const [showSavedSearchPopup, setShowSavedSearchPopup] = useState(false);
 
   useEffect(() => {
     dispatch(fetchUserProfile());
@@ -158,72 +161,26 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     fetchStates();
   }, []);
 
-  const handleNationwide = () => {
-    console.log("🔥 Nationwide clicked, planInfo:", planInfo);
-    console.log("🔥 Restrictions:", restrictions);
+  // Starter plan code
+  const isStarter = planInfo?.plan_code === "002" || planInfo?.isStarter;
 
-    // Check if it's Starter plan and restricted
-    if (planInfo?.isStarter && restrictions?.geographic_nationwide) {
-      console.log("🔥 Triggering nationwide restriction popup");
-      validateAndExecute(
-        'geographic_nationwide',
-        (popupData) => {
-          onFeatureRestriction(
-            popupData.title || " Nationwide Coverage Locked",
-            popupData.message || "Upgrade to Essentials plan to select nationwide coverage.",
-            popupData.feature || "Geographic Nationwide",
-            popupData.needsUpgrade || true
-          );
-        },
-        () => {
-          // Success callback - allow selection
-          console.log("✅ Nationwide allowed");
-          setNationwideSelected(true);
-          setSelectedRegions([]);
-          setSelectedStates([]);
-        }
-      );
+  // Nationwide handler
+  const handleNationwide = () => {
+    if (isStarter) {
+      setShowSavedSearchPopup(true);
       return;
     }
-
-    // For non-restricted users
     setNationwideSelected(true);
     setSelectedRegions([]);
     setSelectedStates([]);
   };
 
+  // Region handler
   const handleRegionChange = (value) => {
-    console.log("🔥 Region clicked:", value, "planInfo:", planInfo);
-
-    // Check if it's Starter plan and restricted
-    if (planInfo?.isStarter && restrictions?.geographic_region) {
-      console.log("🔥 Triggering region restriction popup");
-      validateAndExecute(
-        'geographic_region',
-        (popupData) => {
-          onFeatureRestriction(
-            popupData.title || " Regional Selection Locked",
-            popupData.message || "Upgrade to Essentials plan to select specific regions.",
-            popupData.feature || "Geographic Region",
-            popupData.needsUpgrade || true
-          );
-        },
-        () => {
-          // Success callback - allow selection
-          console.log("✅ Region selection allowed");
-          if (selectedRegions.includes(value)) {
-            setSelectedRegions((prev) => prev.filter((v) => v !== value));
-          } else if (selectedRegions.length < 3) {
-            setSelectedRegions((prev) => [...prev, value]);
-          }
-          setNationwideSelected(false);
-          setSelectedStates([]);
-        }
-      );
+    if (isStarter) {
+      setShowSavedSearchPopup(true);
       return;
     }
-
-    // For non-restricted users
     if (selectedRegions.includes(value)) {
       setSelectedRegions((prev) => prev.filter((v) => v !== value));
     } else if (selectedRegions.length < 3) {
@@ -233,39 +190,16 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     setSelectedStates([]);
   };
 
+  // State handler
   const handleStateChange = (selected) => {
-    console.log("🔥 States selected:", selected, "planInfo:", planInfo);
-
-    // Check if it's Starter plan trying to select multiple states
-    if (planInfo?.isStarter && selected.length > 1 && restrictions?.geographic_multi_state) {
-      console.log("🔥 Triggering multi-state restriction popup");
-      validateAndExecute(
-        'geographic_multi_state',
-        (popupData) => {
-          onFeatureRestriction(
-            popupData.title || " Multiple States Locked",
-            popupData.message || "Upgrade to Essentials plan to select multiple states.",
-            popupData.feature || "Geographic Multi State",
-            popupData.needsUpgrade || true
-          );
-        },
-        () => {
-          // Success callback - allow selection
-          console.log("✅ Multi-state selection allowed");
-          setSelectedStates(selected);
-          setNationwideSelected(false);
-          setSelectedRegions([]);
-        }
-      );
+    if (isStarter && selected.length > 1) {
+      setShowSavedSearchPopup(true);
       return;
     }
-
-    // For non-restricted users or single state selection
     setSelectedStates(selected);
     setNationwideSelected(false);
     setSelectedRegions([]);
   };
-
 
   useEffect(() => {
     if (!touched) return;
@@ -285,49 +219,49 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   const handleSubmit = (e) => {
 
     console.log("🔥 Form submission:");
-  console.log("nationwideSelected:", nationwideSelected);
-  console.log("selectedRegions:", selectedRegions);
-  console.log("selectedStates:", selectedStates);
-  console.log("stateOptions:", stateOptions);
-  e.preventDefault();
-  setTouched(true);
+    console.log("nationwideSelected:", nationwideSelected);
+    console.log("selectedRegions:", selectedRegions);
+    console.log("selectedStates:", selectedStates);
+    console.log("stateOptions:", stateOptions);
+    e.preventDefault();
+    setTouched(true);
 
-  if (!nationwideSelected && selectedRegions.length === 0 && selectedStates.length === 0) {
-    setSelectionError("Please select any of the three");
-    return;
-  }
+    if (!nationwideSelected && selectedRegions.length === 0 && selectedStates.length === 0) {
+      setSelectionError("Please select any of the three");
+      return;
+    }
 
-  // ✅ FIX: Proper region ID mapping
-  let regionId;
-  let statesArray = [];
+    // ✅ FIX: Proper region ID mapping
+    let regionId;
+    let statesArray = [];
 
-  if (nationwideSelected) {
-    regionId = 1; // Nationwide
-    statesArray = [];
-  } else if (selectedRegions.length > 0) {
-    regionId = 2; // Region
-    statesArray = []; // or region IDs if needed
-  } else if (selectedStates.length > 0) {
-    regionId = 3; // State
-    // ✅ Ensure state IDs are numbers
-    statesArray = selectedStates.map(state => {
-      if (typeof state === 'object') {
-        return parseInt(state.value || state.id);
-      }
-      return parseInt(state);
-    });
-  }
+    if (nationwideSelected) {
+      regionId = 1; // Nationwide
+      statesArray = [];
+    } else if (selectedRegions.length > 0) {
+      regionId = 2; // Region
+      statesArray = []; // or region IDs if needed
+    } else if (selectedStates.length > 0) {
+      regionId = 3; // State
+      // ✅ Ensure state IDs are numbers
+      statesArray = selectedStates.map(state => {
+        if (typeof state === 'object') {
+          return parseInt(state.value || state.id);
+        }
+        return parseInt(state);
+      });
+    }
 
-  const geoData = {
-    region: regionId,
-    states: statesArray
+    const geoData = {
+      region: regionId,
+      states: statesArray
+    };
+
+    dispatch(saveGeographicCoverage(geoData));
+    navigate("/industry-categories");
+
+    console.log("🚀 Final geoData:", geoData);
   };
-
-  dispatch(saveGeographicCoverage(geoData));
-  navigate("/industry-categories");
-
-  console.log("🚀 Final geoData:", geoData);
-};
 
   // 🆕 Handle Skip
   const handleSkip = () => {
@@ -350,10 +284,12 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     next: {
       text: "Next",
     },
-    skip: {
-      text: "Skip",
-      link: "/industry-categories"
-    },
+    skip: !isStarter
+      ? {
+        text: "Skip",
+        link: "/industry-categories"
+      }
+      : undefined,
   };
 
   return (
@@ -400,7 +336,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
               <FormMultiSelect
                 label="Select State"
                 name="industries"
-                placeholder="Choose State (Max 10)"
+                placeholder="Choose State"
                 options={stateOptions}
                 value={selectedStates}
                 onChange={handleStateChange}
@@ -442,6 +378,14 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
         message={popupState.message}
         featureName={popupState.featureName}
         showUpgradeButton={popupState.showUpgradeButton}
+      />
+      <SavedSearchPopup
+        isOpen={showSavedSearchPopup}
+        onClose={() => setShowSavedSearchPopup(false)}
+        title="Location Access Restricted"
+        message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and regions."
+        upgradeButtonText="Upgrade Plan"
+        cancelButtonText="Got It"
       />
 
     </ProcessWrapper>

@@ -126,7 +126,7 @@ function Dashboard() {
   const [exportLoading, setExportLoading] = useState(false);
   const [followedBids, setFollowedBids] = useState(new Set());
   const [followLoading, setFollowLoading] = useState(new Set());
-
+  const [isRestrictedFollowView, setIsRestrictedFollowView] = useState(false);
 
   // Existing states ke saath ye add karo
   const [followedCount, setFollowedCount] = useState(0);
@@ -299,6 +299,28 @@ function Dashboard() {
     }
   };
 
+
+  const handleFollowedCardClick = () => {
+    console.log("🔥 Followed card clicked, checking restrictions...");
+
+    // Check if follow feature is restricted for current plan
+    if (restrictions?.follow) {
+      console.log("❌ Follow feature restricted - showing popup");
+      showFeatureRestriction(
+        " Follow Feature Locked",
+        "Upgrade your plan to follow important bids and get instant notifications.",
+        "Follow Feature",
+        true
+      );
+      return;
+    }
+
+    // If not restricted, navigate to followed bids
+    console.log("✅ Follow feature allowed - navigating");
+    navigate("/dashboard/followedBids");
+  };
+
+
   // Fetch followed bids on component mount
   useEffect(() => {
     const fetchFollowedBids = async () => {
@@ -423,13 +445,22 @@ function Dashboard() {
     setIsBookmarkView(isBookmarkRoute);
     setIsFollowView(isFollowRoute);
 
+    // 🔥 NEW: Check if follow route should be restricted
+    if (isFollowRoute && restrictions?.follow) {
+      console.log("🔥 Follow route accessed but restricted - setting restricted view");
+      setIsRestrictedFollowView(true);
+      setLoading(false);
+      return;
+    } else {
+      setIsRestrictedFollowView(false);
+    }
+
     if (isBookmarkRoute || isFollowRoute) {
-      setLoading(false); // Don't show loading for bookmark view
-      return; // Don't apply any default filters or navigation
+      setLoading(false);
+      return;
     } else {
       console.log("🔥 Normal dashboard route detected");
 
-      // Only apply defaults if no URL params exist
       const searchParams = new URLSearchParams(location.search);
       if (searchParams.toString() === '') {
         console.log("🔥 No URL params, applying defaults");
@@ -438,9 +469,9 @@ function Dashboard() {
         setAppliedFilters(defaultFilters);
       }
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, restrictions?.follow]);
 
-
+  
 
   const middle = [
     {
@@ -473,39 +504,18 @@ function Dashboard() {
       description: "Bookmark bids you're interested in so you can check them out later.",
       onClick: () => navigate("/dashboard/bookmarkBids")
     },
-  //   {
-  //   id: 5,
-  //   title: "Followed",
-  //   num: restrictions?.follow 
-  //     ? `0/${followedBids.size}` // FREE: Show 0/current
-  //     : `${followedBids.size}/${planInfo?.follow_limit || 10}`, // PAID: Show current/limit
-  //   tag: "FOLLOW",
-  //   description: restrictions?.follow
-  //     ? "Upgrade to follow bids and get instant updates"
-  //     : "Get instant updates on changes & deadlines for these bids.",
-  //   onClick: restrictions?.follow 
-  //     ? () => {
-  //         showFeatureRestriction(
-  //           "Follow Feature Locked",
-  //           "Upgrade your plan to follow bids and get notifications.",
-  //           "Follow Feature",
-  //           true
-  //         );
-  //       }
-  //     : () => navigate("/dashboard/followedBids")
-  // }
 
 
-  {
-    id: 5,
-    title: "Followed",
-    num: followedCount,
-    tag: "FOLLOW",
-    description: "Get instant updates on changes & deadlines for these bids.",
-    onClick: () => navigate("/dashboard/followedBids") // 🔥 NEW ROUTE
-
-    
-  }
+    {
+      id: 5,
+      title: "Followed",
+      num: followedCount,
+      tag: "FOLLOW",
+      description: restrictions?.follow
+        ? "Upgrade to follow bids and get instant updates"
+        : "Get instant updates on changes & deadlines for these bids.",
+      onClick: handleFollowedCardClick // 🔥 Use the new handler
+    }
   ];
 
   // 🔥 FETCH BIDS FUNCTION
@@ -623,11 +633,11 @@ function Dashboard() {
   };
 
   // 🔥 FETCH BIDS ON LOAD
-  useEffect(() => {
-  if (!isInitialLoad && !isBookmarkView && !isFollowView) { // 🔥 MODIFIED
+ useEffect(() => {
+  if (!isInitialLoad && !isBookmarkView && !isFollowView && !isRestrictedFollowView) {
     fetchBids();
   }
-}, [fetchBids, isInitialLoad, isBookmarkView, isFollowView]); // 🔥 MODIFIED
+}, [fetchBids, isInitialLoad, isBookmarkView, isFollowView, isRestrictedFollowView]);
 
   useEffect(() => {
     console.log("🔥 Dashboard Debug Info:");
@@ -849,6 +859,7 @@ function Dashboard() {
       }
     }, 100);
   };
+  
 
 
 
@@ -1063,6 +1074,31 @@ function Dashboard() {
               </div>
             ) : error ? (
               <div className="text-red-400 text-center py-10">{error}</div>
+            ) : isRestrictedFollowView ? (
+              // 🔥 NEW: Show restriction popup for follow route
+              <div className="text-center py-20">
+                <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/20 p-12 max-w-md mx-auto">
+                  <div className="mb-6">
+                    <i className="fas fa-lock text-4xl text-white/40 mb-4"></i>
+                    <h3 className="text-xl font-semibold text-white mb-2">Follow Feature Locked</h3>
+                    <p className="text-white/70">Upgrade your plan to follow important bids and get instant notifications.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleUpgrade}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      Upgrade Plan
+                    </button>
+                    <button
+                      onClick={() => navigate('/dashboard')}
+                      className="w-full bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      Back to Dashboard
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <BidTable
                 timezone={userTimezone}
@@ -1078,8 +1114,8 @@ function Dashboard() {
                 totalCount={isBookmarkView ? bookmarkedBids.length : (bidsInfo?.count || 0)}
                 currentSortField={appliedFilters.ordering || "closing_date"}
                 currentSortOrder={appliedFilters.ordering?.startsWith('-') ? 'desc' : 'asc'}
-                onSort={restrictions?.bidSummary ? () => { } : handleSort} // Disable sorting if restricted
-                sortingDisabled={restrictions?.bidSummary} // Pass sortingDisabled prop
+                onSort={restrictions?.bidSummary ? () => { } : handleSort}
+                sortingDisabled={restrictions?.bidSummary}
                 ref={tableRef}
                 viewType={
                   isFollowView
