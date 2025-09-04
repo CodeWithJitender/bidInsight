@@ -140,7 +140,7 @@ function SummaryPage() {
     // ✅ Check bookmark limits for Starter plan (002)
     if (planInfo?.plan_code === '002' && bookmarkedCount >= 5) {
       showFeatureRestriction(
-        "🔒 Bookmark Limit Reached",
+        " Bookmark Limit Reached",
         "You've reached the maximum of 5 bookmarks. Upgrade to Essentials for unlimited bookmarks.",
         "bookmark",
         true

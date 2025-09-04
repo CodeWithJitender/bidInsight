@@ -16,7 +16,7 @@ import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
 
 function GeographicCoverage({ onFeatureRestriction = () => { } }) {
 
-  
+
   const data = {
     title: "Where Should We Look?",
     para: "Select states, regions or industries so we only surface relevant bids.",
@@ -169,7 +169,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
         'geographic_nationwide',
         (popupData) => {
           onFeatureRestriction(
-            popupData.title || "🔒 Nationwide Coverage Locked",
+            popupData.title || " Nationwide Coverage Locked",
             popupData.message || "Upgrade to Essentials plan to select nationwide coverage.",
             popupData.feature || "Geographic Nationwide",
             popupData.needsUpgrade || true
@@ -202,7 +202,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
         'geographic_region',
         (popupData) => {
           onFeatureRestriction(
-            popupData.title || "🔒 Regional Selection Locked",
+            popupData.title || " Regional Selection Locked",
             popupData.message || "Upgrade to Essentials plan to select specific regions.",
             popupData.feature || "Geographic Region",
             popupData.needsUpgrade || true
@@ -243,7 +243,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
         'geographic_multi_state',
         (popupData) => {
           onFeatureRestriction(
-            popupData.title || "🔒 Multiple States Locked",
+            popupData.title || " Multiple States Locked",
             popupData.message || "Upgrade to Essentials plan to select multiple states.",
             popupData.feature || "Geographic Multi State",
             popupData.needsUpgrade || true
@@ -283,34 +283,51 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   }, [nationwideSelected, selectedRegions, selectedStates, touched]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setTouched(true);
 
-    if (
-      !nationwideSelected &&
-      selectedRegions.length === 0 &&
-      selectedStates.length === 0
-    ) {
-      setSelectionError("Please select any of the three");
-      setSelectionSuccess("");
-      return;
-    }
+    console.log("🔥 Form submission:");
+  console.log("nationwideSelected:", nationwideSelected);
+  console.log("selectedRegions:", selectedRegions);
+  console.log("selectedStates:", selectedStates);
+  console.log("stateOptions:", stateOptions);
+  e.preventDefault();
+  setTouched(true);
 
-    const geoData = nationwideSelected
-      ? { region: "Nationwide", states: [] }
-      : selectedRegions.length > 0
-        ? { region: "Region", states: selectedRegions }
-        : selectedStates.length > 0
-          ? { region: "State", states: selectedStates }
-          : { region: "", states: [] };
+  if (!nationwideSelected && selectedRegions.length === 0 && selectedStates.length === 0) {
+    setSelectionError("Please select any of the three");
+    return;
+  }
 
-    // const industryData = selectedIndustries;
+  // ✅ FIX: Proper region ID mapping
+  let regionId;
+  let statesArray = [];
 
-    dispatch(saveGeographicCoverage(geoData));
-    // dispatch(saveIndustryCategory(industryData));
+  if (nationwideSelected) {
+    regionId = 1; // Nationwide
+    statesArray = [];
+  } else if (selectedRegions.length > 0) {
+    regionId = 2; // Region
+    statesArray = []; // or region IDs if needed
+  } else if (selectedStates.length > 0) {
+    regionId = 3; // State
+    // ✅ Ensure state IDs are numbers
+    statesArray = selectedStates.map(state => {
+      if (typeof state === 'object') {
+        return parseInt(state.value || state.id);
+      }
+      return parseInt(state);
+    });
+  }
 
-    navigate("/industry-categories");
+  const geoData = {
+    region: regionId,
+    states: statesArray
   };
+
+  dispatch(saveGeographicCoverage(geoData));
+  navigate("/industry-categories");
+
+  console.log("🚀 Final geoData:", geoData);
+};
 
   // 🆕 Handle Skip
   const handleSkip = () => {

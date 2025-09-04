@@ -4,7 +4,8 @@ const ProfessionalSavedSearchDropdown = ({
   savedSearches = [],
   selectedSavedSearch,
   handleSavedSearchSelect,
-  customStyling = null // New prop for custom styling
+  customStyling = null, // New prop for custom styling
+  isLocked = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -61,17 +62,17 @@ const ProfessionalSavedSearchDropdown = ({
   // Fixed: Corrected getDisplayText logic
   const getDisplayText = () => {
     console.log("DEBUG getDisplayText:", { selectedSavedSearch });
-    
+
     // If no selection or explicitly "_default_", show "My Saved Searches"  
     if (!selectedSavedSearch || selectedSavedSearch === "_default_") {
       return "My Saved Searches";
     }
-    
+
     // Fix: If there's a selected search, show its name
     if (selectedSavedSearch && selectedSavedSearch.name) {
       return selectedSavedSearch.name;
     }
-    
+
     // Fix: If selectedSavedSearch is just an ID, find the search by ID
     if (typeof selectedSavedSearch === 'number' || typeof selectedSavedSearch === 'string') {
       const foundSearch = savedSearches.find(s => s.id === selectedSavedSearch || s.id === Number(selectedSavedSearch));
@@ -79,7 +80,7 @@ const ProfessionalSavedSearchDropdown = ({
         return foundSearch.name;
       }
     }
-    
+
     // Fix: If selectedSavedSearch is an object but missing name, try to find by ID
     if (selectedSavedSearch && selectedSavedSearch.id) {
       const foundSearch = savedSearches.find(s => s.id === selectedSavedSearch.id);
@@ -87,7 +88,7 @@ const ProfessionalSavedSearchDropdown = ({
         return foundSearch.name;
       }
     }
-    
+
     // Fallback
     return "My Saved Searches";
   };
@@ -95,17 +96,17 @@ const ProfessionalSavedSearchDropdown = ({
   // Helper: Function to check if an item is selected
   const isSelected = (searchId) => {
     if (!selectedSavedSearch) return false;
-    
+
     // Check for default selection
     if (searchId === "_default_") {
       return !selectedSavedSearch || selectedSavedSearch === "_default_";
     }
-    
+
     // Check for saved search selection
     if (selectedSavedSearch.id) {
       return selectedSavedSearch.id === searchId;
     }
-    
+
     return selectedSavedSearch === searchId;
   };
 
@@ -114,7 +115,9 @@ const ProfessionalSavedSearchDropdown = ({
       {/* Dropdown Trigger */}
       <div
         className={styling.trigger}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isLocked) setIsOpen(!isOpen);
+        }}
       >
         <span className={`${styling.triggerText} truncate`}>{getDisplayText()}</span>
         <svg
@@ -144,7 +147,7 @@ const ProfessionalSavedSearchDropdown = ({
               </svg>
               {/* Fixed: Dynamic text based on current state */}
               {isSelected("_default_")
-                ? "My Saved Searches" 
+                ? "My Saved Searches"
                 : "Back to Dashboard"}
             </div>
           </div>

@@ -15,7 +15,7 @@ export const useDashboardUI = (restrictions = {}, showFeatureRestriction = null)
     // Check if advanced search is restricted
     if (restrictions?.advanceSearch && showFeatureRestriction) {
       showFeatureRestriction(
-        "🔒 Advanced Search Locked",
+        " Advanced Search Locked",
         "Upgrade your plan to access advanced filtering options for better bid management.",
         "Advanced Search Feature",
         true
@@ -31,7 +31,7 @@ export const useDashboardUI = (restrictions = {}, showFeatureRestriction = null)
     // Check if save search is restricted
     if (restrictions?.savedSearch && showFeatureRestriction) {
       showFeatureRestriction(
-        "🔒 Save Search Locked",
+        " Save Search Locked",
         "Upgrade your plan to save your search filters and quickly access them later.",
         "Save Search Feature",
         true

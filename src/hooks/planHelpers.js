@@ -144,60 +144,60 @@ export const getRestrictionPopupData = (feature, userPlan) => {
 
   const popupData = {
     bid_summary: {
-      title: "🔒 Bid Summary Locked",
+      title: " Bid Summary Locked",
       message: restriction.message || "Upgrade your plan to access detailed bid summaries with full content and insights.",
       icon: "fa-file-alt",
       ctaText: "Upgrade to View Summary"
     },
     share: {
-      title: "🔒 Share Feature Locked",
+      title: " Share Feature Locked",
       message: restriction.message || "Upgrade your plan to share bids with your team and colleagues.",
       icon: "fa-share-alt",
       ctaText: "Upgrade to Share Bids"
     },
     export: {
-      title: "🔒 Export Feature Locked",
+      title: " Export Feature Locked",
       message: restriction.message || "Upgrade your plan to export bid data in CSV format for analysis.",
       icon: "fa-download",
       ctaText: "Upgrade to Export Data"
     },
     follow: {
-      title: "🔒 Follow Feature Locked",
+      title: " Follow Feature Locked",
       message: restriction.message || "Upgrade your plan to follow important bids and get notifications.",
       icon: "fa-heart",
       ctaText: "Upgrade to Follow Bids"
     },
     bookmark: {
-      title: "🔒 Bookmark Feature Locked",
+      title: " Bookmark Feature Locked",
       message: restriction.message || "Upgrade your plan to bookmark bids for quick access later.",
       icon: "fa-bookmark",
       ctaText: "Upgrade to Bookmark"
     },
     sorting: {
-      title: "🔒 Sorting Feature Locked",
+      title: " Sorting Feature Locked",
       message: restriction.message || "Upgrade your plan to sort bids by different criteria.",
       icon: "fa-sort",
       ctaText: "Upgrade to Sort Bids"
     },
     blur_entity_dropdown: {
-      title: "🔒 Filter Feature Locked",
+      title: " Filter Feature Locked",
       message: restriction.message || "Upgrade your plan to filter bids by entity types.",
       icon: "fa-filter",
       ctaText: "Upgrade to Filter"
     },
 
     geographic_nationwide: {
-      title: "🔒 Nationwide Coverage Locked",
+      title: " Nationwide Coverage Locked",
       message: "Upgrade to Essentials plan to access nationwide coverage.",
       ctaText: "Upgrade to Essentials"
     },
     geographic_region: {
-      title: "🔒 Regional Selection Locked",
+      title: " Regional Selection Locked",
       message: "Upgrade to Essentials plan to select regions.",
       ctaText: "Upgrade to Essentials"
     },
     geographic_multi_state: {
-      title: "🔒 Multiple States Locked",
+      title: " Multiple States Locked",
       message: "Upgrade to Essentials to select multiple states.",
       ctaText: "Upgrade to Essentials"
     }

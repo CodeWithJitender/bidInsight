@@ -256,21 +256,39 @@ export const followBids = async (id) => {
 }
 
 
+// export const totalFollowedBids = async () => {
+//   const token = localStorage.getItem("access_token");
+//   if (!token) {
+//     throw new Error("No access token found");
+//   }
+//   try {
+//     const res = await API.get("/bids/follow/", {
+//       headers: {
+//         Authorization: `Bearer ${token}`
+//       }
+//     });
+//     console.log(res.data, "🔥 Total followed bids fetched");
+//     return res.data;
+//   } catch (err) {
+//     console.error("Error fetching total followed bids:", err);
+//     throw err;
+//   } 
+// };
+
+
+// bid.service.js main ye add karna hoga
 export const totalFollowedBids = async () => {
   const token = localStorage.getItem("access_token");
-  if (!token) {
-    throw new Error("No access token found");
-  }
+  if (!token) throw new Error("No access token found");
+  
   try {
     const res = await API.get("/bids/follow/", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
     console.log(res.data, "🔥 Total followed bids fetched");
     return res.data;
   } catch (err) {
-    console.error("Error fetching total followed bids:", err);
+    console.error("Error fetching followed bids:", err);
     throw err;
-  } 
+  }
 };

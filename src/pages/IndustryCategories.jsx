@@ -169,15 +169,15 @@ function IndustryCategories() {
   }, [searchTerm, allIndustries, selectedIndustry]);
   // Handle form submission
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowValidation(true);
+  e.preventDefault();
+  setShowValidation(true);
 
-    if (selectedIndustry) {
-      dispatch(saveIndustryCategory([selectedIndustry])); // Save full object
-      console.log("✅ Selected Industry (saved to Redux):", selectedIndustry);
-      navigate("/help-our-ai");
-    }
-  };
+  if (selectedIndustry) {
+    // ✅ FIX: Save just the ID, not array
+    dispatch(saveIndustryCategory(selectedIndustry.id));
+    navigate("/help-our-ai");
+  }
+};
 
   // Handle skip action
   const handleSkip = () => {

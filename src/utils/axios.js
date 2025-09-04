@@ -10,7 +10,7 @@ const token = localStorage.getItem("access_token");
 const instance = axios.create({
   baseURL: baseURL,
   headers: {  
-    "Content-Type": "multipart/form-data",
+     "Content-Type": "application/json",
     "Authorization": `Bearer ${token}`,
   },
 });

@@ -174,6 +174,11 @@ function ExtraData() {
   };
 
   const submitProfile = async () => {
+
+    console.log("🔥 Full onboardingDataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", onboardingData);
+    console.log("🔥 geographicCoverage:", onboardingData.geographicCoverage);
+    console.log("🔥 industryCategory:", onboardingData.industryCategory);
+
     const insuranceMap = {
       workersCompensationAmount: "workers_compensation_amount",
       generalLiabilityAmount: "general_liability_insurance_amount",
@@ -192,18 +197,11 @@ function ExtraData() {
       cyberInsurance: "cyber_security_insurance",
     };
 
-    const regionMap = {
-      "Nationwide": 1,
-      "Region": 2,
-      "State": 3
-    };
 
     const payload = {
-      region: regionMap[onboardingData.geographicCoverage.region] || 1,
-      industry: onboardingData.industryCategory[0]?.id || 1, // ✅ send only id
-      states: (onboardingData.geographicCoverage.states || []).map(
-        s => typeof s === "object" ? s.id ?? s.value : s
-      ), // ✅ always send array of ids
+      region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
+      industry: onboardingData.industryCategory,         // ✅ Direct number access
+      states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
     };
 
     // ✅ Handle different modes
@@ -227,6 +225,8 @@ function ExtraData() {
     }
 
     console.log(payload, "🚀 Submitting profile payload");
+     console.log("Payload as JSON:", JSON.stringify(payload, null, 2));
+    console.log("Content-Type:", typeof payload);
 
     try {
       const res = await api.post("/auth/profile/", payload);

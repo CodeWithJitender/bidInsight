@@ -25,7 +25,6 @@ const BidTable = forwardRef(({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupData, setPopupData] = useState({});
 
-
   // Plan hook
   const {
     planInfo,
@@ -37,7 +36,7 @@ const BidTable = forwardRef(({
   console.log("blurConfig->>>>>>>", blurConfig);
 
 
-  console.log( "plan info ->>>>>>>>>>>>>>>>>>>>>>>..." , planInfo);
+  console.log("plan info ->>>>>>>>>>>>>>>>>>>>>>>...", planInfo);
 
   useEffect(() => {
     setData([...bids]);
@@ -53,14 +52,14 @@ const BidTable = forwardRef(({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  
+
 
 
   const handleRowClick = (id, bidIndex) => {
     // Check if bid summary feature is restricted (same pattern as follow button)
     if (restrictions?.bidSummary) {
       onFeatureRestriction(
-        "🔒 Bid Summary Feature Locked",
+        " Bid Summary Feature Locked",
         "Upgrade your plan to view detailed bid summaries and analysis.",
         "Bid Summary Feature",
         true
@@ -115,7 +114,7 @@ const BidTable = forwardRef(({
   const shouldBlurColumn = (columnName, bidIndex) => {
 
     if (!blurConfig.enabled) return false;
-    
+
     if (shouldBlurBid(bidIndex)) return false;
 
     return blurConfig.blur_columns?.includes(columnName) || false;
@@ -126,7 +125,7 @@ const BidTable = forwardRef(({
     // 🔥 FIXED: Only restrict for FREE plan (001)
     if (planInfo?.isFree && restrictions?.entityDropdown) {
       onFeatureRestriction(
-        "🔒 Filter Feature Locked",
+        " Filter Feature Locked",
         "Upgrade your plan to filter bids by entity types (Federal, State, Local).",
         "Entity Filter Feature",
         true
@@ -147,7 +146,7 @@ const BidTable = forwardRef(({
     // 🔥 FIXED: Only restrict sorting for FREE plan (001)
     if (planInfo?.isFree && restrictions?.sorting) {
       onFeatureRestriction(
-        "🔒 Sorting Feature Locked",
+        " Sorting Feature Locked",
         "Upgrade your plan to sort bids by different criteria like date, status, etc.",
         "Sorting Feature",
         true
@@ -208,7 +207,7 @@ const BidTable = forwardRef(({
                   onClick={() => {
                     if (restrictions.entityDropdown) {
                       onFeatureRestriction(
-                        "🔒 Filter Feature Locked",
+                        " Filter Feature Locked",
                         "Upgrade your plan to filter bids by entity types (Federal, State, Local).",
                         "Entity Filter Feature",
                         true
@@ -309,7 +308,9 @@ const BidTable = forwardRef(({
               const statusLabel = bid.bid_type || "Unknown";
               const countdownRaw = getCountdown(bid.closing_date);
               const shouldBlurThisBid = shouldBlurBid(index);
-              const isFollowed = followedBids.has(bid.id);
+              const isFollowed = followedBids && followedBids.has
+                ? followedBids.has(bid.id)
+                : false;
               const isLoading = followLoading.has(bid.id);
 
               // Calculate countdown display (existing logic)
@@ -394,7 +395,7 @@ const BidTable = forwardRef(({
                         onClick={(e) => {
                           e.stopPropagation();
                           onFeatureRestriction(
-                            "🔒 Share Feature Locked",
+                            " Share Feature Locked",
                             "Upgrade your plan to share bids with your team and colleagues.",
                             "Share Feature",
                             true
@@ -418,7 +419,7 @@ const BidTable = forwardRef(({
                         e.stopPropagation();
                         if (restrictions?.follow) {
                           onFeatureRestriction(
-                            "🔒 Follow Feature Locked",
+                            " Follow Feature Locked",
                             "Upgrade your plan to follow important bids and get notifications.",
                             "Follow Feature",
                             true

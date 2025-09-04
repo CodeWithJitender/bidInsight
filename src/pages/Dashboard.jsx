@@ -128,6 +128,10 @@ function Dashboard() {
   const [followLoading, setFollowLoading] = useState(new Set());
 
 
+  // Existing states ke saath ye add karo
+  const [followedCount, setFollowedCount] = useState(0);
+  const [isFollowView, setIsFollowView] = useState(false);
+
   const profile = useSelector((state) => state.profile.profile);
   const companyName = profile?.company_name || "";
   const formattedName = companyName.charAt(0).toUpperCase() + companyName.slice(1);
@@ -299,21 +303,31 @@ function Dashboard() {
   useEffect(() => {
     const fetchFollowedBids = async () => {
       try {
-        const followedBidsData = await totalFollowedBids();
-        // Assuming API returns array of bid objects with id property
-        const followedBidsSet = new Set(followedBidsData.map(bid => bid.bid?.id || bid.id));
-        setFollowedBids(followedBidsSet);
-        console.log("✅ Followed bids loaded:", followedBidsSet);
+        const data = await totalFollowedBids();
+        console.log(data, "🔥 Total followed bids RAW");
+
+        // 🔥 SAME PATTERN as bookmark transformation
+        const transformedData = Array.isArray(data)
+          ? data.map(item => ({
+            ...item.bid, // Extract nested bid object
+            follow_id: item.id,
+            follow_created_at: item.created_at
+          }))
+          : [];
+
+        const count = transformedData.length;
+        setFollowedCount(count);
+        setFollowedBids(transformedData);
+
       } catch (error) {
-        console.error("❌ Error loading followed bids:", error);
+        console.error("❌ Error fetching followed bids:", error);
+        setFollowedCount(0);
+        setFollowedBids([]);
       }
     };
 
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      fetchFollowedBids();
-    }
-  }, []); // Run once on mount
+    fetchFollowedBids();
+  }, []);
 
 
   useEffect(() => {
@@ -404,10 +418,12 @@ function Dashboard() {
   // 🔥 FIX 2: Prevent auto-redirect on bookmark route refresh
   useEffect(() => {
     const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
-    setIsBookmarkView(isBookmarkRoute);
+    const isFollowRoute = location.pathname === '/dashboard/followedBids';
 
-    if (isBookmarkRoute) {
-      console.log("🔥 Bookmark route detected - staying on bookmark view");
+    setIsBookmarkView(isBookmarkRoute);
+    setIsFollowView(isFollowRoute);
+
+    if (isBookmarkRoute || isFollowRoute) {
       setLoading(false); // Don't show loading for bookmark view
       return; // Don't apply any default filters or navigation
     } else {
@@ -457,15 +473,39 @@ function Dashboard() {
       description: "Bookmark bids you're interested in so you can check them out later.",
       onClick: () => navigate("/dashboard/bookmarkBids")
     },
-    {
-      id: 5,
-      title: "Followed",
-      num: restrictions?.follow ? `0/${followedBids.size}` : `${followedBids.size}/10`,
-      tag: "FOLLOW",
-      description: restrictions?.follow
-        ? "Upgrade to follow bids and get instant updates"
-        : "Get instant updates on changes & deadlines for these bids."
-    }
+  //   {
+  //   id: 5,
+  //   title: "Followed",
+  //   num: restrictions?.follow 
+  //     ? `0/${followedBids.size}` // FREE: Show 0/current
+  //     : `${followedBids.size}/${planInfo?.follow_limit || 10}`, // PAID: Show current/limit
+  //   tag: "FOLLOW",
+  //   description: restrictions?.follow
+  //     ? "Upgrade to follow bids and get instant updates"
+  //     : "Get instant updates on changes & deadlines for these bids.",
+  //   onClick: restrictions?.follow 
+  //     ? () => {
+  //         showFeatureRestriction(
+  //           "Follow Feature Locked",
+  //           "Upgrade your plan to follow bids and get notifications.",
+  //           "Follow Feature",
+  //           true
+  //         );
+  //       }
+  //     : () => navigate("/dashboard/followedBids")
+  // }
+
+
+  {
+    id: 5,
+    title: "Followed",
+    num: followedCount,
+    tag: "FOLLOW",
+    description: "Get instant updates on changes & deadlines for these bids.",
+    onClick: () => navigate("/dashboard/followedBids") // 🔥 NEW ROUTE
+
+    
+  }
   ];
 
   // 🔥 FETCH BIDS FUNCTION
@@ -528,8 +568,25 @@ function Dashboard() {
   const handleEntityTypeChange = (entityType) => {
     const updatedFilters = {
       ...appliedFilters,
-      entityType: entityType
+      entityType: entityType,
+      // location: entityType ? { federal: false, states: [], local: [] } : appliedFilters.location
     };
+
+    if (entityType === "" || entityType === "Select Entity") {
+      // Default pe jane pe sab clear kar do
+      updatedFilters.location = {
+        federal: false,
+        states: [],
+        local: []
+      };
+    } else {
+      // Koi specific entity select karne pe bhi location reset kar do
+      updatedFilters.location = {
+        federal: entityType === "Federal",
+        states: [],
+        local: []
+      };
+    }
 
     setFilters(updatedFilters);
     setAppliedFilters(updatedFilters);
@@ -567,10 +624,10 @@ function Dashboard() {
 
   // 🔥 FETCH BIDS ON LOAD
   useEffect(() => {
-    if (!isInitialLoad && !isBookmarkView) { // Don't fetch bids for bookmark view
-      fetchBids();
-    }
-  }, [fetchBids, isInitialLoad, isBookmarkView]);
+  if (!isInitialLoad && !isBookmarkView && !isFollowView) { // 🔥 MODIFIED
+    fetchBids();
+  }
+}, [fetchBids, isInitialLoad, isBookmarkView, isFollowView]); // 🔥 MODIFIED
 
   useEffect(() => {
     console.log("🔥 Dashboard Debug Info:");
@@ -670,7 +727,7 @@ function Dashboard() {
     // Check restriction first
     if (restrictions?.savedSearch) {
       showFeatureRestriction(
-        "🔒 Saved Search Locked",
+        " Saved Search Locked",
         "Upgrade your plan to access and manage your saved searches.",
         "Saved Search Feature",
         true
@@ -920,7 +977,7 @@ function Dashboard() {
                       e.stopPropagation();
                       if (restrictions?.export) {
                         showFeatureRestriction(
-                          "🔒 Export Feature Locked",
+                          " Export Feature Locked",
                           "Upgrade your plan to export bid data in CSV format for analysis and reporting.",
                           "Export Feature",
                           true
@@ -948,20 +1005,20 @@ function Dashboard() {
 
                   {/* Saved Search Dropdown with restrictions */}
                   <div
-                    className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
-                    onClick={(e) => {
-                      if (restrictions?.savedSearch) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        showFeatureRestriction(
-                          "🔒 Saved Search Locked",
-                          "Upgrade your plan to access and manage your saved searches for quick filtering.",
-                          "Saved Search Feature",
-                          true
-                        );
-                      }
-                    }}
-                    title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
+                  // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
+                  // onClick={(e) => {
+                  //   if (restrictions?.savedSearch) {
+                  //     e.preventDefault();
+                  //     e.stopPropagation();
+                  //     showFeatureRestriction(
+                  //       " Saved Search Locked",
+                  //       "Upgrade your plan to access and manage your saved searches for quick filtering.",
+                  //       "Saved Search Feature",
+                  //       true
+                  //     );
+                  //   }
+                  // }}
+                  // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
                   >
                     <ProfessionalSavedSearchDropdown
                       savedSearches={restrictions?.savedSearch ? [] : savedSearches}
@@ -1009,7 +1066,13 @@ function Dashboard() {
             ) : (
               <BidTable
                 timezone={userTimezone}
-                bids={isBookmarkView ? bookmarkedBids : (bidsInfo?.results || [])}
+                bids={
+                  isFollowView
+                    ? followedBids
+                    : isBookmarkView
+                      ? bookmarkedBids
+                      : (bidsInfo?.results || [])
+                }
                 onEntityTypeChange={handleEntityTypeChange}
                 currentEntityType={appliedFilters.entityType || ""}
                 totalCount={isBookmarkView ? bookmarkedBids.length : (bidsInfo?.count || 0)}
@@ -1018,7 +1081,13 @@ function Dashboard() {
                 onSort={restrictions?.bidSummary ? () => { } : handleSort} // Disable sorting if restricted
                 sortingDisabled={restrictions?.bidSummary} // Pass sortingDisabled prop
                 ref={tableRef}
-                viewType={isBookmarkView ? 'saved' : 'total'}
+                viewType={
+                  isFollowView
+                    ? 'followed'
+                    : isBookmarkView
+                      ? 'saved'
+                      : 'total'
+                }
                 onFeatureRestriction={showFeatureRestriction}
                 onFollowBid={handleFollowBid}
                 followedBids={followedBids}
