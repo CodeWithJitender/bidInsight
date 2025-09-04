@@ -15,19 +15,19 @@ function LockedFeature() {
       title: "Bid Dashboard",
       para: "Stay informed and seize opportunities with our comprehensive dashboard. Access real-time data on active bids and find the information you need to participate in government projects. Our user-friendly interface empowers businesses and individuals to engage in the bidding process transparently and efficiently.",
       link: "/",
-      img: "locked-img.png",
+      img: "Group102.png",
     },
     {
       title: "Bid Compatibility Summary",
       para: "Utilize our AI-powered coaching tips to help improve your chances of winning bids. A summary is generated to assist in determining if the RFP is a match for your company based on factors like the past performance, the RFP’s requirements, and industry benchmarks.",
       link: "/",
-      img: "locked-img.png",
+      img: "Group102.png",
     },
     {
       title: "Proposal Compliancy Checklist",
       para: "Many RFPs are rejected due to non-compliance with submission requirements. Our Compliance Checker scans RFP responses and flags potential compliance issues before submission.",
       link: "/",
-      img: "locked-img.png",
+      img: "Group102.png",
     },
   ];
 
@@ -57,7 +57,7 @@ function LockedFeature() {
             <Heading textD="A Glance At" textL="The A.I. Magic!" />
           </div>
           <div data-aos="fade-left" data-aos-delay="100">
-            <Button2 text="See All" link="/" />
+            <Button2 text="See All" link="/ai-toolset" />
           </div>
         </div>
       </div>

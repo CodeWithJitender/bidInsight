@@ -11,6 +11,7 @@ const BidTable = forwardRef(({
   onSort = () => { },
   onEntityTypeChange = () => { },
   onFollowBid = () => { },
+  
   onFeatureRestriction = () => { },
   followedBids = new Set(),
   followLoading = new Set(),
@@ -72,8 +73,7 @@ const BidTable = forwardRef(({
   };
 
 
-  // Enhanced follow click with restriction check
-
+  
 
 
   const handleFollowClick = (e, bidId) => {

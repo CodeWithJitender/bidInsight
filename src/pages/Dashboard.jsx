@@ -17,7 +17,7 @@ import BidTableShimmer from "../components/shimmereffects/BidTableShimmer";
 import { useUserTimezone } from "../timezone/useUserTimezone";
 import { fetchUserProfile } from "../redux/reducer/profileSlice";
 import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
-
+import { deleteFollowedBid } from "../services/bid.service";
 // 🔥 IMPORT URL HELPERS AND CONSTANTS
 import { decodeUrlToFilters, buildQueryString } from "../utils/urlHelpers";
 import { DASHBOARD_CONSTANTS } from "../utils/constants";
@@ -289,6 +289,37 @@ function Dashboard() {
           false
         );
       }
+    } finally {
+      // Remove bid from loading state
+      setFollowLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bidId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleUnfollowBid = async (bidId) => {
+    // Add bid to loading state
+    setFollowLoading(prev => new Set([...prev, bidId]));
+    try {
+      console.log("🔥 Unfollowing bid with ID:", bidId)
+      await deleteFollowedBid(bidId)
+      console.log("✅ Unfollow successful");
+      // Update followed bids state
+      setFollowedBids(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bidId);
+        return newSet;
+      });
+    } catch (error) {
+      console.error("❌ Unfollow error:", error);
+      showFeatureRestriction(
+        "Unfollow Failed",
+        "Something went wrong while unfollowing this bid. Please try again.",
+        "Follow Feature",
+        false
+      );
     } finally {
       // Remove bid from loading state
       setFollowLoading(prev => {
@@ -1126,6 +1157,7 @@ function Dashboard() {
                 }
                 onFeatureRestriction={showFeatureRestriction}
                 onFollowBid={handleFollowBid}
+                onUnfollowBid={handleUnfollowBid}
                 followedBids={followedBids}
                 followLoading={followLoading}
                 planInfo={planInfo}

@@ -256,6 +256,7 @@ export const followBids = async (id) => {
 }
 
 
+
 // export const totalFollowedBids = async () => {
 //   const token = localStorage.getItem("access_token");
 //   if (!token) {
@@ -292,6 +293,7 @@ export const totalFollowedBids = async () => {
     throw err;
   }
 };
+
 
 
 export const deleteFollowedBid = async (id) => {
