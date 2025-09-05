@@ -55,12 +55,12 @@ export const PLAN_RESTRICTIONS = {
  * Check if feature is restricted for current plan
  */
 export const isFeatureRestricted = (userPlan, feature) => {
-  console.log("🔥 isFeatureRestricted called with:", {
-    userPlan,
-    feature,
-    plan_code: userPlan?.plan_code,
-    plan_name: userPlan?.name
-  });
+  // console.log("🔥 isFeatureRestricted called with:", {
+  //   userPlan,
+  //   feature,
+  //   plan_code: userPlan?.plan_code,
+  //   plan_name: userPlan?.name
+  // });
 
   if (!userPlan?.plan_code) {
     //console.log("❌ No plan_code found, returning true");

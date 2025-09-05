@@ -11,7 +11,7 @@ import savedSearchesReducer from "./reducer/savedSearchesSlice";
 import bidReducer from "./reducer/bidSlice";
 import profileReducer from "./reducer/profileSlice";
 import authReducer from "./reducer/authSlice";
-import followReducer from "./reducer/followSlice"; // 🔥 NEW FOLLOW SLICE
+// import followReducer from "./reducer/followSlice"; // 🔥 NEW FOLLOW SLICE
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -21,7 +21,7 @@ const rootReducer = combineReducers({
   savedSearches: savedSearchesReducer,
   bids: bidReducer,
   profile: profileReducer,
-  follow: followReducer, // 🔥 ADD FOLLOW REDUCER
+  // follow: followReducer, // 🔥 ADD FOLLOW REDUCER
 });
 
 // Redux Persist config

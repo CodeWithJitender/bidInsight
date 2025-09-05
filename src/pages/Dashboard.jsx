@@ -79,14 +79,14 @@ function Dashboard() {
     validateFeatureUsage
   } = usePlan();
 
-  console.log("=== PLAN DEBUG START ===");
-  console.log("userPlan from redux:", useSelector((state) => state.login?.user?.plan));
-  console.log("planInfo:", planInfo);
-  console.log("planInfo.code:", planInfo?.code);
-  console.log("planInfo.isFree:", planInfo?.isFree);
-  console.log("restrictions object:", restrictions);
-  console.log("restrictions.advanceSearch:", restrictions?.advanceSearch);
-  console.log("=== PLAN DEBUG END ===");
+  // console.log("=== PLAN DEBUG START ===");
+  // console.log("userPlan from redux:", useSelector((state) => state.login?.user?.plan));
+  // console.log("planInfo:", planInfo);
+  // console.log("planInfo.code:", planInfo?.code);
+  // console.log("planInfo.isFree:", planInfo?.isFree);
+  // console.log("restrictions object:", restrictions);
+  // console.log("restrictions.advanceSearch:", restrictions?.advanceSearch);
+  // console.log("=== PLAN DEBUG END ===");
 
 
   const {
@@ -174,12 +174,12 @@ function Dashboard() {
         return;
       }
 
-      console.log("🔥 Exporting bid IDs:", bidIds);
+      // console.log("🔥 Exporting bid IDs:", bidIds);
 
       const result = await exportBidsToCSV(bidIds);
 
       if (result.success) {
-        console.log("✅ Export successful");
+        // console.log("✅ Export successful");
         // Optionally show success message
       } else if (result.error) {
         // Show restriction popup with backend error message
@@ -272,9 +272,9 @@ const handleFollowBid = async (bidId) => {
     // Add bid to loading state
     setFollowLoading(prev => new Set([...prev, bidId]));
     try {
-      console.log("🔥 Unfollowing bid with ID:", bidId)
+      // console.log("🔥 Unfollowing bid with ID:", bidId)
       await deleteFollowedBid(bidId)
-      console.log("✅ Unfollow successful");
+      // console.log("✅ Unfollow successful");
       // Update followed bids state
       setFollowedBids(prev => {
         const newSet = new Set(prev);
@@ -301,11 +301,11 @@ const handleFollowBid = async (bidId) => {
 
 
   const handleFollowedCardClick = () => {
-    console.log("🔥 Followed card clicked, checking restrictions...");
+    // console.log("🔥 Followed card clicked, checking restrictions...");
 
     // Check if follow feature is restricted for current plan
     if (restrictions?.follow) {
-      console.log("❌ Follow feature restricted - showing popup");
+      // console.log("❌ Follow feature restricted - showing popup");
       showFeatureRestriction(
         " Follow Feature Locked",
         "Upgrade your plan to follow important bids and get instant notifications.",
@@ -316,17 +316,17 @@ const handleFollowBid = async (bidId) => {
     }
 
     // If not restricted, navigate to followed bids
-    console.log("✅ Follow feature allowed - navigating");
+    // console.log("✅ Follow feature allowed - navigating");
     navigate("/dashboard/followedBids");
   };
 
 
   // Fetch followed bids on component mount
   useEffect(() => {
-  const fetchFollowedBids = async () => {
+    const fetchFollowedBids = async () => {
     try {
-      const data = await totalFollowedBids();
-      console.log(data, "🔥 Total followed bids RAW");
+      debugger; const data = await totalFollowedBids();
+      console.log(data, "🔥 Total followed bids RAWwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
 
       // Transform data but keep IDs separate for Set
       const transformedData = Array.isArray(data)
@@ -357,7 +357,7 @@ const handleFollowBid = async (bidId) => {
 
   useEffect(() => {
     const handlePopState = (e) => {
-      console.log("🔥 Browser back/forward detected");
+      // console.log("🔥 Browser back/forward detected");
 
       // 🔥 READ CURRENT URL PARAMS
       const searchParams = new URLSearchParams(window.location.search);
@@ -365,7 +365,7 @@ const handleFollowBid = async (bidId) => {
 
       // 🔥 SYNC PAGE STATE WITH URL
       if (pageFromUrl !== currentPage) {
-        console.log(`🔥 Syncing page from browser navigation: ${pageFromUrl}`);
+        // console.log(`🔥 Syncing page from browser navigation: ${pageFromUrl}`);
         setCurrentPage(pageFromUrl);
       }
 
@@ -407,7 +407,7 @@ const handleFollowBid = async (bidId) => {
     const fetchBookmarkedBids = async () => {
       try {
         const data = await totalBookmarkedBids();
-        console.log(data, "🔥 Total bookmarked bids RAW");
+        // console.log(data, "🔥 Total bookmarked bids RAW");
 
         // 🔥 TRANSFORM: Extract the 'bid' object from each item
         const transformedData = Array.isArray(data)
@@ -423,7 +423,7 @@ const handleFollowBid = async (bidId) => {
           })
           : [];
 
-        console.log(transformedData, "🔥 TRANSFORMED bookmarked bids");
+        // console.log(transformedData, "🔥 TRANSFORMED bookmarked bids");
 
         const count = transformedData.length;
         setBookmarkedCount(count);
@@ -450,7 +450,7 @@ const handleFollowBid = async (bidId) => {
 
     // 🔥 NEW: Check if follow route should be restricted
     if (isFollowRoute && restrictions?.follow) {
-      console.log("🔥 Follow route accessed but restricted - setting restricted view");
+      // console.log("🔥 Follow route accessed but restricted - setting restricted view");
       setIsRestrictedFollowView(true);
       setLoading(false);
       return;
@@ -462,11 +462,11 @@ const handleFollowBid = async (bidId) => {
       setLoading(false);
       return;
     } else {
-      console.log("🔥 Normal dashboard route detected");
+      // console.log("🔥 Normal dashboard route detected");
 
       const searchParams = new URLSearchParams(location.search);
       if (searchParams.toString() === '') {
-        console.log("🔥 No URL params, applying defaults");
+        // console.log("🔥 No URL params, applying defaults");
         const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
         setFilters(defaultFilters);
         setAppliedFilters(defaultFilters);
@@ -563,11 +563,11 @@ const handleFollowBid = async (bidId) => {
       const searchParams = new URLSearchParams(location.search);
       const searchTermFromUrl = searchParams.get("search") || "";
 
-      console.log("🔥 Fetching bids with query:", queryString);
+      // console.log("🔥 Fetching bids with query:", queryString);
 
       const res = await getBids(`?${queryString}`, searchTermFromUrl);
 
-      console.log(res, "🔥 Fetched bids data");
+      // console.log(res, "🔥 Fetched bids data");
       dispatch(setBids(res));
     } catch (err) {
       console.error("Failed to fetch bids:", err);

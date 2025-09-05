@@ -174,7 +174,7 @@ export const totalBookmarkedBids = async () => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log(res.data, "🔥 Total bookmarked bids fetched");
+    console.log(res.data, "🔥 Total bookmarked bids fetchedfffffffffffffffffffffffffffffffffffffffffffffffffff");
     return res.data;
   } catch (err) {
     console.error("Error fetching total bookmarked bids:", err);
@@ -240,7 +240,7 @@ export const totalFollowedBids = async () => {
     const res = await API.get("/bids/follow/", {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log(res.data, "🔥 Total followed bids fetched");
+    console.log(res.data, "🔥 Total followed bids fetchedggggggggggggggggggggggggggggggggggggggggggggg");
     return res.data;
   } catch (err) {
     console.error("Error fetching followed bids:", err);
