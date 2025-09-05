@@ -188,7 +188,6 @@ const OTPVerification = () => {
       const response = await forgotPasswordRequest(email);
       // Show OTP in alert & autofill
       if (response.data.otp) {
-        alert(`New OTP: ${response.data.otp}\nOTP sent successfully! Please check your inbox.`);
         const otpString = String(response.data.otp).padEnd(6, "0").slice(0, 6).split('');
         setOtp(otpString);
         setTimeout(() => {

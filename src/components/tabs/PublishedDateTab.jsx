@@ -5,7 +5,8 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const PublishedDateTab = ({ filters = {}, setFilters }) => {
   const { publishedDate = {} } = filters;
-  const { type = "", within = "7", from = "", to = "" } = publishedDate;
+  const { type = "", within = "", from = "", to = "", after, before } = publishedDate;
+
 
   const loginLastLogin = useSelector((state) => state.login?.user?.last_login);
   const registerLastLogin = useSelector((state) => state.auth?.user?.last_login);
@@ -21,84 +22,84 @@ const PublishedDateTab = ({ filters = {}, setFilters }) => {
 
 
   const [selectedType, setSelectedType] = useState(type || "");
-  const [withinDays, setWithinDays] = useState(within || "7");
+  const [withinDays, setWithinDays] = useState(within || "");
   const [fromDate, setFromDate] = useState(from || "");
   const [toDate, setToDate] = useState(to || "");
 
-// PublishedDateTab.js - FIXED VERSION
+  // PublishedDateTab.js - FIXED VERSION
 
-useEffect(() => {
-  const { type = "", within = "7", from = "", to = "", after, before } = publishedDate;
+  useEffect(() => {
+    const { type = "", within = "7", from = "", to = "", after, before } = publishedDate;
 
-  // DEBUG: Console log to check what's coming from filters
-  console.log("PublishedDateTab - Received filters:", { publishedDate, type, within, from, to, after, before });
+    // DEBUG: Console log to check what's coming from filters
+    console.log("PublishedDateTab - Received filters:", { publishedDate, type, within, from, to, after, before });
 
-  // 🔥 CRITICAL FIX: Always respect explicit type from saved search
-  if (type) {
-    console.log("Setting type directly from saved search:", type);
-    setSelectedType(type);
+    // 🔥 CRITICAL FIX: Always respect explicit type from saved search
+    if (type) {
+      console.log("Setting type directly from saved search:", type);
+      setSelectedType(type);
 
-    if (type === "lastLogin") {
-      setWithinDays(""); 
-      setFromDate("");
-      setToDate("");
-    } else if (type === "within") {
-      setWithinDays(within || "7");
-      setFromDate("");
-      setToDate("");
-    } else if (type === "timeline") {
-      setWithinDays("7");
-      setFromDate(from || "");
-      setToDate(to || "");
+      if (type === "lastLogin") {
+        setWithinDays("");
+        setFromDate("");
+        setToDate("");
+      } else if (type === "within") {
+        setWithinDays(within || "");
+        setFromDate("");
+        setToDate("");
+      } else if (type === "timeline") {
+        setWithinDays("7");
+        setFromDate(from || "");
+        setToDate(to || "");
+      }
+      return; // 🚨 IMPORTANT: Return early - NO inference logic should run
     }
-    return; // 🚨 IMPORTANT: Return early - NO inference logic should run
-  }
 
-  // 🔥 ADDITIONAL FIX: If no explicit type but we have after/before dates,
-  // check if it could be lastLogin based on the date pattern
-  if (!type && after && before) {
-    const afterDate = after;
-    const beforeDate = before;
-    
-    // Check if 'after' matches user's last login date
-    const loginDate = lastLogin ? lastLogin.split("T")[0] : "";
-    
-    // 🔥 KEY FIX: If after date matches login date, assume it's lastLogin
-    if (loginDate && afterDate === loginDate) {
-      console.log("🔥 Detected lastLogin pattern, setting type to lastLogin");
-      setSelectedType("lastLogin");
-      setWithinDays("7");
-      setFromDate("");
-      setToDate("");
-      return;
+    // 🔥 ADDITIONAL FIX: If no explicit type but we have after/before dates,
+    // check if it could be lastLogin based on the date pattern
+    if (!type && after && before) {
+      const afterDate = after;
+      const beforeDate = before;
+
+      // Check if 'after' matches user's last login date
+      const loginDate = lastLogin ? lastLogin.split("T")[0] : "";
+
+      // 🔥 KEY FIX: If after date matches login date, assume it's lastLogin
+      if (loginDate && afterDate === loginDate) {
+        console.log("🔥 Detected lastLogin pattern, setting type to lastLogin");
+        setSelectedType("lastLogin");
+        setWithinDays("7");
+        setFromDate("");
+        setToDate("");
+        return;
+      }
     }
-  }
 
-  // Original inference logic - only for cases without explicit type
-  let inferredType = "";
-  let inferredWithin = within;
-  let inferredFrom = from;
-  let inferredTo = to;
+    // Original inference logic - only for cases without explicit type
+    let inferredType = "";
+    let inferredWithin = "";
+    let inferredFrom = from;
+    let inferredTo = to;
 
-  if (after && before && !type) {
-    const diffInMs = new Date(before) - new Date(after);
-    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    if (after && before && !type) {
+      const diffInMs = new Date(before) - new Date(after);
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 
-    if ([7, 30, 90].includes(diffInDays)) {
-      inferredType = "within";
-      inferredWithin = diffInDays.toString();
-    } else {
-      inferredType = "timeline";
-      inferredFrom = after;
-      inferredTo = before;
+      if ([7, 30, 90].includes(diffInDays)) {
+        inferredType = "within";
+        inferredWithin = diffInDays.toString();
+      } else {
+        inferredType = "timeline";
+        inferredFrom = after;
+        inferredTo = before;
+      }
     }
-  }
 
-  setSelectedType(inferredType);
-  setWithinDays(inferredWithin);
-  setFromDate(inferredFrom);
-  setToDate(inferredTo);
-}, [publishedDate, lastLogin]);
+    setSelectedType(inferredType);
+    setWithinDays(inferredWithin);
+    setFromDate(inferredFrom);
+    setToDate(inferredTo);
+  }, [publishedDate, lastLogin]);
 
   // Use this approach in your calculateDateRange
   const calculateDateRange = (days) => {
@@ -174,7 +175,7 @@ useEffect(() => {
     } else {
       updated.publishedDate = {
         type: "",
-        within: "7",
+        within: "",
         from: "",
         to: "",
         after: "",
@@ -188,10 +189,10 @@ useEffect(() => {
   // 🔥 NEW: Clear all selections function
   const handleClearAll = () => {
     setSelectedType("");
-    setWithinDays("7");
+    setWithinDays("");
     setFromDate("");
     setToDate("");
-    updateFilters("", "7", "", "");
+    updateFilters("", "", "", "");
   };
 
   // 🔥 NEW: Clear specific selection function
@@ -214,7 +215,7 @@ useEffect(() => {
   const handleTypeChange = (type) => {
     setSelectedType(type);
     if (type === "within") {
-      updateFilters(type, withinDays);
+      // updateFilters(type, withinDays);
     } else if (type === "timeline") {
       updateFilters(type, withinDays, fromDate, toDate);
     } else {
@@ -224,7 +225,7 @@ useEffect(() => {
 
   const handleWithinChange = (days) => {
     setWithinDays(days);
-    
+
     // If empty value is selected (default option), clear the filter
     if (!days || days === "") {
       // Clear the radio button selection and update filters

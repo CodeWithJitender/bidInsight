@@ -77,6 +77,7 @@ const BidTable = forwardRef(({
 
 
   const handleFollowClick = (e, bidId) => {
+    console.log(bidId, "🔥 Follow button clicked for BID_IDdddddddddddddddddddddddddddddddddddddddd");
   e.stopPropagation();
   
   // Check if already followed
