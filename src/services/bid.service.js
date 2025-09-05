@@ -183,6 +183,29 @@ export const totalBookmarkedBids = async () => {
 };
 
 
+export const deleteBookmarkedBid = async (bookmarkId) => {
+  console.log(bookmarkId, "🔥 Deleting bookmarked bid with BOOKMARK_ID");
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    throw new Error("No access token found");
+  }
+  try {
+    // POST to /bids/bookmarks/{id}/ with empty body
+    const res = await API.delete(`/bids/bookmarks/${bookmarkId}/`, {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    console.log("Toggled bookmark status (unbookmarked):", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("Error toggling bookmark status:", err);
+    throw err;
+  } 
+};
 
 // Export Bids to CSV via Backend API
 export const exportBidsToCSV = async (bidIds) => {
@@ -273,10 +296,6 @@ export const followBids = async (id) => {
 
 
 
-
-
-
-
 export const deleteFollowedBid = async (followId) => {
   console.log(followId, "🔥 Deleting followed bid with FOLLOW_ID");
   const token = localStorage.getItem("access_token");
@@ -285,7 +304,7 @@ export const deleteFollowedBid = async (followId) => {
   }
   try {
     // POST to /bids/follow/{id}/ with empty body
-    const res = await API.post(`/bids/follow/${followId}/`, {},
+    const res = await API.delete(`/bids/follow/${followId}/`, {},
       {
         headers: {
           Authorization: `Bearer ${token}`,

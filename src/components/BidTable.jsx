@@ -77,17 +77,19 @@ const BidTable = forwardRef(({
 
 
   const handleFollowClick = (e, bidId) => {
-    console.log(bidId, "🔥 Follow button clicked for BID_IDdddddddddddddddddddddddddddddddddddddddd");
+  console.log(bidId, "🔥 Follow button clicked for BID_ID");
   e.stopPropagation();
   
-  // Check if already followed
+  // Check if already followed using Set
   const isFollowed = followedBids && followedBids.has 
     ? followedBids.has(bidId) 
     : false;
     
   if (isFollowed) {
+    // 🔥 CALL UNFOLLOW - passes bid_id, function will find follow_id internally
     onUnfollowBid(bidId);
   } else {
+    // 🔥 CALL FOLLOW - passes bid_id for POST API
     onFollowBid(bidId);
   }
 };

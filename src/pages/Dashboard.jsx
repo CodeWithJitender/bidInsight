@@ -79,15 +79,6 @@ function Dashboard() {
     validateFeatureUsage
   } = usePlan();
 
-  // console.log("=== PLAN DEBUG START ===");
-  // console.log("userPlan from redux:", useSelector((state) => state.login?.user?.plan));
-  // console.log("planInfo:", planInfo);
-  // console.log("planInfo.code:", planInfo?.code);
-  // console.log("planInfo.isFree:", planInfo?.isFree);
-  // console.log("restrictions object:", restrictions);
-  // console.log("restrictions.advanceSearch:", restrictions?.advanceSearch);
-  // console.log("=== PLAN DEBUG END ===");
-
 
   const {
     sidebarToggle,
@@ -110,6 +101,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
   const [bookmarkedCount, setBookmarkedCount] = useState(0);
   const [bookmarkedBids, setBookmarkedBids] = useState([]);
   const [isBookmarkView, setIsBookmarkView] = useState(false);
@@ -124,6 +116,7 @@ function Dashboard() {
 
   // 🚀 NEW STATE - Export Loading
   const [exportLoading, setExportLoading] = useState(false);
+  const [followedBidsData, setFollowedBidsData] = useState([]); // New state for actual data
   const [followedBids, setFollowedBids] = useState(new Set());
   const [followLoading, setFollowLoading] = useState(new Set());
   const [isRestrictedFollowView, setIsRestrictedFollowView] = useState(false);
@@ -216,71 +209,113 @@ function Dashboard() {
   };
   // Dashboard.jsx - Updated handleFollowBid function
 
-const handleFollowBid = async (bidId) => {
-  if (!validateFeatureUsage('follow', showFeatureRestriction, followedBids.size)) {
-    return;
-  }
-
-  setFollowLoading(prev => new Set([...prev, bidId]));
-
-  try {
-    // 🔥 FIX: Check if already followed using Set.has()
-    if (followedBids.has(bidId)) {
-      await handleUnfollowBid(bidId);
+  const handleFollowBid = async (bidId) => {
+    if (!validateFeatureUsage('follow', showFeatureRestriction, followedBids.size)) {
       return;
     }
 
-    const result = await followBids(bidId);
-    console.log("✅ Follow successful:", result);
+    setFollowLoading(prev => new Set([...prev, bidId]));
 
-    // Add to followed Set
-    setFollowedBids(prev => {
-      const newSet = new Set(prev);
-      newSet.add(bidId);
-      return newSet;
-    });
+    try {
+      // 🔥 FIX: Check if already followed using Set.has()
+      if (followedBids.has(bidId)) {
+        await handleUnfollowBid(bidId);
+        return;
+      }
 
-  } catch (error) {
-    console.error("❌ Follow error:", error);
+      const result = await followBids(bidId);
+      console.log("✅ Follow successful:", result);
 
-    const errorDetail = error.response?.data?.detail || "";
-
-    if (errorDetail.includes("already following")) {
+      // 🔥 FIX 1: Add to followed Set
       setFollowedBids(prev => {
         const newSet = new Set(prev);
         newSet.add(bidId);
         return newSet;
       });
-    } else if (error.response?.status === 403) {
-      showFeatureRestriction(
-        error.response.data.title || "Follow Failed",
-        error.response.data.message || "Upgrade your plan to follow more bids.",
-        "Follow Feature",
-        true
-      );
+
+      // 🔥 FIX 2: Update count immediately
+      setFollowedCount(prev => prev + 1);
+
+      if (!isFollowView && bidsInfo?.results) {
+        const bidToAdd = bidsInfo.results.find(bid => bid.id === bidId);
+        if (bidToAdd) {
+          setFollowedBidsData(prev => [
+            ...prev,
+            {
+              ...bidToAdd,
+              follow_id: result.id || result.follow_id, // API response से follow_id
+              follow_created_at: new Date().toISOString()
+            }
+          ]);
+        }
+      }
+
+
+    } catch (error) {
+      console.error("❌ Follow error:", error);
+
+      const errorDetail = error.response?.data?.detail || "";
+
+      if (errorDetail.includes("already following")) {
+        setFollowedBids(prev => {
+          const newSet = new Set(prev);
+          newSet.add(bidId);
+          return newSet;
+        });
+      } else if (error.response?.status === 403) {
+        showFeatureRestriction(
+          error.response.data.title || "Follow Failed",
+          error.response.data.message || "Upgrade your plan to follow more bids.",
+          "Follow Feature",
+          true
+        );
+      }
+    } finally {
+      setFollowLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(bidId);
+        return newSet;
+      });
     }
-  } finally {
-    setFollowLoading(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(bidId);
-      return newSet;
-    });
-  }
-};
+  };
+
+
+
+
 
   const handleUnfollowBid = async (bidId) => {
-    // Add bid to loading state
     setFollowLoading(prev => new Set([...prev, bidId]));
+
     try {
-      // console.log("🔥 Unfollowing bid with ID:", bidId)
-      await deleteFollowedBid(bidId)
-      // console.log("✅ Unfollow successful");
-      // Update followed bids state
+      // Find follow_id from followedBidsData
+      const followedBid = followedBidsData.find(bid => bid.id === bidId);
+
+      if (!followedBid || !followedBid.follow_id) {
+        console.error("❌ Follow ID not found for bid:", bidId);
+        // If follow_id not found, try to refetch followed bids
+        await refetchFollowedBids();
+        throw new Error("Follow ID not found");
+      }
+
+      const followId = followedBid.follow_id;
+      console.log("🔥 Unfollowing with follow_id:", followId);
+
+      await deleteFollowedBid(followId);
+      console.log("✅ Unfollow successful");
+
+      // 🔥 FIX 1: Remove from followed Set
       setFollowedBids(prev => {
         const newSet = new Set(prev);
         newSet.delete(bidId);
         return newSet;
       });
+
+      // 🔥 FIX 2: Update count immediately
+      setFollowedCount(prev => Math.max(0, prev - 1));
+
+      // 🔥 FIX 3: Remove from followedBidsData
+      setFollowedBidsData(prev => prev.filter(bid => bid.id !== bidId));
+
     } catch (error) {
       console.error("❌ Unfollow error:", error);
       showFeatureRestriction(
@@ -290,7 +325,6 @@ const handleFollowBid = async (bidId) => {
         false
       );
     } finally {
-      // Remove bid from loading state
       setFollowLoading(prev => {
         const newSet = new Set(prev);
         newSet.delete(bidId);
@@ -315,44 +349,52 @@ const handleFollowBid = async (bidId) => {
       return;
     }
 
-    // If not restricted, navigate to followed bids
-    // console.log("✅ Follow feature allowed - navigating");
-    navigate("/dashboard/followedBids");
+    setIsFollowView(true);
+    setIsBookmarkView(false);
+    setIsRestrictedFollowView(false);
+
+    // Navigate
+    navigate("/dashboard/followedBids", { replace: false });
   };
 
-
-  // Fetch followed bids on component mount
   useEffect(() => {
     const fetchFollowedBids = async () => {
-    try {
-      debugger; const data = await totalFollowedBids();
-      console.log(data, "🔥 Total followed bids RAWwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+      try {
+        const data = await totalFollowedBids();
+        console.log(data, "🔥 Total followed bids RAW");
 
-      // Transform data but keep IDs separate for Set
-      const transformedData = Array.isArray(data)
-        ? data.map(item => ({
-          ...item.bid, 
-          follow_id: item.id,
-          follow_created_at: item.created_at
-        }))
-        : [];
+        // Transform data but keep IDs separate for Set
+        const transformedData = Array.isArray(data)
+          ? data.map(item => ({
+            ...item.bid,
+            follow_id: item.id,
+            follow_created_at: item.created_at
+          }))
+          : [];
 
-      const count = transformedData.length;
-      setFollowedCount(count);
-      
-      // 🔥 FIX: Create Set of bid IDs, not array of bid objects
-      const followedBidIds = new Set(transformedData.map(bid => bid.id));
-      setFollowedBids(followedBidIds);
+        const count = transformedData.length;
+        setFollowedCount(count);
 
-    } catch (error) {
-      console.error("❌ Error fetching followed bids:", error);
-      setFollowedCount(0);
-      setFollowedBids(new Set()); // Empty Set
-    }
-  };
+        // Store actual bid data for display
+        setFollowedBidsData(transformedData);
 
-  fetchFollowedBids();
-}, []);
+        // Create Set of bid IDs for tracking follow status
+        const followedBidIds = new Set(transformedData.map(bid => bid.id));
+        setFollowedBids(followedBidIds);
+
+        console.log("✅ Followed bids data set:", transformedData);
+        console.log("✅ Followed bid IDs set:", followedBidIds);
+
+      } catch (error) {
+        console.error("❌ Error fetching followed bids:", error);
+        setFollowedCount(0);
+        setFollowedBids(new Set());
+        setFollowedBidsData([]); // Clear data array too
+      }
+    };
+
+    fetchFollowedBids();
+  }, []);
 
 
   useEffect(() => {
@@ -403,7 +445,7 @@ const handleFollowBid = async (bidId) => {
     fetchBidCount();
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchBookmarkedBids = async () => {
       try {
         const data = await totalBookmarkedBids();
@@ -440,7 +482,7 @@ const handleFollowBid = async (bidId) => {
   }, []);
 
 
-  // 🔥 FIX 2: Prevent auto-redirect on bookmark route refresh
+  // 🔥 FIX 2: Prevent auto-redirect on bookmark route refreshpaginat
   useEffect(() => {
     const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
     const isFollowRoute = location.pathname === '/dashboard/followedBids';
@@ -474,7 +516,7 @@ const handleFollowBid = async (bidId) => {
     }
   }, [location.pathname, location.search, restrictions?.follow]);
 
-  
+
 
   const middle = [
     {
@@ -636,11 +678,11 @@ const handleFollowBid = async (bidId) => {
   };
 
   // 🔥 FETCH BIDS ON LOAD
- useEffect(() => {
-  if (!isInitialLoad && !isBookmarkView && !isFollowView && !isRestrictedFollowView) {
-    fetchBids();
-  }
-}, [fetchBids, isInitialLoad, isBookmarkView, isFollowView, isRestrictedFollowView]);
+  useEffect(() => {
+    if (!isInitialLoad && !isBookmarkView && !isFollowView && !isRestrictedFollowView) {
+      fetchBids();
+    }
+  }, [fetchBids, isInitialLoad, isBookmarkView, isFollowView, isRestrictedFollowView]);
 
   useEffect(() => {
     console.log("🔥 Dashboard Debug Info:");
@@ -862,7 +904,7 @@ const handleFollowBid = async (bidId) => {
       }
     }, 100);
   };
-  
+
 
 
 
@@ -1107,7 +1149,7 @@ const handleFollowBid = async (bidId) => {
                 timezone={userTimezone}
                 bids={
                   isFollowView
-                    ? followedBids
+                    ? followedBidsData
                     : isBookmarkView
                       ? bookmarkedBids
                       : (bidsInfo?.results || [])
@@ -1140,7 +1182,13 @@ const handleFollowBid = async (bidId) => {
             )}
 
             <Pagination
-              totalResults={bidsInfo?.count || 0}
+              totalResults={
+                isFollowView
+                  ? followedBidsData.length  // 🔥 FIX: Use real-time count for followed view
+                  : isBookmarkView
+                    ? bookmarkedBids.length
+                    : (bidsInfo?.count || 0)
+              }
               perPage={bidsInfo?.page_size || perPage}
               currentPage={bidsInfo?.page || currentPage}
               onPageChange={handlePageChange}

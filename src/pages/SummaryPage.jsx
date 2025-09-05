@@ -51,24 +51,67 @@ function SummaryPage() {
   };
 
   // ✅ NEW: Fetch bookmarked count
-  useEffect(() => {
-    const fetchBookmarkedCount = async () => {
-      try {
-        const bookmarkedBids = await totalBookmarkedBids();
-        setBookmarkedCount(bookmarkedBids.length);
-        
-        // Check if current bid is bookmarked
-        const isCurrentBidBookmarked = bookmarkedBids.some(bookmark => bookmark.id === parseInt(id));
-        setIsBookmarked(isCurrentBidBookmarked);
-      } catch (error) {
-        console.error("Error fetching bookmarked count:", error);
-      }
-    };
-
-    if (id && planInfo) {
-      fetchBookmarkedCount();
+ useEffect(() => {
+  const fetchBookmarkedCount = async () => {
+    try {
+      const bookmarkedBids = await totalBookmarkedBids();
+      setBookmarkedCount(bookmarkedBids.length);
+      
+      // 🔥 FIX: Check if current bid is bookmarked using bid.id not bookmark.id
+      const isCurrentBidBookmarked = bookmarkedBids.some(bookmark => 
+        bookmark.bid.id === parseInt(id) // bookmark.bid.id because API returns nested structure
+      );
+      setIsBookmarked(isCurrentBidBookmarked);
+      
+      console.log("Current bid bookmarked:", isCurrentBidBookmarked);
+      console.log("Bookmark data structure:", bookmarkedBids[0]); // Debug log
+      
+    } catch (error) {
+      console.error("Error fetching bookmarked count:", error);
     }
-  }, [id, planInfo]);
+  };
+
+  if (id && planInfo) {
+    fetchBookmarkedCount();
+  }
+}, [id, planInfo]);
+
+
+
+const handleUnbookmark = async () => {
+  if (!id || !isBookmarked) return;
+
+  setIsBookmarking(true);
+  try {
+    // Find bookmark_id for current bid
+    const bookmarkedBids = await totalBookmarkedBids();
+    const currentBookmark = bookmarkedBids.find(bookmark => 
+      bookmark.bid.id === parseInt(id)
+    );
+    
+    if (currentBookmark && currentBookmark.id) {
+      await deleteBookmarkedBid(currentBookmark.id); // Use bookmark.id for delete
+      
+      setIsBookmarked(false);
+      setBookmarkedCount(prev => prev - 1);
+      setNotification({
+        show: true,
+        message: "Bookmark removed!",
+        type: 'success'
+      });
+    }
+  } catch (error) {
+    console.error("Error removing bookmark:", error);
+    setNotification({
+      show: true,
+      message: "Failed to remove bookmark",
+      type: 'error'
+    });
+  } finally {
+    setIsBookmarking(false);
+  }
+};
+
 
   // Existing bid fetch useEffect
   useEffect(() => {
