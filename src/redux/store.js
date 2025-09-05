@@ -1,4 +1,4 @@
-// src/store/store.js
+// src/store/store.js - UPDATED
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // uses localStorage
@@ -9,8 +9,9 @@ import onboardingReducer from "./reducer/onboardingSlice";
 import loginReducer from "./reducer/loginSlice";
 import savedSearchesReducer from "./reducer/savedSearchesSlice";
 import bidReducer from "./reducer/bidSlice";
-import profileReducer from "./reducer/profileSlice"; // ✅ NEW
-import authReducer from "./reducer/authSlice"
+import profileReducer from "./reducer/profileSlice";
+import authReducer from "./reducer/authSlice";
+import followReducer from "./reducer/followSlice"; // 🔥 NEW FOLLOW SLICE
 
 // Combine all reducers
 const rootReducer = combineReducers({
@@ -20,14 +21,14 @@ const rootReducer = combineReducers({
   savedSearches: savedSearchesReducer,
   bids: bidReducer,
   profile: profileReducer,
-  // profile: profileReducer, // ✅ Added profile reducer
+  follow: followReducer, // 🔥 ADD FOLLOW REDUCER
 });
 
 // Redux Persist config
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["bids"],
+  blacklist: ["bids"], // Don't persist bids data
 };
 
 // Wrap rootReducer with persistReducer
@@ -38,7 +39,10 @@ const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // suppress persist warnings
+      serializableCheck: {
+        // Ignore these paths for serializable check (because of Map and Set)
+        ignoredPaths: ['follow.followedBidIds', 'follow.followMap'],
+      },
     }),
 });
 

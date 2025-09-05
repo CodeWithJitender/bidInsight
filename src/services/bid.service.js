@@ -184,7 +184,6 @@ export const totalBookmarkedBids = async () => {
 
 
 
-
 // Export Bids to CSV via Backend API
 export const exportBidsToCSV = async (bidIds) => {
   try {
@@ -232,6 +231,23 @@ export const exportBidsToCSV = async (bidIds) => {
 };
 
 
+// bid.service.js main ye add karna hoga
+export const totalFollowedBids = async () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  
+  try {
+    const res = await API.get("/bids/follow/", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log(res.data, "🔥 Total followed bids fetched");
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching followed bids:", err);
+    throw err;
+  }
+};
+
 
 export const followBids = async (id) => {
   const token = localStorage.getItem("access_token");
@@ -257,60 +273,30 @@ export const followBids = async (id) => {
 
 
 
-// export const totalFollowedBids = async () => {
-//   const token = localStorage.getItem("access_token");
-//   if (!token) {
-//     throw new Error("No access token found");
-//   }
-//   try {
-//     const res = await API.get("/bids/follow/", {
-//       headers: {
-//         Authorization: `Bearer ${token}`
-//       }
-//     });
-//     console.log(res.data, "🔥 Total followed bids fetched");
-//     return res.data;
-//   } catch (err) {
-//     console.error("Error fetching total followed bids:", err);
-//     throw err;
-//   } 
-// };
-
-
-// bid.service.js main ye add karna hoga
-export const totalFollowedBids = async () => {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No access token found");
-  
-  try {
-    const res = await API.get("/bids/follow/", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    console.log(res.data, "🔥 Total followed bids fetched");
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching followed bids:", err);
-    throw err;
-  }
-};
 
 
 
-export const deleteFollowedBid = async (id) => {
+
+export const deleteFollowedBid = async (followId) => {
+  console.log(followId, "🔥 Deleting followed bid with FOLLOW_ID");
   const token = localStorage.getItem("access_token");
   if (!token) {
     throw new Error("No access token found");
   }
   try {
-    const res = await API.delete(`/bids/follow/${id}/`, {
-      headers: {  
-        Authorization: `Bearer ${token}`
+    // POST to /bids/follow/{id}/ with empty body
+    const res = await API.post(`/bids/follow/${followId}/`, {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       }
-    });
-    console.log("Unfollowed bid:", res.data);
+    );
+    console.log("Toggled follow status (unfollowed):", res.data);
     return res.data;
   } catch (err) {
-    console.error("Error unfollowing bid:", err);
+    console.error("Error toggling follow status:", err);
     throw err;
-  } 
+  }
 };

@@ -19,7 +19,6 @@ function FormMultiSelect({
   required = true,
   value = [],
   onChange,
-  maxSelections = 10,
 }) {
   const dropdownRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -84,13 +83,9 @@ function FormMultiSelect({
       // Remove if already selected
       newValues = value.filter(val => val.value !== optValue);
     } else {
-      // Add if not selected and under max limit
-      if (value.length < maxSelections) {
-        const selectedOption = sortedOptions.find(opt => opt.value === optValue);
-        newValues = [...value, selectedOption];
-      } else {
-        return; // Don't add if max reached
-      }
+      // Add if not selected
+      const selectedOption = sortedOptions.find(opt => opt.value === optValue);
+      newValues = [...value, selectedOption];
     }
 
     // Call onChange with new values (keeping original functionality)
@@ -114,6 +109,16 @@ function FormMultiSelect({
     }
   };
 
+  // Check if all filtered options are selected
+  const areAllFilteredOptionsSelected = filteredOptions.length > 0 && filteredOptions.every(opt => 
+    value.some(val => val.value === opt.value)
+  );
+
+  // Check if some (but not all) filtered options are selected
+  const areSomeFilteredOptionsSelected = filteredOptions.some(opt => 
+    value.some(val => val.value === opt.value)
+  ) && !areAllFilteredOptionsSelected;
+
   return (
     <div
       className="form-field flex flex-col gap-3 mb-3 w-[100%] md:w-[90%]"
@@ -123,7 +128,6 @@ function FormMultiSelect({
       <label className="form-label font-t mb-2" htmlFor={name}>
         {label}
       </label>
-
 
       {/* Custom Dropdown */}
       <div
@@ -167,7 +171,7 @@ function FormMultiSelect({
             {/* Selected Tags Display (when open) */}
             {value.length > 0 && (
               <div className="p-3 border-b border-gray-200">
-                <div className="text-xs text-gray-500 mb-2">Selected ({value.length}/{maxSelections}):</div>
+                <div className="text-xs text-gray-500 mb-2">Selected ({value.length}):</div>
                 <div className="flex flex-wrap gap-1">
                   {value.map((item, index) => (
                     <span
@@ -186,27 +190,65 @@ function FormMultiSelect({
               </div>
             )}
 
+            {/* Select All Option with Checkbox */}
+            {filteredOptions.length > 1 && (
+              <div className="border-b border-gray-200">
+                <li
+                  className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-100 bg-gray-50 font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    
+                    if (areAllFilteredOptionsSelected) {
+                      // Deselect all filtered options
+                      const newValues = value.filter(val => 
+                        !filteredOptions.some(opt => opt.value === val.value)
+                      );
+                      onChange(newValues);
+                    } else {
+                      // Select all filtered options that aren't already selected
+                      const newSelections = filteredOptions.filter(opt => 
+                        !value.some(val => val.value === opt.value)
+                      );
+                      const newValues = [...value, ...newSelections];
+                      onChange(newValues);
+                    }
+                  }}
+                >
+                  {/* Custom Checkbox */}
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={areAllFilteredOptionsSelected}
+                      ref={(input) => {
+                        if (input) input.indeterminate = areSomeFilteredOptionsSelected;
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                      onChange={() => {}} // Handled by parent onClick
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  <span className="flex-1 text-blue-600">
+                    {areAllFilteredOptionsSelected ? "Deselect All" : "Select All"}
+                    {searchTerm && ` (${filteredOptions.length} filtered)`}
+                  </span>
+                </li>
+              </div>
+            )}
+
             {/* Options List with scrolling */}
             <ul className="max-h-48 overflow-y-auto">
               {filteredOptions.map((opt, i) => {
                 const isSelected = value.some(val => val.value === opt.value);
-                const isDisabled = !isSelected && value.length >= maxSelections;
                 
                 return (
                   <li
                     key={i}
-                    className={`flex items-center gap-2 p-3 cursor-pointer ${
-                      isDisabled 
-                        ? "text-gray-400 cursor-not-allowed" 
-                        : "hover:bg-gray-100"
-                    } ${
+                    className={`flex items-center gap-2 p-3 cursor-pointer hover:bg-gray-100 ${
                       isSelected ? "bg-blue-50 text-blue-600" : ""
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!isDisabled) {
-                        handleSelect(opt.value);
-                      }
+                      handleSelect(opt.value);
                     }}
                   >
                     <FontAwesomeIcon
@@ -232,13 +274,6 @@ function FormMultiSelect({
           </div>
         )}
       </div>
-
-      {/* Max selections warning */}
-      {value.length >= maxSelections && (
-        <p className="text-red-400 text-sm mt-2 font-semibold">
-          You can select up to {maxSelections} options only.
-        </p>
-      )}
     </div>
   );
 }

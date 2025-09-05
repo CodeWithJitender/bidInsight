@@ -354,6 +354,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
             errors={errors}
             setErrors={setErrors}
             showValidation={showValidation}
+            onSaveSearch={handleSaveSearch}
           />
         );
       case "Status":

@@ -11,7 +11,7 @@ const BidTable = forwardRef(({
   onSort = () => { },
   onEntityTypeChange = () => { },
   onFollowBid = () => { },
-  
+  onUnfollowBid = () => { },
   onFeatureRestriction = () => { },
   followedBids = new Set(),
   followLoading = new Set(),
@@ -77,9 +77,19 @@ const BidTable = forwardRef(({
 
 
   const handleFollowClick = (e, bidId) => {
-    e.stopPropagation();
+  e.stopPropagation();
+  
+  // Check if already followed
+  const isFollowed = followedBids && followedBids.has 
+    ? followedBids.has(bidId) 
+    : false;
+    
+  if (isFollowed) {
+    onUnfollowBid(bidId);
+  } else {
     onFollowBid(bidId);
-  };
+  }
+};
 
   // Enhanced export with restriction check
   const exportToCSV = () => {

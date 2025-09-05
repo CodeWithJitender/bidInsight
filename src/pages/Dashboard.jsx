@@ -216,88 +216,57 @@ function Dashboard() {
   };
   // Dashboard.jsx - Updated handleFollowBid function
 
-  const handleFollowBid = async (bidId) => {
-    // Plan validation first
-    if (!validateFeatureUsage('follow', showFeatureRestriction, followedBids.size)) {
+const handleFollowBid = async (bidId) => {
+  if (!validateFeatureUsage('follow', showFeatureRestriction, followedBids.size)) {
+    return;
+  }
+
+  setFollowLoading(prev => new Set([...prev, bidId]));
+
+  try {
+    // 🔥 FIX: Check if already followed using Set.has()
+    if (followedBids.has(bidId)) {
+      await handleUnfollowBid(bidId);
       return;
     }
 
-    // Add bid to loading state
-    setFollowLoading(prev => new Set([...prev, bidId]));
+    const result = await followBids(bidId);
+    console.log("✅ Follow successful:", result);
 
-    try {
-      console.log("🔥 Following bid with ID:", bidId);
+    // Add to followed Set
+    setFollowedBids(prev => {
+      const newSet = new Set(prev);
+      newSet.add(bidId);
+      return newSet;
+    });
 
-      const result = await followBids(bidId);
-      console.log("✅ Follow successful:", result);
+  } catch (error) {
+    console.error("❌ Follow error:", error);
 
-      // Update followed bids state
+    const errorDetail = error.response?.data?.detail || "";
+
+    if (errorDetail.includes("already following")) {
       setFollowedBids(prev => {
         const newSet = new Set(prev);
-        if (newSet.has(bidId)) {
-          // If already followed, remove it (unfollow)
-          newSet.delete(bidId);
-          console.log("🔄 Unfollowed bid:", bidId);
-        } else {
-          // If not followed, add it
-          newSet.add(bidId);
-          console.log("➕ Followed bid:", bidId);
-        }
-
-
+        newSet.add(bidId);
         return newSet;
       });
-
-    } catch (error) {
-      console.error("❌ Follow error:", error);
-
-      // 🔥 NEW: Handle "already following" error
-      const errorDetail = error.response?.data?.detail || "";
-
-      if (errorDetail.includes("already following")) {
-        // If already following, just add to followed state
-        console.log("ℹ️ Already following - updating state");
-
-        setFollowedBids(prev => {
-          const newSet = new Set(prev);
-          newSet.add(bidId);
-          return newSet;
-        });
-
-        // Show info message instead of error
-        showFeatureRestriction(
-          "Already Following",
-          "You are already following this bid. Updates will be sent to your email.",
-          "Follow Status",
-          false // No upgrade button needed
-        );
-
-      } else if (error.response?.status === 403 || error.response?.data?.error) {
-        // Plan restriction errors
-        showFeatureRestriction(
-          error.response.data.title || "Follow Failed",
-          error.response.data.message || "Upgrade your plan to follow more bid.",
-          "Follow Feature",
-          error.response.data.needsUpgrade || true
-        );
-      } else {
-        // Other errors
-        showFeatureRestriction(
-          "Follow Failed",
-          "Something went wrong while following this bid. Please try again.",
-          "Follow Feature",
-          false
-        );
-      }
-    } finally {
-      // Remove bid from loading state
-      setFollowLoading(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
+    } else if (error.response?.status === 403) {
+      showFeatureRestriction(
+        error.response.data.title || "Follow Failed",
+        error.response.data.message || "Upgrade your plan to follow more bids.",
+        "Follow Feature",
+        true
+      );
     }
-  };
+  } finally {
+    setFollowLoading(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(bidId);
+      return newSet;
+    });
+  }
+};
 
   const handleUnfollowBid = async (bidId) => {
     // Add bid to loading state
@@ -354,33 +323,36 @@ function Dashboard() {
 
   // Fetch followed bids on component mount
   useEffect(() => {
-    const fetchFollowedBids = async () => {
-      try {
-        const data = await totalFollowedBids();
-        console.log(data, "🔥 Total followed bids RAW");
+  const fetchFollowedBids = async () => {
+    try {
+      const data = await totalFollowedBids();
+      console.log(data, "🔥 Total followed bids RAW");
 
-        // 🔥 SAME PATTERN as bookmark transformation
-        const transformedData = Array.isArray(data)
-          ? data.map(item => ({
-            ...item.bid, // Extract nested bid object
-            follow_id: item.id,
-            follow_created_at: item.created_at
-          }))
-          : [];
+      // Transform data but keep IDs separate for Set
+      const transformedData = Array.isArray(data)
+        ? data.map(item => ({
+          ...item.bid, 
+          follow_id: item.id,
+          follow_created_at: item.created_at
+        }))
+        : [];
 
-        const count = transformedData.length;
-        setFollowedCount(count);
-        setFollowedBids(transformedData);
+      const count = transformedData.length;
+      setFollowedCount(count);
+      
+      // 🔥 FIX: Create Set of bid IDs, not array of bid objects
+      const followedBidIds = new Set(transformedData.map(bid => bid.id));
+      setFollowedBids(followedBidIds);
 
-      } catch (error) {
-        console.error("❌ Error fetching followed bids:", error);
-        setFollowedCount(0);
-        setFollowedBids([]);
-      }
-    };
+    } catch (error) {
+      console.error("❌ Error fetching followed bids:", error);
+      setFollowedCount(0);
+      setFollowedBids(new Set()); // Empty Set
+    }
+  };
 
-    fetchFollowedBids();
-  }, []);
+  fetchFollowedBids();
+}, []);
 
 
   useEffect(() => {

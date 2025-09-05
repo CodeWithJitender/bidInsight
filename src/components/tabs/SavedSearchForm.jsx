@@ -20,7 +20,8 @@ const SavedSearchForm = ({
   showValidation,
   errors,
   setErrors,
-  handleSavedSearchSelect
+  handleSavedSearchSelect,
+  onSaveSearch
 }) => {
   const { savedSearches } = useSelector((state) => state.savedSearches);
 
@@ -314,8 +315,19 @@ const SavedSearchForm = ({
   //   }
   // };
 
+  // ✅ ADD: Handle form submission and Enter key
+  const handleFormSubmit = (e) => {
+    e.preventDefault(); // Prevent form refresh
+    if (onSaveSearch && searchName.trim()) {
+      onSaveSearch(); // Trigger save search action
+    }
+  };
+
   return (
-    <form className="min-h-screen flex flex-col justify-between p-10 bg-white">
+    <form
+      className="min-h-screen flex flex-col justify-between p-10 bg-white"
+      onSubmit={handleFormSubmit}
+    >
       <div>
         <h2 className="font-medium mb-4 font-inter text-p">Search</h2>
 
@@ -355,10 +367,18 @@ const SavedSearchForm = ({
               name="name"
               placeholder="Enter search name"
               className={`border rounded-lg px-4 py-2 font-inter text-xl w-[300px]
-                ${showValidation && errors.name ? "border-red-500" : "border-[#273BE280]"}`}
+              ${showValidation && errors.name ? "border-red-500" : "border-[#273BE280]"}`}
               value={searchName}
               onChange={handleOnChangeInput}
               onBlur={handleOnChangeInput}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent form submission
+                  if (onSaveSearch && searchName.trim() && !errors.name) {
+                    onSaveSearch(e); // Trigger save search
+                  }
+                }
+              }}
             />
 
             {showValidation && errors.name && (
