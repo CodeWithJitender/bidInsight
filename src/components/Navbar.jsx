@@ -7,7 +7,6 @@ import {
   faXmark,
   faChartBar,
   faSignOutAlt,
-  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 // ✅ ADD THESE IMPORTS AT TOP
@@ -24,76 +23,11 @@ const navItems = [
   { label: "Help Center", path: "/help" },
 ];
 
-// Profile Dropdown Component
-const ProfileDropdown = ({ isOpen, onClose, scrolled, onLogout }) => {
-  const dropdownRef = useRef(null);
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen, onClose]);
-  
-  if (!isOpen) return null;
-  
-  const getDropdownClasses = () => {
-    let baseClasses = "absolute right-0 top-full mt-2 w-48 rounded-xl shadow-2xl border z-[60] animate-in slide-in-from-top-2 duration-200";
-    
-    if (scrolled) {
-      baseClasses += " bg-slate-800/95 backdrop-blur-xl border-white/10";
-    } else {
-      baseClasses += " bg-white/15 backdrop-blur-xl border-white/20";
-    }
-    
-    return baseClasses;
-  };
-  
-  return (
-    <div ref={dropdownRef} className={getDropdownClasses()}>
-      <div className="p-2">
-        <Link
-          to="/dashboard"
-          onClick={onClose}
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/10 transition-all duration-200 group w-full text-left"
-          >
-          <FontAwesomeIcon
-            icon={faChartBar}
-            className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform duration-200"
-          />
-          <span className="font-medium text-white">Dashboard</span>
-        </Link>
-
-        <button
-          onClick={() => {
-            onLogout();
-            onClose();
-          }}
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-red-500/20 transition-all duration-200 group w-full text-left"
-          >
-          <FontAwesomeIcon
-            icon={faSignOutAlt}
-            className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform duration-200"
-            />
-          <span className="font-medium text-white group-hover:text-red-200">Logout</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -153,16 +87,6 @@ const Navbar = () => {
   // Close mobile menu when route changes
   const handleNavClick = useCallback(() => {
     setMenuOpen(false);
-  }, []);
-
-  // Toggle profile dropdown
-  const toggleProfileDropdown = useCallback(() => {
-    setProfileDropdownOpen(prev => !prev);
-  }, []);
-
-  // Close profile dropdown
-  const closeProfileDropdown = useCallback(() => {
-    setProfileDropdownOpen(false);
   }, []);
 
   // Dynamic navbar styling based on scroll position
@@ -243,32 +167,17 @@ const Navbar = () => {
           {/* Right Buttons (Desktop) */}
           <div className="hidden md:flex items-center space-x-3">
             {isAuthenticated ? (
-              <div className="relative">
-                <button
-                  onClick={toggleProfileDropdown}
-                  className={`flex items-center space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] hover:bg-white/20 font-semibold group relative overflow-hidden ${getContentClasses()}`}
-                  aria-label="User profile menu"
-                  aria-expanded={profileDropdownOpen}
-                  aria-haspopup="true"
-                >
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <FontAwesomeIcon
-                    icon={faChevronDown}
-                    className={`w-3 h-3 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180' : ''}`}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                </button>
-
-                <ProfileDropdown
-                  isOpen={profileDropdownOpen}
-                  onClose={closeProfileDropdown}
-                  scrolled={scrolled}
-                  onLogout={handleLogout}
+              <Link
+                to="/user-profile"
+                className={`flex items-center space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] hover:bg-white/20 font-semibold group relative overflow-hidden ${getContentClasses()}`}
+              >
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className="transition-transform duration-300 group-hover:scale-110"
                 />
-              </div>
+                {/* <span className="font-h text-base xl:text-lg">Profile</span> */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </Link>
             ) : (
               <Link
                 to="/login"
@@ -314,16 +223,16 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              <div className="flex justify-between items-center pt-3 border-t border-white/20 animate-in slide-in-from-bottom-3 duration-300" style={{ animationDelay: '300ms' }}>
+              <div className="flex flex-col space-y-2 pt-3 border-t border-white/20 animate-in slide-in-from-bottom-3 duration-300" style={{ animationDelay: '300ms' }}>
                 <button
-                  className="p-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
+                  className="p-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110 self-start"
                   aria-label="Search"
                 >
                   <FontAwesomeIcon icon={faMagnifyingGlass} />
                 </button>
 
                 {isAuthenticated ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col space-y-2">
                     <Link
                       to="/dashboard?page=1&pageSize=25&bid_type=Active&ordering=closing_date"
                       onClick={handleNavClick}
@@ -334,6 +243,17 @@ const Navbar = () => {
                         className="group-hover:scale-110 transition-transform duration-300"
                       />
                       <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      to="/user-profile"
+                      onClick={handleNavClick}
+                      className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
+                    >
+                      <FontAwesomeIcon
+                        icon={faUser}
+                        className="group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <span>Profile</span>
                     </Link>
                     <button
                       onClick={() => {

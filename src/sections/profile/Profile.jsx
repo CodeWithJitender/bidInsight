@@ -3,7 +3,8 @@ import BookmarkTable from "./BookmarkTable";
 import { bookmarkedBids, followData } from "./bookmarkedBids"; // your data file
 import { Link } from "react-router-dom";
 
-function Profile() {
+function Profile({fullName, lastLogin}) {
+  console.log(fullName, lastLogin);
     const data = [
         {
             icon:"/profile-user.png",
@@ -51,7 +52,7 @@ function Profile() {
               Hello
             </p>
             <p className="text-2xl font-medium text-black font-inter">
-              Angela Stark
+              {fullName}
             </p>
           </div>
         </div>
@@ -61,7 +62,7 @@ function Profile() {
           <p className="text-sm text-[#999999] font-inter font-medium">
             Signup Time
           </p>
-          <p className="text-lg font-medium text-black">25-08-2025</p>
+          <p className="text-lg font-medium text-black">{lastLogin}</p>
         </div>
       </div>
       {/* Complete verification process */}

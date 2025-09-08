@@ -26,6 +26,9 @@ const BidTable = forwardRef(({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupData, setPopupData] = useState({});
 
+  const safeFollowLoading = followLoading instanceof Set ? followLoading : new Set();
+const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
+
   // Plan hook
   const {
     planInfo,
@@ -321,10 +324,8 @@ const BidTable = forwardRef(({
               const statusLabel = bid.bid_type || "Unknown";
               const countdownRaw = getCountdown(bid.closing_date);
               const shouldBlurThisBid = shouldBlurBid(index);
-              const isFollowed = followedBids && followedBids.has
-                ? followedBids.has(bid.id)
-                : false;
-              const isLoading = followLoading.has(bid.id);
+              const isFollowed = safeFollowedBids.has(bid.id);
+              const isLoading = safeFollowLoading.has(bid.id);
 
               // Calculate countdown display (existing logic)
               let countdownDisplay = countdownRaw;

@@ -9,7 +9,8 @@ import {
 import { FiInfo } from "react-icons/fi";
 import CustomTooltip from "../../components/CustomTooltip";
 
-export default function AccountSetting() {
+export default function AccountSetting({fullName, lastLogin}) {
+  console.log(lastLogin)
   const settings = [
     {
       title: "Payment Mode",
@@ -56,14 +57,14 @@ export default function AccountSetting() {
           />
           <div>
             <p className="text-sm text-gray-500 font-medium font-inter">Hello</p>
-            <p className="text-2xl font-medium text-black font-inter">Angela Stark</p>
+            <p className="text-2xl font-medium text-black font-inter">{fullName}</p>
           </div>
         </div>
 
         {/* Right: Signup Time */}
         <div className="text-right">
           <p className="text-sm text-[#999999] font-inter font-medium">Signup Time</p>
-          <p className="text-lg font-medium text-black">25-08-2025</p>
+          <p className="text-lg font-medium text-black">{lastLogin}</p>
         </div>
       </div>
 

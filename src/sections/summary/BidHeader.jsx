@@ -8,17 +8,11 @@ const BidHeader = ({
   deadline = "2025-07-31T23:59:59Z",
   sourceLink,
   onBookmark,
+  onUnbookmark,
   isBookmarking,
+  isBookmarked = false,
 }) => {
 
-  // console.log(title, "Title from props");
-  // console.log(org, "Organization from props");
-  // console.log(location, "Location from props");
-  // console.log(postedDate, "Posted Date from props");
-  // console.log(deadline, "Deadline from props");
-  // console.log(sourceLink, "Source Link from props");
-  console.log(onBookmark, "onBookmark from props");
-  console.log(isBookmarking, "isBookmarking from props");
 
   const [countdown, setCountdown] = useState({
     days: 0,
@@ -118,23 +112,38 @@ const BidHeader = ({
 
 
               {/* Save Button */}
-              {onBookmark ? (
+              {/* Bookmark Button - Dynamic State */}
+              {/* Bookmark Button - Dynamic State */}
+              {(onBookmark || onUnbookmark) ? (
                 <button
-                  onClick={onBookmark}
+                  onClick={() => {
+                    console.log("Button clicked, isBookmarked:", isBookmarked);
+                    if (isBookmarked && onUnbookmark) {
+                      console.log("Calling onUnbookmark");
+                      onUnbookmark();
+                    } else if (!isBookmarked && onBookmark) {
+                      console.log("Calling onBookmark");
+                      onBookmark();
+                    }
+                  }}
                   disabled={isBookmarking}
                   className={`flex items-center flex-col text-center gap-2 transition-opacity ${isBookmarking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
                     }`}
                 >
-                  <i className={`far text-xl fa-bookmark ${isBookmarking ? 'fa-spin' : ''}`}></i>
+                  <i className={`${isBookmarked ? 'fas' : 'far'} text-xl fa-bookmark ${isBookmarking ? 'fa-spin' : ''
+                    } ${isBookmarked ? 'text-white' : 'text-white'}`}></i>
                   <div>
                     <p className="font-inter text-xl text-[#DBDBDB]">
-                      {isBookmarking ? 'Booking...' : 'Bookmark'}
+                      {isBookmarking
+                        ? (isBookmarked ? 'Removing...' : 'Booking...')
+                        : (isBookmarked ? 'Bookmarked' : 'Bookmark')
+                      }
                     </p>
                   </div>
                 </button>
               ) : (
                 <div className="flex items-center flex-col text-center gap-2 opacity-50 cursor-not-allowed">
-                  <i className="fa-solid text-xl fa-bookmark"></i>
+                  <i className="far text-xl fa-bookmark"></i>
                   <div>
                     <p className="font-inter text-xl text-[#DBDBDB]">Bookmark</p>
                   </div>

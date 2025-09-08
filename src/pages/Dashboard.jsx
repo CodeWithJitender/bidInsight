@@ -23,7 +23,9 @@ import { decodeUrlToFilters, buildQueryString } from "../utils/urlHelpers";
 import { DASHBOARD_CONSTANTS } from "../utils/constants";
 // Top imports me ye add karo
 import { usePlan } from "../hooks/usePlan";
-
+import DashboardStats from "../dashboard/DashboardStats";
+import { useBookmarks } from "../dashboard/useBookmarks";
+import { useFollowBids } from "../dashboard/useFollowBids";
 // 🔥 IMPORT CUSTOM HOOKS
 import { useSearchHandling } from "../hooks/useSearchHandling";
 import { useFilterHandling } from "../hooks/useFilterHandling";
@@ -102,10 +104,7 @@ function Dashboard() {
   const [error, setError] = useState("");
 
 
-  const [bookmarkedCount, setBookmarkedCount] = useState(0);
-  const [bookmarkedBids, setBookmarkedBids] = useState([]);
   const [isBookmarkView, setIsBookmarkView] = useState(false);
-  const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const [restrictionPopup, setRestrictionPopup] = useState({
     isOpen: false,
     title: "",
@@ -116,13 +115,9 @@ function Dashboard() {
 
   // 🚀 NEW STATE - Export Loading
   const [exportLoading, setExportLoading] = useState(false);
-  const [followedBidsData, setFollowedBidsData] = useState([]); // New state for actual data
-  const [followedBids, setFollowedBids] = useState(new Set());
-  const [followLoading, setFollowLoading] = useState(new Set());
   const [isRestrictedFollowView, setIsRestrictedFollowView] = useState(false);
 
   // Existing states ke saath ye add karo
-  const [followedCount, setFollowedCount] = useState(0);
   const [isFollowView, setIsFollowView] = useState(false);
 
   const profile = useSelector((state) => state.profile.profile);
@@ -145,12 +140,30 @@ function Dashboard() {
     navigate("/pricing"); // Navigate to pricing page
   };
 
+
+
+  const {
+    bookmarkedCount,
+    bookmarkedBids,
+    bookmarkLoading
+  } = useBookmarks();
+
+  const {
+    followedBidsData,
+    followedBids,
+    followLoading,
+    followedCount,
+    handleFollowBid,
+    handleUnfollowBid,
+    refreshFollowedData
+  } = useFollowBids(validateFeatureUsage, showFeatureRestriction);
+
   const getCurrentBidIds = () => {
     const currentBids = isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []);
     return currentBids.map(bid => bid.id).filter(id => id);
   };
 
-  const handleExport = async () => {
+  const handleExport = useCallback(async () => {
     setExportLoading(true);
 
     try {
@@ -206,195 +219,31 @@ function Dashboard() {
     } finally {
       setExportLoading(false);
     }
-  };
+  }, [getCurrentBidIds, showFeatureRestriction]);
   // Dashboard.jsx - Updated handleFollowBid function
 
-  const handleFollowBid = async (bidId) => {
-    if (!validateFeatureUsage('follow', showFeatureRestriction, followedBids.size)) {
-      return;
-    }
-
-    setFollowLoading(prev => new Set([...prev, bidId]));
-
-    try {
-      // 🔥 FIX: Check if already followed using Set.has()
-      if (followedBids.has(bidId)) {
-        await handleUnfollowBid(bidId);
-        return;
-      }
-
-      const result = await followBids(bidId);
-      console.log("✅ Follow successful:", result);
-
-      // 🔥 FIX 1: Add to followed Set
-      setFollowedBids(prev => {
-        const newSet = new Set(prev);
-        newSet.add(bidId);
-        return newSet;
-      });
-
-      // 🔥 FIX 2: Update count immediately
-      setFollowedCount(prev => prev + 1);
-
-      if (!isFollowView && bidsInfo?.results) {
-        const bidToAdd = bidsInfo.results.find(bid => bid.id === bidId);
-        if (bidToAdd) {
-          setFollowedBidsData(prev => [
-            ...prev,
-            {
-              ...bidToAdd,
-              follow_id: result.id || result.follow_id, // API response से follow_id
-              follow_created_at: new Date().toISOString()
-            }
-          ]);
-        }
-      }
 
 
-    } catch (error) {
-      console.error("❌ Follow error:", error);
+const handleFollowedCardClick = async () => {
+  if (restrictions?.follow) {
+    showFeatureRestriction(
+      " Follow Feature Locked",
+      "Upgrade your plan to follow important bids and get instant notifications.",
+      "Follow Feature",
+      true
+    );
+    return;
+  }
 
-      const errorDetail = error.response?.data?.detail || "";
+  // Real-time data refresh before navigation
+  await refreshFollowedData(); // Ye line add karo
 
-      if (errorDetail.includes("already following")) {
-        setFollowedBids(prev => {
-          const newSet = new Set(prev);
-          newSet.add(bidId);
-          return newSet;
-        });
-      } else if (error.response?.status === 403) {
-        showFeatureRestriction(
-          error.response.data.title || "Follow Failed",
-          error.response.data.message || "Upgrade your plan to follow more bids.",
-          "Follow Feature",
-          true
-        );
-      }
-    } finally {
-      setFollowLoading(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
-    }
-  };
+  setIsFollowView(true);
+  setIsBookmarkView(false);
+  setIsRestrictedFollowView(false);
 
-
-
-
-
-  const handleUnfollowBid = async (bidId) => {
-    setFollowLoading(prev => new Set([...prev, bidId]));
-
-    try {
-      // Find follow_id from followedBidsData
-      const followedBid = followedBidsData.find(bid => bid.id === bidId);
-
-      if (!followedBid || !followedBid.follow_id) {
-        console.error("❌ Follow ID not found for bid:", bidId);
-        // If follow_id not found, try to refetch followed bids
-        await refetchFollowedBids();
-        throw new Error("Follow ID not found");
-      }
-
-      const followId = followedBid.follow_id;
-      console.log("🔥 Unfollowing with follow_id:", followId);
-
-      await deleteFollowedBid(followId);
-      console.log("✅ Unfollow successful");
-
-      // 🔥 FIX 1: Remove from followed Set
-      setFollowedBids(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
-
-      // 🔥 FIX 2: Update count immediately
-      setFollowedCount(prev => Math.max(0, prev - 1));
-
-      // 🔥 FIX 3: Remove from followedBidsData
-      setFollowedBidsData(prev => prev.filter(bid => bid.id !== bidId));
-
-    } catch (error) {
-      console.error("❌ Unfollow error:", error);
-      showFeatureRestriction(
-        "Unfollow Failed",
-        "Something went wrong while unfollowing this bid. Please try again.",
-        "Follow Feature",
-        false
-      );
-    } finally {
-      setFollowLoading(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
-    }
-  };
-
-
-  const handleFollowedCardClick = () => {
-    // console.log("🔥 Followed card clicked, checking restrictions...");
-
-    // Check if follow feature is restricted for current plan
-    if (restrictions?.follow) {
-      // console.log("❌ Follow feature restricted - showing popup");
-      showFeatureRestriction(
-        " Follow Feature Locked",
-        "Upgrade your plan to follow important bids and get instant notifications.",
-        "Follow Feature",
-        true
-      );
-      return;
-    }
-
-    setIsFollowView(true);
-    setIsBookmarkView(false);
-    setIsRestrictedFollowView(false);
-
-    // Navigate
-    navigate("/dashboard/followedBids", { replace: false });
-  };
-
-  useEffect(() => {
-    const fetchFollowedBids = async () => {
-      try {
-        const data = await totalFollowedBids();
-        console.log(data, "🔥 Total followed bids RAW");
-
-        // Transform data but keep IDs separate for Set
-        const transformedData = Array.isArray(data)
-          ? data.map(item => ({
-            ...item.bid,
-            follow_id: item.id,
-            follow_created_at: item.created_at
-          }))
-          : [];
-
-        const count = transformedData.length;
-        setFollowedCount(count);
-
-        // Store actual bid data for display
-        setFollowedBidsData(transformedData);
-
-        // Create Set of bid IDs for tracking follow status
-        const followedBidIds = new Set(transformedData.map(bid => bid.id));
-        setFollowedBids(followedBidIds);
-
-        console.log("✅ Followed bids data set:", transformedData);
-        console.log("✅ Followed bid IDs set:", followedBidIds);
-
-      } catch (error) {
-        console.error("❌ Error fetching followed bids:", error);
-        setFollowedCount(0);
-        setFollowedBids(new Set());
-        setFollowedBidsData([]); // Clear data array too
-      }
-    };
-
-    fetchFollowedBids();
-  }, []);
+  navigate("/dashboard/followedBids", { replace: false });
+};
 
 
   useEffect(() => {
@@ -445,41 +294,6 @@ function Dashboard() {
     fetchBidCount();
   }, []);
 
- useEffect(() => {
-    const fetchBookmarkedBids = async () => {
-      try {
-        const data = await totalBookmarkedBids();
-        // console.log(data, "🔥 Total bookmarked bids RAW");
-
-        // 🔥 TRANSFORM: Extract the 'bid' object from each item
-        const transformedData = Array.isArray(data)
-          ? data.map(item => {
-            // Extract the nested 'bid' object
-            const bidData = item.bid || item;
-            return {
-              ...bidData,
-              // Add any additional fields from the parent object if needed
-              bookmark_id: item.id,
-              bookmark_created_at: item.created_at
-            };
-          })
-          : [];
-
-        // console.log(transformedData, "🔥 TRANSFORMED bookmarked bids");
-
-        const count = transformedData.length;
-        setBookmarkedCount(count);
-        setBookmarkedBids(transformedData);
-
-      } catch (error) {
-        console.error("❌ Error fetching bookmarked bids:", error);
-        setBookmarkedCount(0);
-        setBookmarkedBids([]);
-      }
-    };
-
-    fetchBookmarkedBids();
-  }, []);
 
 
   // 🔥 FIX 2: Prevent auto-redirect on bookmark route refreshpaginat
@@ -518,57 +332,6 @@ function Dashboard() {
 
 
 
-  const middle = [
-    {
-      id: 1,
-      title: "Total Bids",
-      num: bidCount?.count || 0,
-      tag: "FILTER",
-      description: "Narrow down bids by industry, status, location and more.",
-      onClick: () => navigate("/dashboard?page=1&pageSize=25&bid_type=Active&ordering=closing_date")
-    },
-    {
-      id: 2,
-      title: "Active Bids",
-      num: bidsInfo?.count || 0,
-      tag: "ACTIVE BIDS",
-      description: "Bids that haven't been closed/awarded yet!"
-    },
-    {
-      id: 3,
-      title: "New Bids",
-      num: bidCount?.new_bids || 0,
-      tag: "NEW BIDS",
-      description: "Bids added in the last 24 hours."
-    },
-    {
-      id: 4,
-      title: "Bookmark",
-      num: bookmarkedCount,
-      tag: "SAVE",
-      description: "Bookmark bids you're interested in so you can check them out later.",
-      onClick: () => navigate("/dashboard/bookmarkBids")
-    },
-
-
-    {
-      id: 5,
-      title: "Followed",
-      num: followedCount,
-      tag: "FOLLOW",
-      description: restrictions?.follow
-        ? "Upgrade to follow bids and get instant updates"
-        : "Get instant updates on changes & deadlines for these bids.",
-      onClick: handleFollowedCardClick // 🔥 Use the new handler
-    }
-  ];
-  //  const subscriptionPlanName = useSelector(
-  //     (state) => state.profile.profile.subscription_plan['plan_code']
-  //   );
-  
-  //   console.log(subscriptionPlanName, "Selected subscription plan name");
-
-  // 🔥 FETCH BIDS FUNCTION
   const fetchBids = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -625,7 +388,7 @@ function Dashboard() {
   }, [currentPage, navigate, perPage, appliedFilters, dispatch, location.search]);
 
   // 🔥 ENTITY TYPE CHANGE HANDLER
-  const handleEntityTypeChange = (entityType) => {
+  const handleEntityTypeChange = useCallback((entityType) => {
     const updatedFilters = {
       ...appliedFilters,
       entityType: entityType,
@@ -680,7 +443,7 @@ function Dashboard() {
     }
 
     navigate(finalURL);
-  };
+  }, [appliedFilters, location.search, perPage, navigate]);
 
   // 🔥 FETCH BIDS ON LOAD
   useEffect(() => {
@@ -783,7 +546,7 @@ function Dashboard() {
   }, [location.search]);
 
   // 🔥 SAVED SEARCH SELECT HANDLER
-  const enhancedHandleSavedSearchSelect = async (searchId) => {
+  const enhancedHandleSavedSearchSelect = useCallback(async (searchId) => {
     // Check restriction first
     if (restrictions?.savedSearch) {
       showFeatureRestriction(
@@ -865,7 +628,7 @@ function Dashboard() {
     } catch (err) {
       console.error("Failed to load saved search filters", err);
     }
-  };
+  }, [restrictions?.savedSearch, savedSearches, selectedSavedSearch, navigate, setFilters, setAppliedFilters, setCurrentPage, setTopSearchTerm, setSaveSearchFilters, setSelectedSavedSearch, showFeatureRestriction]);
 
 
 
@@ -1000,32 +763,23 @@ function Dashboard() {
                 </div>
               </div>
 
+
               <div className="dashboard-middle">
                 {loading ? (
                   <StatShimmer />
                 ) : (
-                  <div className="flex gap-3 text-[1em]">
-                    {middle.map((item) => (
-                      <BgCover
-                        key={item.id}
-                        description={item.description}
-                        title={item.title}
-                        onClick={item.onClick || (() => { })} // 🔥 ONCLICK HANDLER ADD KIYA
-                      >
-                        <div className="flex gap-2">
-                          <div className="text font-inter text-[#DBDBDB]">
-                            {item.title}
-                          </div>
-                          <p className="num font-inter font-semibold text-white">
-                            {item.num}
-                          </p>
-                        </div>
-                      </BgCover>
-                    ))}
-                  </div>
+                  <DashboardStats
+                    bidCount={bidCount}
+                    bidsInfo={bidsInfo}
+                    bookmarkedCount={bookmarkedCount}
+                    followedCount={followedCount}
+                    restrictions={restrictions}
+                    planInfo={profile} // Pass the full profile which contains subscription_plan
+                    onNavigate={navigate}
+                    onFollowedCardClick={handleFollowedCardClick}
+                  />
                 )}
               </div>
-
 
 
               <div className="feature-right">

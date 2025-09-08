@@ -19,23 +19,114 @@ import MyPlans from "../sections/profile/MyPlans";
 import Bids from "../sections/profile/Bids";
 import AiToolset from "../sections/profile/AiToolset";
 import AccountSetting from "../sections/profile/AccountSetting";
-
-/* Dummy components for sections
-const Profile = () => <div className="p-8">Profile Component</div>;
-const MyPlans = () => <div className="p-8">My Plans Component</div>;
-const Bids = () => <div className="p-8">Bids Component</div>;
-const AiToolset = () => <div className="p-8">AI Toolset Component</div>;
-const AccountSetting = () => (
-  <div className="p-8">Account Setting Component</div>
-); */
+import { useSelector } from 'react-redux';
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
 
+  // Redux se data lena
+  const profileData = useSelector((state) => state.profile.profile);
+  const authData = useSelector((state) => state.auth.user);
+  const loginData = useSelector((state) => state.login.user);
+
+  console.log("Auth Data:", authData);
+  console.log("Login Data:", loginData);
+
+  // Full name nikalna
+  const getFullName = () => {
+    try {
+      if (profileData) {
+        const parsedProfile = typeof profileData === 'string' 
+          ? JSON.parse(profileData) 
+          : profileData;
+        console.log(parsedProfile);
+        return parsedProfile?.full_name || 'User';
+      }
+      return 'User';
+    } catch (error) {
+      console.error('Error parsing profile:', error);
+      return 'User';
+    }
+  };
+
+  // Last login nikalna - pehle auth check karo, nahi to login se lo
+  const getLastLogin = () => {
+    try {
+      // Pehle auth mein check karo
+      if (authData) {
+        const parsedAuth = typeof authData === 'string' ? JSON.parse(authData) : authData;
+        if (parsedAuth?.last_login) {
+          return formatDate(parsedAuth.last_login);
+        }
+      }
+
+      // Auth mein nahi hai to login mein check karo
+      if (loginData) {
+        const parsedLogin = typeof loginData === 'string' ? JSON.parse(loginData) : loginData;
+        if (parsedLogin?.last_login) {
+          return formatDate(parsedLogin.last_login);
+        }
+      }
+
+      return 'N/A';
+    } catch (error) {
+      console.error('Error parsing last login:', error);
+      return 'N/A';
+    }
+  };
+
+  // Date format change karna - "2025-09-07T08:40:09.756377Z" ko "07-09-2025" mein
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  };
+
+  // User data nikalna
+  const getUserData = () => {
+    try {
+      // Pehle auth mein check karo
+      if (authData) {
+        const parsedAuth = typeof authData === 'string' ? JSON.parse(authData) : authData;
+        if (parsedAuth?.user) {
+          return parsedAuth.user;
+        }
+      }
+
+      // Auth mein nahi hai to login mein check karo
+      if (loginData) {
+        const parsedLogin = typeof loginData === 'string' ? JSON.parse(loginData) : loginData;
+        if (parsedLogin?.user) {
+          return parsedLogin.user;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      return null;
+    }
+  };
+
+  const fullName = getFullName();
+  const lastLogin = getLastLogin();
+  const userData = getUserData();
+
+  console.log("Full Name:", fullName);
+  console.log("Last Login:", lastLogin);
+  console.log("User Data:", userData);
+
   const renderComponent = () => {
     switch (active) {
       case "Profile":
-        return <Profile />;
+        return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
       case "My Plans":
         return <MyPlans />;
       case "Bids":
@@ -43,9 +134,9 @@ export default function UserProfile() {
       case "AI Toolset":
         return <AiToolset />;
       case "Account Setting":
-        return <AccountSetting />;
+        return <AccountSetting fullName={fullName} userData={userData} lastLogin={lastLogin} />;
       default:
-        return <Profile />;
+        return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
     }
   };
 
@@ -110,13 +201,13 @@ export default function UserProfile() {
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
             </div>
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full hover:bg-blue-700 transition">
-              Hi, Angela
+              Hi, {fullName}
             </button>
           </div>
         </div>
 
         {/* Dynamic Section */}
-        <div >{renderComponent()}</div>
+        <div>{renderComponent()}</div>
       </main>
     </div>
   );

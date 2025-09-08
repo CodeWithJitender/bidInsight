@@ -6,7 +6,7 @@ import SummaryContent from "../sections/summary/SummaryContent";
 import BidTracking from "../sections/summary/BidTracking";
 import AiFeature from "../sections/summary/AiFeature";
 import SimilarBids from "../sections/summary/SimilarBids";
-import { BookMarkedBids, getBids, totalBookmarkedBids } from "../services/bid.service.js";
+import { BookMarkedBids, getBids, totalBookmarkedBids, deleteBookmarkedBid } from "../services/bid.service.js";
 import { similarBids } from "../services/user.service.js";
 import BookmarkNotification from "../components/BookmarkNotification.jsx";
 import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup.jsx"; // ✅ Import popup
@@ -83,14 +83,14 @@ const handleUnbookmark = async () => {
 
   setIsBookmarking(true);
   try {
-    // Find bookmark_id for current bid
+    // Find the bookmark ID for current bid
     const bookmarkedBids = await totalBookmarkedBids();
     const currentBookmark = bookmarkedBids.find(bookmark => 
       bookmark.bid.id === parseInt(id)
     );
     
     if (currentBookmark && currentBookmark.id) {
-      await deleteBookmarkedBid(currentBookmark.id); // Use bookmark.id for delete
+      await deleteBookmarkedBid(currentBookmark.id);
       
       setIsBookmarked(false);
       setBookmarkedCount(prev => prev - 1);
@@ -270,7 +270,9 @@ const handleUnbookmark = async () => {
               deadline={bidData.closing_date || fallback.closing_date}
               sourceLink={bidData.source || fallback.source}
               onBookmark={handleBookmark}
+              onUnbookmark={handleUnbookmark} // Add this new prop
               isBookmarking={isBookmarking}
+              isBookmarked={isBookmarked} 
             />
           </div>
 
