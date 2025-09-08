@@ -1,10 +1,11 @@
 import React from "react";
 import Heading from "../../components/Heading";
+import { useSelector } from "react-redux";
 
 function Billing() {
   // data/plans.js
   const plans = ["Free", "Starter", "Essentials", "AI Powerhouse"];
-
+ 
   const sections = [
     {
       title: "Features",

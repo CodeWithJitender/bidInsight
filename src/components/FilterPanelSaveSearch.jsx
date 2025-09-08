@@ -18,7 +18,7 @@ import {
 import { addSavedSearch } from "../redux/reducer/savedSearchesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { parseFiltersFromURL } from "../utils/parseFiltersFromURL";
-import SavedSearchPopup from "../components/SavedSearchPopup";
+import SavedSearchPopup from "./SavedSearchPopup.jsx";
 
 
 const tabs = [

@@ -22,7 +22,7 @@ const SavedSearchPopup = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2">
       <div className="bg-gradient-to-br from-[#20232f] via-[#283593] to-[#4a5ba8] rounded-xl shadow-lg max-w-xs w-full mx-2 overflow-hidden border border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-200">
-        
+
         {/* Header */}
         <div className="px-4 py-3 relative flex items-center border-b border-white/10">
           <div className="flex items-center gap-2">

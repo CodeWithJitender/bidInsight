@@ -125,7 +125,7 @@ const BidHeader = ({
                   className={`flex items-center flex-col text-center gap-2 transition-opacity ${isBookmarking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
                     }`}
                 >
-                  <i className={`fas text-xl fa-bookmark ${isBookmarking ? 'fa-spin' : ''}`}></i>
+                  <i className={`far text-xl fa-bookmark ${isBookmarking ? 'fa-spin' : ''}`}></i>
                   <div>
                     <p className="font-inter text-xl text-[#DBDBDB]">
                       {isBookmarking ? 'Booking...' : 'Bookmark'}

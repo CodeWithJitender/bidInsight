@@ -562,6 +562,11 @@ function Dashboard() {
       onClick: handleFollowedCardClick // 🔥 Use the new handler
     }
   ];
+  //  const subscriptionPlanName = useSelector(
+  //     (state) => state.profile.profile.subscription_plan['plan_code']
+  //   );
+  
+  //   console.log(subscriptionPlanName, "Selected subscription plan name");
 
   // 🔥 FETCH BIDS FUNCTION
   const fetchBids = useCallback(async () => {

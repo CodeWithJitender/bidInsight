@@ -7,10 +7,16 @@ import HeroHeading from "../../components/HeroHeading";
 import { get } from "jquery";
 import { getPricingPlans } from "../../services/bid.service";
 import '../../index.css';
+import { useSelector } from "react-redux";
 
 function PricingHero() {
   const [billingCycle, setBillingCycle] = useState("Annual");
   const [planDetails, setPlanDetails] = useState(null);
+const subscriptionPlanName = useSelector(
+  (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
+);
+console.log(subscriptionPlanName, "Selected subscription plan name");
+
 
   const plans = [
     {
@@ -24,6 +30,7 @@ function PricingHero() {
       ],
       icon: "/price-1.png",
       delay: "200",
+      planID:"001"
     },
     {
       title: "Starter",
@@ -37,6 +44,7 @@ function PricingHero() {
       ],
       icon: "/price-1.png",
       delay: "200",
+      planID:"002"
     },
     {
       title: "Essentials",
@@ -54,6 +62,7 @@ function PricingHero() {
       ],
       icon: "/price-2.png",
       delay: "300",
+      planID:"003"
     },
     {
       title: "A.I. Powerhouse",
@@ -74,6 +83,7 @@ function PricingHero() {
       icon: "/price-3.png",
       delay: "400",
       isComingSoon: true,
+      planID:"004"
     },
   ];
 
@@ -89,6 +99,7 @@ function PricingHero() {
       ],
       icon: "/price-1.png",
       delay: "200",
+            planID:"001"
     },
     {
       title: "Starter",
@@ -102,6 +113,7 @@ function PricingHero() {
       ],
       icon: "/price-1.png",
       delay: "200",
+            planID:"002"
     },
     {
       title: "Essentials",
@@ -119,6 +131,7 @@ function PricingHero() {
       ],
       icon: "/price-2.png",
       delay: "300",
+            planID:"003"
     },
     {
       title: "A.I. Powerhouse",
@@ -139,6 +152,7 @@ function PricingHero() {
       icon: "/price-3.png",
       delay: "400",
       isComingSoon: true,
+            planID:"004"
     },
   ];
 
