@@ -213,7 +213,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
               : "text-white"
           }`}
         >
-          Monthly
+          Annual
           <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
             -25%
           </span>
@@ -226,7 +226,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
               : "text-white"
           }`}
         >
-          Annual
+          Monthly
         </button>
       </div>
 

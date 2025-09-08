@@ -4,7 +4,6 @@ import LayoutWrapper from "./LayoutWrapper";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import ScrollToTop from "./components/ScrollToTop";
-import BidTableSkeleton from "./components/shimmereffects/BidTableSkeleton";
 import ProtectedRoute from "./protectedRoute/ProtectedRoute";
 import ShimmerSummaryCard from "./components/shimmereffects/ShimmerSummaryCard.jsx";
 import AiToolSet from "./pages/AiToolSet.jsx";
@@ -73,7 +72,6 @@ const App = () => {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-          {/* <Route path="/bidskeleton" element={<BidTableSkeleton />} /> */}
           <Route path="/*" element={<Error404 />} />
         </Routes>
       </Suspense>
