@@ -3,6 +3,7 @@ import BookmarkTable from "./BookmarkTable";
 import { bookmarkedBids, followData } from "./bookmarkedBids"; // your data file
 import { Link } from "react-router-dom";
 import PersonalDetail from "./PersonalDetail";
+import ProfileForm from "./ProfileForm";
 
 function Profile() {
     const data = [
@@ -109,6 +110,7 @@ function Profile() {
       </div>
 
       <PersonalDetail/>
+      {/* <ProfileForm /> */}
     </div>
   );
 }
