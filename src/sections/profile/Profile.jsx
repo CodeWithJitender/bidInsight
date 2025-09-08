@@ -3,6 +3,7 @@ import BookmarkTable from "./BookmarkTable";
 import { bookmarkedBids, followData } from "./bookmarkedBids"; // your data file
 import { Link } from "react-router-dom";
 import PersonalDetail from "./PersonalDetail";
+import ProfileForm from "./ProfileForm";
 
 function Profile({fullName, lastLogin}) {
   console.log(fullName, lastLogin);
@@ -110,6 +111,7 @@ function Profile({fullName, lastLogin}) {
       </div>
 
       <PersonalDetail/>
+      {/* <ProfileForm /> */}
     </div>
   );
 }
