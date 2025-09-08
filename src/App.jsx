@@ -72,7 +72,7 @@ const App = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
-          <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           {/* <Route path="/bidskeleton" element={<BidTableSkeleton />} /> */}
           <Route path="/*" element={<Error404 />} />
         </Routes>
