@@ -716,7 +716,7 @@ const handleFollowedCardClick = async () => {
         )}
 
         <div className="container-fixed py-10 px-4">
-          <div className="dashboard-header flex justify-between items-center">
+          <div className="dashboard-header flex justify-between items-center pt-5">
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
               <span className="font-inter text-[#DBDBDB]">Alert</span>
@@ -734,7 +734,7 @@ const handleFollowedCardClick = async () => {
             </div>
           </div>
 
-          <div className="dashboard-feature pt-44">
+          <div className="dashboard-feature pt-32">
             <div className="flex justify-between items-center">
               <div className="feature-left">
                 <div
