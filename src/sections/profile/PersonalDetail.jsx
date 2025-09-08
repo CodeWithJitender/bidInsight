@@ -9,6 +9,7 @@ export default function PersonalDetail() {
     email: "jopseph.mark12@gmail.com",
     companyName: "Angela Stark Enterprise",
     companyWebsite: "jopseph.mark12@gmail.com",
+    companyFIEN: "jopseph.mark12@gmail.com",
   });
 
   const handleChange = (e) => {
@@ -25,10 +26,10 @@ export default function PersonalDetail() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
+    <div className=" bg-white rounded-lg shadow-sm">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold">Personal Detail</h2>
+      <div className="flex justify-between items-center mt-10 mb-3">
+        <h2 className="text-2xl font-inter font-medium">Personal Detail</h2>
         <button
           onClick={toggleEdit}
           className="text-sm px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -41,13 +42,13 @@ export default function PersonalDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
         <div>
-          <label className="block text-sm text-gray-500 mb-1">First Name</label>
+          <label className="block text-sm text-[#999999] font-inter font-medium mb-2">First Name</label>
           <input
             type="text"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
+            className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
               !isEditing && "bg-gray-100 cursor-not-allowed"
             }`}
             readOnly={!isEditing}
@@ -55,8 +56,8 @@ export default function PersonalDetail() {
         </div>
 
         {/* Username */}
-        <div>
-          <label className="block text-sm text-gray-500 mb-1">Username</label>
+        {/* <div>
+          <label className="block text-sm text-[#999999] font-inter font-medium mb-2">Username</label>
           <input
             type="text"
             name="username"
@@ -67,20 +68,19 @@ export default function PersonalDetail() {
             }`}
             readOnly={!isEditing}
           />
-        </div>
+        </div> */}
 
         {/* Email with tooltip */}
         <div className="relative">
-          <label className="block text-sm text-gray-500 mb-1">Email</label>
+          <label className="block text-sm text-[#999999] font-inter font-medium mb-2">Email</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-              !isEditing && "bg-gray-100 cursor-not-allowed"
-            }`}
+            className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none bg-gray-100 cursor-not-allowed`}
             readOnly={!isEditing}
+            disabled
           />
           <FiInfo
             className="absolute right-3 top-9 text-gray-400 cursor-pointer"
@@ -95,13 +95,13 @@ export default function PersonalDetail() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Company Name */}
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Company Name</label>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">Company Name</label>
             <input
               type="text"
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
                 !isEditing && "bg-gray-100 cursor-not-allowed"
               }`}
               readOnly={!isEditing}
@@ -110,13 +110,13 @@ export default function PersonalDetail() {
 
           {/* Company Website */}
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Company website</label>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">Company FIEN or SSN</label>
             <input
               type="text"
               name="companyWebsite"
               value={formData.companyWebsite}
               onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
                 !isEditing && "bg-gray-100 cursor-not-allowed"
               }`}
               readOnly={!isEditing}

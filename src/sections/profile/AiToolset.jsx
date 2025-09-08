@@ -2,7 +2,7 @@ import React from 'react'
 
 function AiToolset() {
   return (
-    <div className='h-full w-full flex justify-center items-center'>
+    <div className='h-screen w-full flex justify-center items-center'>
       <img src="/coming-soon.jpg" className='rounded-lg max-w-xl' alt="" />
     </div>
   )
