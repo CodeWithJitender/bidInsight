@@ -10,7 +10,7 @@ import '../../index.css';
 import { useSelector } from "react-redux";
 
 function PricingHero() {
-  const [billingCycle, setBillingCycle] = useState("Annual");
+  const [billingCycle, setBillingCycle] = useState("Monthly");
   const [planDetails, setPlanDetails] = useState(null);
 const subscriptionPlanName = useSelector(
   (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
@@ -23,7 +23,6 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       title: "Free",
       price: "0",
       features: [
-        "Advanced Search (Filters)",
         "All Federal Bids",
         "3 Visible Bids Only",
         "Basic Access"
@@ -214,7 +213,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
               : "text-white"
           }`}
         >
-          Annual
+          Monthly
           <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
             -25%
           </span>
@@ -227,7 +226,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
               : "text-white"
           }`}
         >
-          Monthly
+          Annual
         </button>
       </div>
 

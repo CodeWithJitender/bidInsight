@@ -308,7 +308,7 @@ function CompanyBuild() {
 
   const data = {
     title: "Company Snapshot",
-    para: "This take under a minute-promise! ",
+    para: "This takes under a minute-promise! ",
     btnText: false,
     btnLink: false,
     container: "max-w-4xl mx-auto text-left",

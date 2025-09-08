@@ -26,7 +26,7 @@ const Footer = () => {
                   { name: "A.I. Toolkit", url: "/ai-toolset" },
                   { name: "Why BidInsight?", url: "/why-bidinsight" },
                   { name: "Register Now!", url: "/register" },
-                  { name: "Plans & Pricing", url: "/pricing" }
+                  // { name: "Plans & Pricing", url: "/pricing" }
                 ], 
                 delay:"100" 
               },

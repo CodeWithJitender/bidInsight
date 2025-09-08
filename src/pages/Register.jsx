@@ -437,7 +437,7 @@ useEffect(() => {
 
               {/* Confirm Password */}
               <FormPassword
-                label="Confirm password *"
+                label="Confirm Password *"
                 placeholder="e.g. m@rkJos6ph"
                 name="confirmPassword"
                 id="confirmPassword"

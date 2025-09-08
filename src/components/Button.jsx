@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function Button({ text, link, btnBg, arrowBg }) {
   return (
     <Link
-      to={link}
+      to={"/login"}
       target="_blank"
       className={`btn flex justify-between items-center rounded-full p-1  ${btnBg}`}
     >
