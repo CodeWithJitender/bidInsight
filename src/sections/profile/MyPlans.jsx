@@ -1,6 +1,7 @@
 import React from "react";
 import { FiDownload, FiExternalLink } from "react-icons/fi";
 import FeatureSlider from "./FeatureSlider";
+import { useSelector } from "react-redux";
 
 // Dummy transactions
 const transactions = Array.from({ length: 10 }).map((_, i) => ({
@@ -13,6 +14,9 @@ const transactions = Array.from({ length: 10 }).map((_, i) => ({
 }));
 
 export default function MyPlans() {
+  const subscriptionPlanId = useSelector(
+    (state) => state.profile?.profile?.subscription_plan?.plan_code || null
+  );
   return (
     <div className="p-6 font-inter">
       {/* Top Section */}
@@ -69,44 +73,46 @@ export default function MyPlans() {
         {/* Features Carousel (Static Example) */}
         <div className="border-2 border-primary rounded-xl p-6 shadow-sm flex flex-col items-center">
           <h2 className="text-lg font-semibold mb-4">My Features</h2>
-          <div className="">
+          <div className="p-4">
             <FeatureSlider />
           </div>
         </div>
       </div>
 
       {/* Transactions Table */}
-      <div className="border-2 border-primary rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead className="font-inter font-medium">
-            <tr className="border-b-2 border-primary bg-gray-50">
-              <th className="py-3 px-4">Description</th>
-              <th className="py-3 px-4">Transaction Id</th>
-              <th className="py-3 px-4">Date</th>
-              <th className="py-3 px-4">Amount</th>
-              <th className="py-3 px-4">Plan</th>
-              <th className="py-3 px-4 text-center  ">Download</th>
-            </tr>
-          </thead>
-          <tbody className="font-inter font-medium">
-            {transactions.map((tx) => (
-              <tr
-                key={tx.id}
-                className="border-b last:border-0 hover:bg-gray-50"
-              >
-                <td className="py-3 px-4">{tx.description}</td>
-                <td className="py-3 px-4">{tx.transactionId}</td>
-                <td className="py-3 px-4">{tx.date}</td>
-                <td className="py-3 px-4 font-bold">{tx.amount}</td>
-                <td className="py-3 px-4">{tx.plan}</td>
-                <td className="py-3 px-4 flex justify-center">
-                  <FiDownload className="cursor-pointer hover:text-primary" />
-                </td>
+      {subscriptionPlanId !=="001" && (
+        <div className="border-2 border-primary rounded-xl overflow-hidden shadow-sm">
+          <table className="w-full text-left border-collapse">
+            <thead className="font-inter font-medium">
+              <tr className="border-b-2 border-primary bg-gray-50">
+                <th className="py-3 px-4">Description</th>
+                <th className="py-3 px-4">Transaction Id</th>
+                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Amount</th>
+                <th className="py-3 px-4">Plan</th>
+                <th className="py-3 px-4 text-center  ">Download</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="font-inter font-medium">
+              {transactions.map((tx) => (
+                <tr
+                  key={tx.id}
+                  className="border-b last:border-0 hover:bg-gray-50"
+                >
+                  <td className="py-3 px-4">{tx.description}</td>
+                  <td className="py-3 px-4">{tx.transactionId}</td>
+                  <td className="py-3 px-4">{tx.date}</td>
+                  <td className="py-3 px-4 font-bold">{tx.amount}</td>
+                  <td className="py-3 px-4">{tx.plan}</td>
+                  <td className="py-3 px-4 flex justify-center">
+                    <FiDownload className="cursor-pointer hover:text-primary" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

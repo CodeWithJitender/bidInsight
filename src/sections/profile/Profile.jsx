@@ -44,11 +44,11 @@ function Profile({fullName, lastLogin}) {
       <div className="flex items-center justify-between bg-white mb-8">
         {/* Left: Avatar + Greeting */}
         <div className="flex items-center gap-3">
-          <img
+          {/* <img
             src="/userprofile.png"
             alt="User"
             className="w-16 h-16 rounded-full object-cover"
-          />
+          /> */}
           <div>
             <p className="text-sm text-gray-500 font-medium font-inter">
               Hello
@@ -68,7 +68,7 @@ function Profile({fullName, lastLogin}) {
         </div>
       </div>
       {/* Complete verification process */}
-      <div className="border-2 border-primary p-4 rounded-[20px]">
+      <div className="border-2 border-primary p-4 rounded-[20px] hidden">
         {/* Progress */}
         <div className="flex justify-between gap-4 flex-wrap">
           <div className="title font-inter font-medium text-2xl ">

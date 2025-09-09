@@ -84,7 +84,9 @@ function Billing() {
       ],
     },
   ];
-
+  const subscriptionPlanId = useSelector(
+    (state) => state.profile?.profile?.subscription_plan?.plan_code || null
+  );
   return (
     <div className="billing-page">
       <div className="container-fixed container-section">
@@ -113,7 +115,7 @@ function Billing() {
               </tr>
             </thead>
             <tbody>
-              {sections.map((section, sIdx) => (
+              {subscriptionPlanId !== "001" || sections.filter((sec) => sec.title !== "Full Stack A.I. Arsenal").map((section, sIdx) => (
                 <React.Fragment key={sIdx} className="">
                   <tr className="pt-4">
                     <td
