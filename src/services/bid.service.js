@@ -126,20 +126,6 @@ export const updateSavedSearch = async (id, body) => {
   }
 };
 
-
-export const getPricingPlans = async () => {
-  try {
-    const res = await API.get("/auth/plans/");
-    console.log(res.data, "🔥 Pricing plans fetched");
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching pricing plans:", err);
-    throw err;
-  }
-};
-
-
-
 export const BookMarkedBids = async (id) => {
   const token = localStorage.getItem("access_token");
   if (!token) {
