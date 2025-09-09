@@ -523,7 +523,7 @@ export default function SuperAdmin() {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className="sticky top-0 text-white w-64 p-6 flex flex-col justify-between h-screen bg-blue">
+      {/* <aside className="sticky top-0 text-white w-64 p-6 flex flex-col justify-between h-screen bg-blue ">
         <div>
           <h1 className="text-2xl font-bold mb-10">
             <img src="logo.png" alt="" />
@@ -547,7 +547,7 @@ export default function SuperAdmin() {
           <FontAwesomeIcon icon={faSignOutAlt} />
           <span>Logout</span>
         </div>
-      </aside>
+      </aside> */}
 
       {/* Main Content */}
       <main className="flex-1 space-y-8 overflow-x-hidden bg-gray-50">
@@ -568,13 +568,17 @@ export default function SuperAdmin() {
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-full outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
-            <div className="relative w-12 h-12 rounded-full border border-blue-600 flex items-center justify-center">
+            {/* <div className="relative w-12 h-12 rounded-full border border-blue-600 flex items-center justify-center">
               <FontAwesomeIcon icon={faBell} className="text-primary text-lg" />
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
-            </div>
+            </div> */}
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full  hover:bg-blue-700 transition">
               Hi, Angela
             </button>
+            <div className="glocal relative w-12 h-12 rounded-full border border-primary flex items-center justify-center cursor-pointer ">
+              <FontAwesomeIcon icon={faSignOutAlt} className="text-red-500 text-lg hover:text-red-400 transition duration-75" />
+              {/* <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span> */}
+            </div>
           </div>
         </div>
 
