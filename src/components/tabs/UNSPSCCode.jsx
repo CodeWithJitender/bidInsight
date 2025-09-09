@@ -132,6 +132,8 @@ const UNSPSCCode = ({
     setSearchTerm(value);
   };
 
+  console.log(filters," selected UNSPSC codes ...........................................................", selected);
+
   return (
     <div className="min-h-screen flex flex-col justify-between p-10 ps-14 overflow-y-auto">
       <div>

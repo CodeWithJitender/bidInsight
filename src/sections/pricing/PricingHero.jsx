@@ -5,17 +5,17 @@ import { Link } from "react-router-dom";
 import Heading from "../../components/Heading";
 import HeroHeading from "../../components/HeroHeading";
 import { get } from "jquery";
-import { getPricingPlans } from "../../services/bid.service";
+import { getPricingPlans } from "../../services/pricing.service";
 import '../../index.css';
 import { useSelector } from "react-redux";
 
 function PricingHero() {
   const [billingCycle, setBillingCycle] = useState("Monthly");
   const [planDetails, setPlanDetails] = useState(null);
-const subscriptionPlanName = useSelector(
-  (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
-);
-console.log(subscriptionPlanName, "Selected subscription plan name");
+  const subscriptionPlanName = useSelector(
+    (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
+  );
+  console.log(subscriptionPlanName, "Selected subscription plan name");
 
 
   const plans = [
@@ -29,7 +29,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       ],
       icon: "/price-1.png",
       delay: "200",
-      planID:"001"
+      planID: "001"
     },
     {
       title: "Starter",
@@ -43,7 +43,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       ],
       icon: "/price-1.png",
       delay: "200",
-      planID:"002"
+      planID: "002"
     },
     {
       title: "Essentials",
@@ -61,7 +61,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       ],
       icon: "/price-2.png",
       delay: "300",
-      planID:"003"
+      planID: "003"
     },
     {
       title: "A.I. Powerhouse",
@@ -82,7 +82,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       icon: "/price-3.png",
       delay: "400",
       isComingSoon: true,
-      planID:"004"
+      planID: "004"
     },
   ];
 
@@ -91,12 +91,12 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       title: "Free",
       price: "0",
       features: [
-        "3 Visible Bids Only", 
+        "3 Visible Bids Only",
         "Basic Access"
       ],
       icon: "/price-1.png",
       delay: "200",
-            planID:"001"
+      planID: "001"
     },
     {
       title: "Starter",
@@ -110,7 +110,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       ],
       icon: "/price-1.png",
       delay: "200",
-            planID:"002"
+      planID: "002"
     },
     {
       title: "Essentials",
@@ -128,7 +128,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       ],
       icon: "/price-2.png",
       delay: "300",
-            planID:"003"
+      planID: "003"
     },
     {
       title: "A.I. Powerhouse",
@@ -149,7 +149,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       icon: "/price-3.png",
       delay: "400",
       isComingSoon: true,
-            planID:"004"
+      planID: "004"
     },
   ];
 
@@ -169,14 +169,14 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
   // Update plans with API data
   const getUpdatedPlans = (staticPlans) => {
     if (!planDetails) return staticPlans;
-    
+
     return staticPlans.map(plan => {
       const apiPlan = planDetails.find(api => api.name === plan.title);
       if (apiPlan) {
         return {
           ...plan,
-          price: billingCycle === "Annual" ? 
-            parseFloat(apiPlan.annual_price).toFixed(0) : 
+          price: billingCycle === "Annual" ?
+            parseFloat(apiPlan.annual_price).toFixed(0) :
             parseFloat(apiPlan.monthly_price).toFixed(0),
           id: apiPlan.id
         };
@@ -190,6 +190,8 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
     para: "Choose the subscription tier that fits your needs and enter your payment details securely to unlock full access.",
     container: "max-w-4xl mx-auto text-center",
   };
+
+  console.log(planDetails, "Plan details from API");
 
   return (
     <section className="py-[130px] px-4 bg-blue text-center">
@@ -205,11 +207,10 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       >
         <button
           onClick={() => setBillingCycle("Annual")}
-          className={`px-2 py-4 rounded-full transition ${
-            billingCycle === "Annual"
-              ? "pricing-btn-bg text-white"
-              : "text-white"
-          }`}
+          className={`px-2 py-4 rounded-full transition ${billingCycle === "Annual"
+            ? "pricing-btn-bg text-white"
+            : "text-white"
+            }`}
         >
           Annual
           <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
@@ -218,11 +219,10 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         </button>
         <button
           onClick={() => setBillingCycle("Monthly")}
-          className={`px-5 py-2 rounded-full transition ${
-            billingCycle === "Monthly"
-              ? "pricing-btn-bg text-white"
-              : "text-white"
-          }`}
+          className={`px-5 py-2 rounded-full transition ${billingCycle === "Monthly"
+            ? "pricing-btn-bg text-white"
+            : "text-white"
+            }`}
         >
           Monthly
         </button>
@@ -232,37 +232,37 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
         {billingCycle === "Annual"
           ? getUpdatedPlans(plans).map((plan, index) => (
-              <div
-                key={plan.id || index}
-                className={`
+            <div
+              key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
+              className={`
                   transform transition-all duration-300 ease-out
                   hover:scale-105
                   ${index === 1 ? "lg:scale-105" : ""}
                   opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
                 `}
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
-              >
-                <PricingCard {...plan} planDetails={planDetails} />
-              </div>
-            ))
+              style={{
+                animationDelay: `${index * 0.1}s`,
+              }}
+            >
+              <PricingCard {...plan} planDetails={planDetails} />
+            </div>
+          ))
           : getUpdatedPlans(plansYear).map((plan, index) => (
-              <div
-                key={plan.id || index}
-                className={`
+            <div
+              key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
+              className={`
                   transform transition-all duration-300 ease-out
                   hover:scale-105
                   ${index === 1 ? "lg:scale-105" : ""}
                   opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
                 `}
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
-              >
-                <PricingCard {...plan} planDetails={planDetails} />
-              </div>
-            ))}
+              style={{
+                animationDelay: `${index * 0.1}s`,
+              }}
+            >
+              <PricingCard {...plan} planDetails={planDetails} />
+            </div>
+          ))}
       </div>
 
       <style jsx>{`

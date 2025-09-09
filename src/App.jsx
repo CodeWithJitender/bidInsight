@@ -10,6 +10,8 @@ import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
 import OTPVerification from "./components/OTPVerification.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
+import PaymentPage from "./pages/Payment.jsx";
+import PaymentStatus from "./pages/PaymentStatus.jsx";
 
 
 
@@ -72,9 +74,11 @@ const App = () => {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+          <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
           <Route path="/*" element={<Error404 />} />
         </Routes>
-      </Suspense>
+      </Suspense> 
     </LayoutWrapper>
   );
 };
