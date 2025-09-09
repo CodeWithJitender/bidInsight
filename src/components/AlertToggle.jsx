@@ -4,7 +4,7 @@ function AlertToggle() {
     const [active, setActive] = useState(false)
   return (
     <div>
-      <div className="on-off-toggle relative cursor-pointer">
+      {/* <div className="on-off-toggle relative cursor-pointer">
         <label
           className={`on-off w-[90px] h-[50px] rounded-[32.58px] p-[5px] flex items-center justify-content-between ${active !== true?"": "active"}`}
           form="switch"
@@ -24,7 +24,7 @@ function AlertToggle() {
             onChange={(e)=>setActive((pre)=>(!pre))}
           />
         </label>
-      </div>
+      </div> */}
     </div>
   );
 }

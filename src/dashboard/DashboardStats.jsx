@@ -9,11 +9,17 @@ const DashboardStats = ({
   restrictions,
   onNavigate,
   onFollowedCardClick,
-  planInfo // New prop to get subscription plan info
+  planInfo, // New prop to get subscription plan info
+  onFeatureRestriction
 }) => {
   // Extract plan limits from profile
   const maxBookmarks = planInfo?.subscription_plan?.max_bookmark || 0;
   const maxFollows = planInfo?.subscription_plan?.max_follow || 0;
+
+
+
+  const planCode = planInfo?.subscription_plan?.plan_code || planInfo?.plan_code;
+  const isRestrictedBookmarkPlan = planCode === "001";
   
   // Function to format count display based on restrictions and limits
   const formatCountDisplay = (currentCount, maxLimit, isRestricted) => {
@@ -21,6 +27,20 @@ const DashboardStats = ({
       return currentCount; // Just show current count for restricted plans
     }
     return `${currentCount}/${maxLimit}`; // Show current/max for allowed plans
+  };
+
+  const handleBookmarkCardClick = () => {
+    if (isRestrictedBookmarkPlan || restrictions?.bookmark) {
+      onFeatureRestriction(
+        "Bookmark Feature Locked",
+        "Upgrade your plan to bookmark bids and save them for later reference.",
+        "Bookmark Feature",
+        true
+      );
+      return;
+    }
+    // If not restricted, navigate to bookmark page
+    onNavigate("/dashboard/bookmarkBids");
   };
 
   const stats = [
@@ -54,7 +74,7 @@ const DashboardStats = ({
       description: restrictions?.bookmark 
         ? "Upgrade to bookmark bids and save them for later"
         : "Bookmark bids you're interested in so you can check them out later.",
-      onClick: () => onNavigate("/dashboard/bookmarkBids")
+      onClick: handleBookmarkCardClick
     },
     {
       id: 5,

@@ -125,8 +125,8 @@ export default function BookmarkTable({ type, data }) {
                       <i
                         className={`fas cursor-pointer transition ${
                           isRemoved
-                            ? "fa-minus-circle text-gray-400"
-                            : "fa-plus-circle text-primary hover:scale-110"
+                            ? "fa-plus-circle text-gray-400"
+                            : "fa-minus-circle text-primary hover:scale-110"
                         }`}
                         onClick={() => handleBookmark(bid.id)}
                       ></i>

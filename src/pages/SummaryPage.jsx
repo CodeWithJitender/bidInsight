@@ -1,4 +1,4 @@
-// 1. UPDATED SummaryPage.js - Add bookmark limit validation with popup
+// FIXED SummaryPage.js - Complete working version
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BidHeader from "../sections/summary/BidHeader";
@@ -9,7 +9,7 @@ import SimilarBids from "../sections/summary/SimilarBids";
 import { BookMarkedBids, getBids, totalBookmarkedBids, deleteBookmarkedBid } from "../services/bid.service.js";
 import { similarBids } from "../services/user.service.js";
 import BookmarkNotification from "../components/BookmarkNotification.jsx";
-import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup.jsx"; // ✅ Import popup
+import SavedSearchPopup from "../components/SavedSearchPopup.jsx"; 
 import { usePlan } from "../hooks/usePlan";
 
 function SummaryPage() {
@@ -25,7 +25,7 @@ function SummaryPage() {
   // Bookmark state
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [bookmarkedCount, setBookmarkedCount] = useState(0); // ✅ Track bookmark count
+  const [bookmarkedCount, setBookmarkedCount] = useState(0);
   
   // Notification state
   const [notification, setNotification] = useState({
@@ -34,9 +34,14 @@ function SummaryPage() {
     type: 'success'
   });
   
-  // ✅ NEW: Feature restriction popup state
-  const [showFeaturePopup, setShowFeaturePopup] = useState(false);
-  const [featurePopupData, setFeaturePopupData] = useState({});
+  // ✅ FIXED: SavedSearchPopup state
+  const [showLimitPopup, setShowLimitPopup] = useState(false);
+  const [limitPopupData, setLimitPopupData] = useState({
+    title: "",
+    message: "",
+    upgradeButtonText: "Upgrade Plan",
+    cancelButtonText: "Cancel"
+  });
   
   const { planInfo, validateFeatureUsage, getFeatureRestriction } = usePlan();
   console.log(id, "ID from URL");
@@ -50,68 +55,84 @@ function SummaryPage() {
     source: "#",
   };
 
-  // ✅ NEW: Fetch bookmarked count
- useEffect(() => {
-  const fetchBookmarkedCount = async () => {
+  // Fetch bookmarked count
+  useEffect(() => {
+    const fetchBookmarkedCount = async () => {
+      try {
+        const bookmarkedBids = await totalBookmarkedBids();
+        setBookmarkedCount(bookmarkedBids.length);
+        
+        const isCurrentBidBookmarked = bookmarkedBids.some(bookmark => 
+          bookmark.bid.id === parseInt(id)
+        );
+        setIsBookmarked(isCurrentBidBookmarked);
+        
+        console.log("Current bid bookmarked:", isCurrentBidBookmarked);
+        console.log("Bookmark data structure:", bookmarkedBids[0]);
+        
+      } catch (error) {
+        console.error("Error fetching bookmarked count:", error);
+      }
+    };
+
+    if (id && planInfo) {
+      fetchBookmarkedCount();
+    }
+  }, [id, planInfo]);
+
+  const handleUnbookmark = async () => {
+    if (!id || !isBookmarked) return;
+
+    setIsBookmarking(true);
     try {
       const bookmarkedBids = await totalBookmarkedBids();
-      setBookmarkedCount(bookmarkedBids.length);
-      
-      // 🔥 FIX: Check if current bid is bookmarked using bid.id not bookmark.id
-      const isCurrentBidBookmarked = bookmarkedBids.some(bookmark => 
-        bookmark.bid.id === parseInt(id) // bookmark.bid.id because API returns nested structure
+      const currentBookmark = bookmarkedBids.find(bookmark => 
+        bookmark.bid.id === parseInt(id)
       );
-      setIsBookmarked(isCurrentBidBookmarked);
       
-      console.log("Current bid bookmarked:", isCurrentBidBookmarked);
-      console.log("Bookmark data structure:", bookmarkedBids[0]); // Debug log
-      
-    } catch (error) {
-      console.error("Error fetching bookmarked count:", error);
-    }
-  };
+      if (currentBookmark && currentBookmark.id) {
+        await deleteBookmarkedBid(currentBookmark.id);
+        
+        setIsBookmarked(false);
+        setBookmarkedCount(prev => prev - 1);
+        setNotification({
+          show: true,
+          message: "Bookmark removed!",
+          type: 'success'
+        });
+      }
+    }  catch (err) {
+  console.error("Upgrade your plan to bookmark bid:", err);
 
-  if (id && planInfo) {
-    fetchBookmarkedCount();
-  }
-}, [id, planInfo]);
-
-
-
-const handleUnbookmark = async () => {
-  if (!id || !isBookmarked) return;
-
-  setIsBookmarking(true);
-  try {
-    // Find the bookmark ID for current bid
-    const bookmarkedBids = await totalBookmarkedBids();
-    const currentBookmark = bookmarkedBids.find(bookmark => 
-      bookmark.bid.id === parseInt(id)
+  // ✅ Agar backend ne restriction wali error bheji hai
+  if (err.response?.status === 403 || err.response?.data?.message?.includes("limit")) {
+    showLimitRestriction(
+      "Bookmark Limit Reached",
+      "Your plan doesn’t allow more bookmarks. Please upgrade your plan."
     );
-    
-    if (currentBookmark && currentBookmark.id) {
-      await deleteBookmarkedBid(currentBookmark.id);
-      
-      setIsBookmarked(false);
-      setBookmarkedCount(prev => prev - 1);
-      setNotification({
-        show: true,
-        message: "Bookmark removed!",
-        type: 'success'
-      });
-    }
-  } catch (error) {
-    console.error("Error removing bookmark:", error);
+    return; // Notification nahi, popup dikhao
+  }
+
+  if (err.response?.status === 400 || err.response?.status === 409) {
+    setIsBookmarked(true);
     setNotification({
       show: true,
-      message: "Failed to remove bookmark",
+      message: "Already bookmarked",
+      type: 'already'
+    });
+  } else {
+    setNotification({
+      show: true,
+      message: "Upgrade your plan to bookmark",
       type: 'error'
     });
-  } finally {
-    setIsBookmarking(false);
   }
-};
 
+
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
 
   // Existing bid fetch useEffect
   useEffect(() => {
@@ -153,7 +174,6 @@ const handleUnbookmark = async () => {
       }
     };
 
-    // Only fetch similar bids after main bid is loaded
     if (bid && id) {
       fetchSimilarBids();
     }
@@ -162,38 +182,39 @@ const handleUnbookmark = async () => {
   const bidData = bid || fallback;
   console.log("Bid Data:", bidData);
 
-  // ✅ NEW: Show feature restriction popup
-  const showFeatureRestriction = (title, message, featureName, showUpgrade) => {
-    setFeaturePopupData({
+  // ✅ FIXED: Show SavedSearchPopup for bookmark limits
+  const showLimitRestriction = (title, message) => {
+    setLimitPopupData({
       title,
       message,
-      featureName,
-      showUpgrade,
-      currentPlan: planInfo?.name || 'Free Plan'
+      upgradeButtonText: "Upgrade Plan",
+      cancelButtonText: "Cancel"
     });
-    setShowFeaturePopup(true);
+    setShowLimitPopup(true);
   };
 
-  // ✅ UPDATED: Enhanced bookmark handler with limit validation
+  // ✅ FIXED: Enhanced bookmark handler with SavedSearchPopup
   const handleBookmark = async () => {
-    if (!id || isBookmarked) return; // Don't bookmark if already bookmarked
+    if (!id || isBookmarked) return;
 
     console.log("🔍 Bookmark validation - Plan:", planInfo?.plan_code, "Count:", bookmarkedCount);
 
-    // ✅ Check bookmark limits for Starter plan (002)
+    // ✅ Check bookmark limits for Starter plan (002) - Show SavedSearchPopup
     if (planInfo?.plan_code === '002' && bookmarkedCount >= 5) {
-      showFeatureRestriction(
-        " Bookmark Limit Reached",
-        "You've reached the maximum of 5 bookmarks. Upgrade to Essentials for unlimited bookmarks.",
-        "bookmark",
-        true
+      showLimitRestriction(
+        "Bookmark Limit Reached",
+        "You've reached the maximum of 5 bookmarks. Upgrade to Essentials for unlimited bookmarks."
       );
       return;
     }
 
-    // ✅ Check if feature is restricted (for Free plan)
-    if (!validateFeatureUsage('bookmark', showFeatureRestriction, bookmarkedCount)) {
-      return; // Validation failed, popup already shown
+    // ✅ Check if feature is restricted (for Free plan) - Show SavedSearchPopup
+    if (planInfo?.plan_code === '001') {
+      showLimitRestriction(
+        "Bookmark Feature Locked",
+        "Upgrade your plan to bookmark bids and save them for later reference."
+      );
+      return;
     }
 
     setIsBookmarking(true);
@@ -201,9 +222,8 @@ const handleUnbookmark = async () => {
       const response = await BookMarkedBids(id);
       console.log("✅ Bid bookmarked successfully:", response);
       
-      // Success case
       setIsBookmarked(true);
-      setBookmarkedCount(prev => prev + 1); // ✅ Update count
+      setBookmarkedCount(prev => prev + 1);
       setNotification({
         show: true,
         message: "Bookmark added!",
@@ -213,7 +233,6 @@ const handleUnbookmark = async () => {
     } catch (err) {
       console.error("Upgrade your plan to bookmark bid:", err);
       
-      // Check if already bookmarked (400/409 status codes)
       if (err.response?.status === 400 || err.response?.status === 409) {
         setIsBookmarked(true);
         setNotification({
@@ -222,7 +241,6 @@ const handleUnbookmark = async () => {
           type: 'already'
         });
       } else {
-        // Other errors
         setNotification({
           show: true,
           message: "Upgrade your plan to bookmark",
@@ -238,12 +256,12 @@ const handleUnbookmark = async () => {
     setNotification(prev => ({ ...prev, show: false }));
   };
 
-  // ✅ Close feature popup
-  const handleCloseFeaturePopup = () => {
-    setShowFeaturePopup(false);
+  // ✅ FIXED: Close SavedSearchPopup
+  const handleCloseLimitPopup = () => {
+    setShowLimitPopup(false);
   };
 
-  // 🔥 Determine location based on entity_type
+  // Determine location based on entity_type
   const getLocation = () => {
     if (bidData.entity_type === "Federal") {
       return "sam.gov";
@@ -256,12 +274,11 @@ const handleUnbookmark = async () => {
       <div className="min-h-screen bg-gradient-to-br text-white p-4 sm:p-6 lg:p-10">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header Card */}
-
           <div className="rounded-2xl bg-white/5 backdrop-blur-md shadow-xl">
             <BidHeader
               title={bidData.bid_name || fallback.bid_name}
               org={bidData.jurisdiction || fallback.jurisdiction}
-              location={getLocation()} // 🔥 Use the dynamic location function
+              location={getLocation()}
               postedDate={
                 bidData.open_date
                   ? new Date(bidData.open_date).toLocaleDateString()
@@ -270,7 +287,7 @@ const handleUnbookmark = async () => {
               deadline={bidData.closing_date || fallback.closing_date}
               sourceLink={bidData.source || fallback.source}
               onBookmark={handleBookmark}
-              onUnbookmark={handleUnbookmark} // Add this new prop
+              onUnbookmark={handleUnbookmark}
               isBookmarking={isBookmarking}
               isBookmarked={isBookmarked} 
             />
@@ -288,13 +305,12 @@ const handleUnbookmark = async () => {
                 <BidTracking bidData={bidData} />
               </div>
 
-              {/* 🔥 UPDATED: Pass similar bids data as props */}
               <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-xl">
                 <SimilarBids
                   bidData={bidData}
-                  similarBids={similarBidsData.slice(0, 2)} // 🔥 Similar bids array
-                  loading={similarBidsLoading}   // 🔥 Loading state
-                  error={similarBidsError}       // 🔥 Error state
+                  similarBids={similarBidsData.slice(0, 2)}
+                  loading={similarBidsLoading}
+                  error={similarBidsError}
                 />
               </div>
             </div>
@@ -315,6 +331,15 @@ const handleUnbookmark = async () => {
         position={{ top: '280px', right: '410px' }}
       />
 
+      {/* ✅ FIXED: SavedSearchPopup instead of FeatureRestrictionPopup */}
+      <SavedSearchPopup
+        isOpen={showLimitPopup}
+        onClose={handleCloseLimitPopup}
+        title={limitPopupData.title}
+        message={limitPopupData.message}
+        upgradeButtonText={limitPopupData.upgradeButtonText}
+        cancelButtonText={limitPopupData.cancelButtonText}
+      />
 
     </div>
   );

@@ -27,7 +27,7 @@ const BidTable = forwardRef(({
   const [popupData, setPopupData] = useState({});
 
   const safeFollowLoading = followLoading instanceof Set ? followLoading : new Set();
-const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
+  const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
 
   // Plan hook
   const {
@@ -76,26 +76,26 @@ const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
   };
 
 
-  
+
 
 
   const handleFollowClick = (e, bidId) => {
-  console.log(bidId, "🔥 Follow button clicked for BID_ID");
-  e.stopPropagation();
-  
-  // Check if already followed using Set
-  const isFollowed = followedBids && followedBids.has 
-    ? followedBids.has(bidId) 
-    : false;
-    
-  if (isFollowed) {
-    // 🔥 CALL UNFOLLOW - passes bid_id, function will find follow_id internally
-    onUnfollowBid(bidId);
-  } else {
-    // 🔥 CALL FOLLOW - passes bid_id for POST API
-    onFollowBid(bidId);
-  }
-};
+    console.log(bidId, "🔥 Follow button clicked for BID_ID");
+    e.stopPropagation();
+
+    // Check if already followed using Set
+    const isFollowed = followedBids && followedBids.has
+      ? followedBids.has(bidId)
+      : false;
+
+    if (isFollowed) {
+      // 🔥 CALL UNFOLLOW - passes bid_id, function will find follow_id internally
+      onUnfollowBid(bidId);
+    } else {
+      // 🔥 CALL FOLLOW - passes bid_id for POST API
+      onFollowBid(bidId);
+    }
+  };
 
   // Enhanced export with restriction check
   const exportToCSV = () => {
@@ -128,10 +128,13 @@ const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
 
   // Helper function to check if column should be blurred
   const shouldBlurColumn = (columnName, bidIndex) => {
-
     if (!blurConfig.enabled) return false;
 
-    if (shouldBlurBid(bidIndex)) return false;
+    // 🔥 NEW LOGIC: Check if this bid index should be blurred
+    // For Free plan: blur_after = 3, so bids at index 3+ get blurred
+    const shouldBlurThisBid = bidIndex >= (blurConfig.blur_after || 0);
+
+    if (!shouldBlurThisBid) return false;
 
     return blurConfig.blur_columns?.includes(columnName) || false;
   };
@@ -327,6 +330,12 @@ const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
               const isFollowed = safeFollowedBids.has(bid.id);
               const isLoading = safeFollowLoading.has(bid.id);
 
+
+              if (index < 5) { // Only log first 5 for debugging
+                console.log(`Bid ${index}: shouldBlurThisBid=${shouldBlurThisBid}, blurConfig=`, blurConfig);
+              }
+
+
               // Calculate countdown display (existing logic)
               let countdownDisplay = countdownRaw;
               const closingDateObj = new Date(bid.closing_date);
@@ -444,10 +453,10 @@ const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
                       }}
                       disabled={isLoading}
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 relative ${restrictions?.follow
-                        ? 'opacity-50 bg-white/10'
-                        : isLoading
-                          ? 'opacity-50 cursor-not-allowed'
-                          : 'hover:scale-110 cursor-pointer'
+                          ? 'opacity-50 bg-white/10'
+                          : isLoading
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:scale-110 cursor-pointer'
                         }`}
                       title={
                         restrictions?.follow
@@ -464,8 +473,8 @@ const safeFollowedBids = followedBids instanceof Set ? followedBids : new Set();
                       ) : (
                         <i
                           className={`fas text-lg transition-colors ${isFollowed
-                            ? "fa-minus-circle text-white-400 hover:text-white-300"
-                            : "fa-plus-circle text-white-400 hover:text-white-300"
+                              ? "fa-minus-circle text-white-400 hover:text-white-300"
+                              : "fa-plus-circle text-white-400 hover:text-white-300"
                             }`}
                         />
                       )}

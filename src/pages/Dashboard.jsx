@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import AlertToggle from "../components/AlertToggle";
 import HeroHeading from "../components/HeroHeading";
 import BgCover from "../components/BgCover";
 import BidTable from "../components/BidTable";
@@ -719,8 +718,8 @@ const handleFollowedCardClick = async () => {
           <div className="dashboard-header flex justify-between items-center pt-5">
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
-              <span className="font-inter text-[#DBDBDB]">Alert</span>
-              <AlertToggle />
+              {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
+              {/* <AlertToggle /> */}
               <div className="search-box bg-btn p-4 px-6 flex gap-3 items-center rounded-[30px]">
                 <i className="far text-white fa-search"></i>
                 <input
@@ -777,6 +776,7 @@ const handleFollowedCardClick = async () => {
                     planInfo={profile} // Pass the full profile which contains subscription_plan
                     onNavigate={navigate}
                     onFollowedCardClick={handleFollowedCardClick}
+                    onFeatureRestriction={showFeatureRestriction}
                   />
                 )}
               </div>

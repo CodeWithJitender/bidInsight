@@ -62,9 +62,14 @@ export const usePlan = () => {
     return getBidBlurConfig(userPlan);
   }, [userPlan]);
 
-  const shouldBlurBid = useCallback((bidIndex) => {
-    return shouldBlurBids(userPlan, bidIndex);
-  }, [userPlan]);
+  
+const shouldBlurBid = useCallback((bidIndex) => {
+  if (!blurConfig.enabled) return false;
+  
+  // 🔥 CORRECTED: bidIndex >= blur_after means blur it
+  // For Free: blur_after = 3, so index 0,1,2 = normal, index 3+ = blurred
+  return bidIndex >= (blurConfig.blur_after || 0);
+}, [blurConfig]);
 
   // 🔥 FIXED: Feature validation with popup trigger
   const validateAndExecute = useCallback((feature, onRestricted, executeFunction) => {
