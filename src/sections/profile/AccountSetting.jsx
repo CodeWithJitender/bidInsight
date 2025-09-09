@@ -206,11 +206,11 @@ export default function AccountSetting({ fullName, lastLogin }) {
       <div className="flex items-center justify-between bg-white mb-8">
         {/* Left: Avatar + Greeting */}
         <div className="flex items-center gap-3">
-          <img
+          {/* <img
             src="/userprofile.png"
             alt="User"
             className="w-16 h-16 rounded-full object-cover"
-          />
+          /> */}
           <div>
             <p className="text-sm text-gray-500 font-medium font-inter">Hello</p>
             <p className="text-2xl font-medium text-black font-inter">{fullName}</p>
@@ -219,14 +219,14 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
         {/* Right: Signup Time */}
         <div className="text-right">
-          <p className="text-sm text-[#999999] font-inter font-medium">Signup Time</p>
+          <p className="text-sm text-[#999999] font-inter font-medium">Signup On</p>
           <p className="text-lg font-medium text-black">{lastLogin}</p>
         </div>
       </div>
 
       {/* Title */}
       <h2 className="text-2xl font-semibold font-inter text-gray-800 mb-6">
-        User Account Setting
+        User Account Settings
       </h2>
 
       {/* Settings List */}

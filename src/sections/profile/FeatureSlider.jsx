@@ -27,16 +27,17 @@ export default function App() {
     <>
       <Swiper
         {...settings}
+        className='max-w-[80%]'
       >
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
-        <SwiperSlide><img src="/feature.png" className='w-full' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
+        <SwiperSlide><img src="/feature.png" className='' alt="" /></SwiperSlide>
       </Swiper>
     </>
   );

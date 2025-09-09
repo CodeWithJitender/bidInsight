@@ -133,7 +133,7 @@ export default function UserProfile() {
         return <Bids />;
       case "AI Toolset":
         return <AiToolset />;
-      case "Account Setting":
+      case "Account Settings":
         return <AccountSetting fullName={fullName} userData={userData} lastLogin={lastLogin} />;
       default:
         return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
@@ -154,7 +154,7 @@ export default function UserProfile() {
               { title: "My Plans", icon: faClipboardList },
               { title: "Bids", icon: faChartLine },
               { title: "AI Toolset", icon: faRobot },
-              { title: "Account Setting", icon: faCog },
+              { title: "Account Settings", icon: faCog },
             ].map((item, i) => (
               <div
                 key={i}
@@ -207,7 +207,7 @@ export default function UserProfile() {
         </div>
 
         {/* Dynamic Section */}
-        <div>{renderComponent()}</div>
+        <div className="h-full">{renderComponent()}</div>
       </main>
     </div>
   );

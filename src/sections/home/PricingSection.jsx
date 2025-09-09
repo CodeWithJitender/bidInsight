@@ -71,7 +71,7 @@ function PricingSection() {
         "1 Saved Searches",
         "5 Bookmarks"
       ],
-      icon: "/price-1.png",
+      icon: "/price-4.png",
       delay: "200",
     },
     {

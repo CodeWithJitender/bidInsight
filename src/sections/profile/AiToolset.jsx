@@ -1,15 +1,20 @@
-import React, { useState } from 'react'
-import SignupModal from '../../components/SignupModal';
+import React, { useState } from "react";
+import SignupModal from "../../components/SignupModal";
 
 function AiToolset() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
-    <div className='h-screen w-full flex justify-center items-center'>
-      <img src="/coming-soon.jpg"   onClick={() => setIsModalOpen(true)} className='rounded-lg max-w-xl' alt="" />
+    <div className="h-full w-full flex justify-center items-center">
+      <img
+        src="/coming-soon.jpg"
+        onClick={() => setIsModalOpen(true)}
+        className="rounded-lg max-w-[40%] cursor-pointer" 
+        alt=""
+      />
 
-<SignupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SignupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
-  )
+  );
 }
 
-export default AiToolset
+export default AiToolset;
