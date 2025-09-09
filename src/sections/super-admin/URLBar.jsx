@@ -200,7 +200,7 @@ const URLBar = () => {
       <table className="min-w-full text-sm">
         <thead>
           <tr className="bg-bl text-white text-center">
-            {["ID", "URL", "Bid Name", "Type", "Last 24H", "Override", "Action"].map((head) => (
+            {["ID", "URL", "Bid Name", "Type", "Last 24H","Mode", "Override"].map((head) => (
               <th key={head} className="px-4 py-3 font-inter">{head}</th>
             ))}
           </tr>
@@ -238,8 +238,8 @@ const URLBar = () => {
               </td>
 
               <td className="px-4 py-3 relative font-inter">
-                <button onClick={() => toggleAction(i)} className="text-gray-600 hover:text-black">
-                  <FontAwesomeIcon icon="ellipsis-v" />
+                <button onClick={() => toggleAction(i)} className="text-gray-600 ">
+                <i class="fas fa-user-clock"></i> 
                 </button>
 
                 {/* {actionOpenRow === i && (

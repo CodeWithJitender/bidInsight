@@ -1,7 +1,3 @@
-
-
-
-
 // // npm install react-circular-progressbar
 // import React, { useState, useEffect } from "react";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -331,7 +327,7 @@
 //                   </span>
 //                   <span className={`w-[15%] text-center font-inter ${bid.is_active ? "text-green-600" : "text-red-600"
 //                     }`}>
-//                     {bid.success ? "Success" : "Failed"} 
+//                     {bid.success ? "Success" : "Failed"}
 //                   </span>
 //                   <span className="w-[10%] text-xl text-center cursor-pointer select-none font-inter">
 //                     ⋮
@@ -348,20 +344,6 @@
 //     </div>
 //   );
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // npm install react-circular-progressbar
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -393,9 +375,9 @@ export default function SuperAdmin() {
 
   // Fixed: Initialize errorBids as empty array instead of empty string
   const [errorBids, setErrorBids] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  
+
   // Infinite scroll states
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
@@ -403,16 +385,19 @@ export default function SuperAdmin() {
   const observer = useRef();
 
   // Last element ref for infinite scroll
-  const lastElementRef = useCallback(node => {
-    if (loading || loadingMore) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMoreData();
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [loading, loadingMore, hasMore]);
+  const lastElementRef = useCallback(
+    (node) => {
+      if (loading || loadingMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMoreData();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, loadingMore, hasMore]
+  );
 
   const fetchErrorBids = async (pageNumber = 1, append = false) => {
     try {
@@ -426,20 +411,22 @@ export default function SuperAdmin() {
       console.log("API Response:", data);
 
       // Handle different API response structures
-      const bidsArray = Array.isArray(data) ? data : (data.results || data.data || []);
-      
+      const bidsArray = Array.isArray(data)
+        ? data
+        : data.results || data.data || [];
+
       if (append) {
-        setErrorBids(prev => [...prev, ...bidsArray]);
+        setErrorBids((prev) => [...prev, ...bidsArray]);
       } else {
         setErrorBids(bidsArray);
       }
-     
+
       // Check if there's more data (API returns less than pageSize means no more data)
       if (bidsArray.length === 0 || bidsArray.length < 50) {
         setHasMore(false);
       }
-      
-      setError('');
+
+      setError("");
     } catch (err) {
       setError("Failed to fetch error bids data");
       console.error("Error fetching error bids:", err);
@@ -451,17 +438,25 @@ export default function SuperAdmin() {
           mockData.push({
             id: 184 + i,
             scraper_id: `SCR-${184 + i}`,
-            scraper_name: i % 2 === 0 ? "South Carolina_state" : "New York_state",
+            scraper_name:
+              i % 2 === 0 ? "South Carolina_state" : "New York_state",
             entity_type: "State",
-            file_path: `scrapping/helper/states/${i % 2 === 0 ? 'South Carolina' : 'New York'}_state.py`,
+            file_path: `scrapping/helper/states/${
+              i % 2 === 0 ? "South Carolina" : "New York"
+            }_state.py`,
             state_name: i % 2 === 0 ? "South Carolina" : "New York",
             is_active: true,
             last_run: null,
             errors: {
-              error: i % 3 === 0 ? "504 Gateway Timeout" : i % 3 === 1 ? "Connection Failed" : "Invalid Response"
+              error:
+                i % 3 === 0
+                  ? "504 Gateway Timeout"
+                  : i % 3 === 1
+                  ? "Connection Failed"
+                  : "Invalid Response",
             },
             success: Math.random() > 0.5,
-            timeStamp: "10:56:45"
+            timeStamp: "10:56:45",
           });
         }
         setErrorBids(mockData);
@@ -474,7 +469,7 @@ export default function SuperAdmin() {
       }
     }
   };
-   console.log(errorBids);
+  console.log(errorBids);
   const loadMoreData = () => {
     if (!loadingMore && hasMore) {
       const nextPage = page + 1;
@@ -508,17 +503,17 @@ export default function SuperAdmin() {
   const formatTimeStamp = (timeStamp) => {
     if (!timeStamp) return "N/A";
     // If it's already in HH:MM:SS format, return as is
-    if (typeof timeStamp === 'string' && timeStamp.includes(':')) {
+    if (typeof timeStamp === "string" && timeStamp.includes(":")) {
       return timeStamp;
     }
     // If it's a date object or ISO string, format it
     try {
       const date = new Date(timeStamp);
-      return date.toLocaleTimeString('en-US', {
+      return date.toLocaleTimeString("en-US", {
         hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
       });
     } catch {
       return timeStamp || "N/A";
@@ -583,63 +578,66 @@ export default function SuperAdmin() {
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 py-4 px-8 sticky top-0">
-          {[
-            {
-              label: "Total Bids",
-              value: "15,000",
-              change: "+10%",
-              color: "text-green-600",
-              bg: "bg-[#4BF03C33]",
-              note: "Growth since last month",
-            },
-            {
-              label: "Scrapped Bids",
-              value: "13,000",
-              change: "+10%",
-              color: "text-green-600",
-              bg: "bg-[#4BF03C33]",
-              note: "Growth since last month",
-            },
-            {
-              label: "Accepted Bids",
-              value: "12,000",
-              change: "-10%",
-              color: "text-red-600",
-              bg: "bg-[#F03C3F33]",
-              note: "Down from last month",
-            },
-            {
-              label: "Error Bids",
-              value: errorBids.length.toString(), // Dynamic count from API
-              change: "+10%",
-              color: "text-green-600",
-              bg: "bg-[#4BF03C33]",
-              note: "Growth since last month",
-            },
-          ].map((card, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl p-6 border border-1 border-primary shadow-md"
-            >
-              <h4 className="text-gray-700 font-medium mb-1 font-inter text-[22px]">{card.label}</h4>
-              <div className="flex gap-2 items-center">
-                <div className="text-lg font-inter">{card.value}</div>
-                <div
-                  className={`${card.color} ${card.bg} py-1 px-3 rounded-[50px] inline-block mt-1 font-inter text-sm`}
-                >
-                  {card.change}
-                </div>
-              </div>
-              <p className="text-[#999999] mt-1 text-sm font-inter">{card.note}</p>
-            </div>
-          ))}
-        </div>
-
         {/* Donut Charts and Error Table */}
         <div className="flex gap-6 px-8">
           <div className="w-[50%] bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2  gap-8 py-4 mb-5 sticky top-0">
+              {[
+                {
+                  label: "Total Bids",
+                  value: "15,000",
+                  change: "+10%",
+                  color: "text-green-600",
+                  bg: "bg-[#4BF03C33]",
+                  note: "Growth since last month",
+                },
+                {
+                  label: "Scrapped Bids",
+                  value: "13,000",
+                  change: "+10%",
+                  color: "text-green-600",
+                  bg: "bg-[#4BF03C33]",
+                  note: "Growth since last month",
+                },
+                // {
+                //   label: "Accepted Bids",
+                //   value: "12,000",
+                //   change: "-10%",
+                //   color: "text-red-600",
+                //   bg: "bg-[#F03C3F33]",
+                //   note: "Down from last month",
+                // },
+                // {
+                //   label: "Error Bids",
+                //   value: errorBids.length.toString(), // Dynamic count from API
+                //   change: "+10%",
+                //   color: "text-green-600",
+                //   bg: "bg-[#4BF03C33]",
+                //   note: "Growth since last month",
+                // },
+              ].map((card, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-6 border border-1 border-primary shadow-md"
+                >
+                  <h4 className="text-gray-700 font-medium mb-1 font-inter text-[22px]">
+                    {card.label}
+                  </h4>
+                  <div className="flex gap-2 items-center">
+                    <div className="text-lg font-inter">{card.value}</div>
+                    <div
+                      className={`${card.color} ${card.bg} py-1 px-3 rounded-[50px] inline-block mt-1 font-inter text-sm`}
+                    >
+                      {card.change}
+                    </div>
+                  </div>
+                  <p className="text-[#999999] mt-1 text-sm font-inter">
+                    {card.note}
+                  </p>
+                </div>
+              ))}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
               {[...Array(2)].map((_, i) => (
                 <div
@@ -696,10 +694,12 @@ export default function SuperAdmin() {
               <span className="w-[10%] font-inter">Action</span>
             </div>
 
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-[580px] overflow-y-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="text-gray-500 font-inter">Loading scrapers...</div>
+                  <div className="text-gray-500 font-inter">
+                    Loading scrapers...
+                  </div>
                 </div>
               ) : error && errorBids.length === 0 ? (
                 <div className="flex justify-center items-center py-8">
@@ -707,7 +707,9 @@ export default function SuperAdmin() {
                 </div>
               ) : errorBids.length === 0 ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="text-gray-500 font-inter">No scrapers found</div>
+                  <div className="text-gray-500 font-inter">
+                    No scrapers found
+                  </div>
                 </div>
               ) : (
                 <>
@@ -715,8 +717,9 @@ export default function SuperAdmin() {
                     <div
                       key={bid.id || i}
                       ref={i === errorBids.length - 1 ? lastElementRef : null}
-                      className={`flex justify-between items-center text-sm px-3 py-2 ${i % 2 === 0 ? "bg-gray-100" : "bg-white"
-                        }`}
+                      className={`flex justify-between items-center text-sm px-3 py-2 ${
+                        i % 2 === 0 ? "bg-gray-100" : "bg-white"
+                      }`}
                     >
                       <span className="w-[10%] text-center font-inter">
                         {bid.scraper_id || `ID-${i + 1}`}
@@ -727,7 +730,8 @@ export default function SuperAdmin() {
                       >
                         {bid.scraper_name || "-"}
                       </span>
-                      <span className="w-[30%] text-center text-red-600 whitespace-nowrap font-inter"
+                      <span
+                        className="w-[30%] text-center text-red-600 whitespace-nowrap font-inter"
                         title={bid.errors?.error || "N/A"}
                       >
                         {bid.errors?.error || "-"}
@@ -735,25 +739,34 @@ export default function SuperAdmin() {
                       <span className="w-[30%] text-center font-inter">
                         {bid.entity_type || "-"}
                       </span>
-                      <span className={`w-[15%] text-center font-inter ${bid.success ? "text-green-600" : "text-red-600"
-                        }`}>
-                        {bid.success ? "Success" : "Failed"} 
+                      <span
+                        className={`w-[15%] text-center font-inter ${
+                          bid.success ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {bid.success ? "Success" : "Failed"}
                       </span>
-                      <span className="w-[10%] text-xl text-center cursor-pointer select-none font-inter">
-                        ⋮
+                      <span className="w-[10%] text-red-700 text-center cursor-pointer select-none font-inter">
+                        {/* <i class="fal fa-trash"></i> */}
+                        {/* <i class="fas fa-trash-alt"></i> */}
+                        <i class="far fa-trash-alt"></i>
                       </span>
                     </div>
                   ))}
-                  
+
                   {loadingMore && (
                     <div className="flex justify-center items-center py-4">
-                      <div className="text-gray-500 font-inter text-sm">Loading more...</div>
+                      <div className="text-gray-500 font-inter text-sm">
+                        Loading more...
+                      </div>
                     </div>
                   )}
-                  
+
                   {!hasMore && errorBids.length > 0 && (
                     <div className="flex justify-center items-center py-4">
-                      <div className="text-gray-500 font-inter text-sm">No more data to load</div>
+                      <div className="text-gray-500 font-inter text-sm">
+                        No more data to load
+                      </div>
                     </div>
                   )}
                 </>

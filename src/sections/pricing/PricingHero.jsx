@@ -41,7 +41,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "/price-1.png",
+      icon: "/price-2.png",
       delay: "200",
       planID:"002"
     },
@@ -59,7 +59,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "Export 100 bids/month",
         "RFP Compatibility Summary"
       ],
-      icon: "/price-2.png",
+      icon: "/price-3.png",
       delay: "300",
       planID:"003"
     },
@@ -79,7 +79,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "Export 500 bids/month",
         "Full AI Arsenal (6 Tools)",
       ],
-      icon: "/price-3.png",
+      icon: "/price-4.png",
       delay: "400",
       isComingSoon: true,
       planID:"004"
@@ -108,7 +108,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "/price-1.png",
+      icon: "/price-2.png",
       delay: "200",
             planID:"002"
     },
@@ -126,7 +126,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "Export 100 bids/month",
         "RFP Compatibility Summary"
       ],
-      icon: "/price-2.png",
+      icon: "/price-3.png",
       delay: "300",
             planID:"003"
     },
@@ -146,7 +146,7 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
         "Export 500 bids/month",
         "Full AI Arsenal (6 Tools)",
       ],
-      icon: "/price-3.png",
+      icon: "/price-4.png",
       delay: "400",
       isComingSoon: true,
             planID:"004"
