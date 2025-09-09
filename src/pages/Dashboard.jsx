@@ -297,37 +297,45 @@ const handleFollowedCardClick = async () => {
 
   // 🔥 FIX 2: Prevent auto-redirect on bookmark route refreshpaginat
   useEffect(() => {
-    const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
-    const isFollowRoute = location.pathname === '/dashboard/followedBids';
+  const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
+  const isFollowRoute = location.pathname === '/dashboard/followedBids';
 
-    setIsBookmarkView(isBookmarkRoute);
-    setIsFollowView(isFollowRoute);
+  setIsBookmarkView(isBookmarkRoute);
+  setIsFollowView(isFollowRoute);
 
-    // 🔥 NEW: Check if follow route should be restricted
-    if (isFollowRoute && restrictions?.follow) {
-      // console.log("🔥 Follow route accessed but restricted - setting restricted view");
-      setIsRestrictedFollowView(true);
-      setLoading(false);
-      return;
-    } else {
-      setIsRestrictedFollowView(false);
-    }
+  if (isFollowRoute && restrictions?.follow) {
+    setIsRestrictedFollowView(true);
+    setLoading(false);
+    return;
+  } else {
+    setIsRestrictedFollowView(false);
+  }
 
-    if (isBookmarkRoute || isFollowRoute) {
-      setLoading(false);
-      return;
-    } else {
-      // console.log("🔥 Normal dashboard route detected");
+  if (isBookmarkRoute || isFollowRoute) {
+    setLoading(false);
+    return;
+  } else {
+    const searchParams = new URLSearchParams(location.search);
+    
+    console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
+    console.log("🔥 new_bids param:", searchParams.get('new_bids'));
 
-      const searchParams = new URLSearchParams(location.search);
-      if (searchParams.toString() === '') {
-        // console.log("🔥 No URL params, applying defaults");
-        const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
-        setFilters(defaultFilters);
-        setAppliedFilters(defaultFilters);
+    // YAH FIX KARO - URL se filters decode karo
+    if (searchParams.toString() !== '') {
+      const decodedFilters = decodeUrlToFilters(searchParams);
+      if (!decodedFilters.ordering) {
+        decodedFilters.ordering = "closing_date";
       }
+      console.log("🔥 Decoded filters:", decodedFilters);
+      setFilters(decodedFilters);
+      setAppliedFilters(decodedFilters);
+    } else {
+      const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
+      setFilters(defaultFilters);
+      setAppliedFilters(defaultFilters);
     }
-  }, [location.pathname, location.search, restrictions?.follow]);
+  }
+}, [location.pathname, location.search, restrictions?.follow]);
 
 
 
@@ -348,6 +356,7 @@ const handleFollowedCardClick = async () => {
       const hasActiveFilters =
         appliedFilters.status !== "Active" ||
         // (appliedFilters.location?.length > 0) ||
+        appliedFilters.new_bids ||
         (appliedFilters.location?.federal) ||
         (appliedFilters.location?.states?.length > 0) || // NEW: Check states array
         (appliedFilters.location?.local?.length > 0) ||  // NEW: Check local array

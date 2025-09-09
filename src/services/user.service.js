@@ -183,3 +183,22 @@ export const forgotPasswordVerify = async (payload) => {
     throw error;
   } 
 };
+
+export const updateProfile = async (payload) => {
+  console.log(payload, "Payload in servicewwwwwwwwwwwwwwwwwwwwwwww");
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+
+  try {
+    const response = await API.put("/auth/user/update/", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // JSON payload
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    throw error;
+  }
+};
