@@ -91,8 +91,6 @@ console.log(subscriptionPlanName, "Selected subscription plan name");
       title: "Free",
       price: "0",
       features: [
-        "Advanced Search (Filters)",
-        "All Federal Bids",
         "3 Visible Bids Only", 
         "Basic Access"
       ],
