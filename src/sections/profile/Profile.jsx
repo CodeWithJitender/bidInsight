@@ -68,8 +68,8 @@ function Profile({fullName, lastLogin}) {
         </div>
       </div>
       {/* Complete verification process */}
-      <div className="border-2 border-primary p-4 rounded-[20px]">
-        {/* Progress */}
+      {/* <div className="border-2 border-primary p-4 rounded-[20px]">
+        Progress
         <div className="flex justify-between gap-4 flex-wrap">
           <div className="title font-inter font-medium text-2xl ">
             Complete verification process
@@ -91,7 +91,7 @@ function Profile({fullName, lastLogin}) {
             </div>
           </div>
         </div>
-        {/* Progress cards */}
+        Progress cards
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-6">
             {data.map((item, index)=>(
                 <div className="card bg-primary p-4 rounded-xl flex flex-col gap-2 items-start" key={index}>
@@ -108,7 +108,7 @@ function Profile({fullName, lastLogin}) {
                 </div>
             ))}
         </div>
-      </div>
+      </div> */}
 
       <PersonalDetail/>
       {/* <ProfileForm /> */}
