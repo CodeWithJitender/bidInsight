@@ -306,6 +306,9 @@ export const decodeUrlToFilters = (searchParams) => {
   if (searchParams.get("entity_type")) {
     decodedFilters.entityType = searchParams.get("entity_type");
   }
+if (searchParams.get('new_bids') === 'true') {
+    decodedFilters.new_bids = true;
+  }
 
   return decodedFilters;
 };
@@ -398,6 +401,10 @@ export const buildQueryString = (filters, currentPage, perPage) => {
   // 🔥 REMOVED: This was causing conflict - entityType should be part of location handling
   if (filters.entityType) {
     params.append("entity_type", filters.entityType);
+  } 
+
+   if (filters.new_bids) {
+    params.append('new_bids', 'true');
   }
 
   // 🔥 Final URL string return करते हैं

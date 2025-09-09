@@ -111,6 +111,10 @@ export const buildQueryString = (filters) => {
     }
   }
 
+  if (filters.new_bids) {
+  params.append('new_bids', 'true');
+}
+
   return params.toString();
   
 };
