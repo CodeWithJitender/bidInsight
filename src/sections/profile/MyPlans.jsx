@@ -41,7 +41,7 @@ export default function MyPlans() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">Last Recharge</p>
+              <p className="text-sm text-gray-500">Last Payment</p>
               <p className="font-medium">12-09-2025</p>
             </div>
           </div>
