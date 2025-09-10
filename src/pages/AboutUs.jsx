@@ -26,25 +26,13 @@ function AboutUs() {
     <div className="">
       <Hero />
       <div className="" id="mission">
-        <Mission
-          pera="Our Mission Our Mission Our Mission Our Mission Our Mission Our
-          Mission Our Mission "
-          mHeading={[
-            " Intelligent Automation",
-            "Clear Insights",
-            "Time-Saving Tools",
-          ]}
-          mPera="Our mission is to remove the guesswork from government and public-sector bidding—replacing it with"
-        />
+        <Mission />
       </div>
-
+      <div className="marquee">
+        <img src="/marquee.jpg" alt="" />
+      </div>
       <div className="" id="vision">
-        <Mission
-          pera="Our Vision Our Vision Our Vision Our Vision Our Vision Our
-        Vision Our Vision Our Vision "
-          mHeading={["Ease", "Accuracy", "Transparency"]}
-          mPera="To revolutionize the way businesses pursue contracts—using cutting-edge AI to bring"
-        />
+        <Vision/>
       </div>
 
       {/* <Vision /> */}

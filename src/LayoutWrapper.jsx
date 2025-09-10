@@ -22,6 +22,7 @@ const LayoutWrapper = ({ children }) => {
     "/plan",
     "/loader",
     "/super-admin",
+    "/payment",
   ];
 
   const isHidden = hiddenRoutes.includes(location.pathname);
