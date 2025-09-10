@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Hero from '../sections/home/Hero'
 import KeyValuePro from '../sections/home/KeyValuePro'
 import LockedFeature from '../sections/home/LockedFeature'
@@ -6,15 +6,33 @@ import HowItWorks from '../sections/home/HowItWorks'
 // import PricingSection from '../sections/home/PricingSection'
 import CallToAction from '../sections/home/CallToAction'
 import ComparisonGrid from '../sections/home/ComparisonGrid'
+import StackOnScroll from '../sections/home/StackOnScroll'
 import PricingHero from '../sections/pricing/PricingHero'
+import { useLocation } from 'react-router-dom'
 
 function Home() {
+   const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [hash]);
+  
   return (
     <div className='overflow-x-hidden'>
      <Hero/>
+     <div className="" id='why-bidinsight'>
      <KeyValuePro/>
+     </div>
      <LockedFeature />
+     
      <HowItWorks/>
+     {/* <StackOnScroll /> */}
      {/* <PricingSection /> */}
      <PricingHero />
      <ComparisonGrid />

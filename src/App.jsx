@@ -10,6 +10,7 @@ import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
 import OTPVerification from "./components/OTPVerification.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
+import ScrollToHashElement from "./components/ScrollToHashElement.jsx";
 
 
 
@@ -46,6 +47,7 @@ const App = () => {
 
   return (
     <LayoutWrapper>
+      <ScrollToHashElement />
       <ScrollToTop />
       <Suspense>
         <Routes>
