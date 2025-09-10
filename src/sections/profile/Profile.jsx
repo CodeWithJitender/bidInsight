@@ -1,43 +1,84 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BookmarkTable from "./BookmarkTable";
 import { bookmarkedBids, followData } from "./bookmarkedBids"; // your data file
 import { Link } from "react-router-dom";
 import PersonalDetail from "./PersonalDetail";
 import ProfileForm from "./ProfileForm";
+import { getUserProfile } from "../../services/bid.service";
 
 function Profile({fullName, lastLogin}) {
   console.log(fullName, lastLogin);
-    const data = [
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
+
+
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const profile = await getUserProfile();
+      setProfileData(profile);
+      console.log("Profile fetched:", profile);
+    } catch (error) {
+      console.error("Failed to fetch user profile", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // This function will be called by child component after successful update
+  const handleProfileUpdate = async () => {
+    console.log("Profile updated, refreshing data...");
+    await fetchUserProfile(); // Re-fetch latest data
+  };
+
+
+    // const data = [
+    //     {
+    //         icon:"/profile-user.png",
+    //         title:"Lorem Ipsum",
+    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
+    //         btn:"Complete Form",
+    //         btnLink:"/"
+    //     },
+    //     {
+    //         icon:"/profile-user.png",
+    //         title:"Lorem Ipsum",
+    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
+    //         btn:"Complete Form",
+    //         btnLink:"/"
+    //     },
+    //     {
+    //         icon:"/profile-user.png",
+    //         title:"Lorem Ipsum",
+    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
+    //         btn:"Complete Form",
+    //         btnLink:"/"
+    //     },
+    //     {
+    //         icon:"/profile-user.png",
+    //         title:"Lorem Ipsum",
+    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
+    //         btn:"Complete Form",
+    //         btnLink:"/"
+    //     },
        
-    ]
+    // ]
+
+    if (loading) {
+    return (
+      <div className="p-4 xl:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading profile...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 xl:p-8">
       {/* Header */}
@@ -54,7 +95,7 @@ function Profile({fullName, lastLogin}) {
               Hello
             </p>
             <p className="text-2xl font-medium text-black font-inter">
-              {fullName}
+              {profileData?.full_name || fullName}
             </p>
           </div>
         </div>
@@ -110,7 +151,10 @@ function Profile({fullName, lastLogin}) {
         </div>
       </div> */}
 
-      <PersonalDetail/>
+      <PersonalDetail
+        profileData={profileData}
+        onProfileUpdate={handleProfileUpdate}
+      />
       {/* <ProfileForm /> */}
     </div>
   );

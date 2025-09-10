@@ -77,18 +77,17 @@ function Bids() {
     
     return apiData.map(item => {
       // Handle both bookmark and follow data structures
-      const bid = type === 'bookmark' ? item.bid : item.bid || item;
-      const id = type === 'bookmark' ? item.bookmark_id : item.follow_id;
+      const bid = item.bid;
       
       return {
-        id: id || bid.id,
-        bidId: bid.id,
-        entityType: bid.entity_type || bid.entityType || 'N/A',
-        bidName: bid.title || bid.bid_name || bid.bidName || 'N/A',
-        openDate: formatDate(bid.published_date || bid.open_date || bid.openDate),
-        closedDate: formatDate(bid.closing_date || bid.closed_date || bid.closedDate),
-        countdown: calculateCountdown(bid.closing_date || bid.closed_date || bid.closedDate),
-        originalData: item // Keep original data for API calls
+       id: item.id, // This is the top-level ID (174 in your example)
+      bidId: bid.id, // This is the bid ID (27800 in your example) 
+      entityType: bid.entity_type || 'N/A',
+      bidName: bid.bid_name || 'N/A',
+      openDate: formatDate(bid.open_date),
+      closedDate: formatDate(bid.closing_date),
+      countdown: calculateCountdown(bid.closing_date),
+      originalData: item // Keep for reference
       };
     });
   };
@@ -134,36 +133,55 @@ function Bids() {
   };
 
   // Handle bookmark removal
-  const handleBookmarkRemove = async (bookmarkId) => {
-    try {
-      await deleteBookmarkedBid(bookmarkId);
-      
-      // Update local state
-      setBookmarkedData(prev => prev.filter(item => item.id !== bookmarkId));
-      
-      console.log('Bookmark removed successfully');
-      return true;
-    } catch (err) {
-      console.error('Error removing bookmark:', err);
+  // Handle bookmark removal - receives bidId, finds the record
+const handleBookmarkRemove = async (bidId) => {
+  try {
+    // Find the bookmark record where bid.id matches bidId
+    const bookmarkRecord = bookmarkedData.find(item => item.bidId === bidId);
+    
+    if (!bookmarkRecord) {
+      console.error('Bookmark record not found for bidId:', bidId);
       return false;
     }
-  };
 
-  // Handle follow removal
-  const handleFollowRemove = async (followId) => {
-    try {
-      await deleteFollowedBid(followId);
-      
-      // Update local state
-      setFollowedData(prev => prev.filter(item => item.id !== followId));
-      
-      console.log('Follow removed successfully');
-      return true;
-    } catch (err) {
-      console.error('Error removing follow:', err);
+    // Use the top-level id for delete API
+    await deleteBookmarkedBid(bookmarkRecord.id);
+    
+    // Update local state using the top-level id
+    setBookmarkedData(prev => prev.filter(item => item.id !== bookmarkRecord.id));
+    
+    console.log('Bookmark removed successfully');
+    return true;
+  } catch (err) {
+    console.error('Error removing bookmark:', err);
+    return false;
+  }
+};
+
+// Handle follow removal - receives bidId, finds the record  
+const handleFollowRemove = async (bidId) => {
+  try {
+    // Find the follow record where bid.id matches bidId
+    const followRecord = followedData.find(item => item.bidId === bidId);
+    
+    if (!followRecord) {
+      console.error('Follow record not found for bidId:', bidId);
       return false;
     }
-  };
+
+    // Use the top-level id for delete API
+    await deleteFollowedBid(followRecord.id);
+    
+    // Update local state using the top-level id
+    setFollowedData(prev => prev.filter(item => item.id !== followRecord.id));
+    
+    console.log('Follow removed successfully');
+    return true;
+  } catch (err) {
+    console.error('Error removing follow:', err);
+    return false;
+  }
+};
 
   // Handle feature restriction
   const handleFeatureRestriction = () => {

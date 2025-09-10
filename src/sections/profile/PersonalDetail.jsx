@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { FiInfo } from "react-icons/fi";
 import { getAllStates, updateProfile } from "../../services/user.service";
-import { getUserProfile } from "../../services/bid.service";
+// import { getUserProfile } from "../../services/bid.service";
 
 
-export default function PersonalDetail() {
+export default function PersonalDetail({ profileData, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "Angela Stark",
-    username: "@angelastark",
-    email: "jopseph.mark12@gmail.com",
-    companyName: "Angela Stark Enterprise",
-    companyWebsite: "jopseph.mark12@gmail.com",
-    companyFIEN: "123456789",
+    firstName: "",
+    username: "",
+    email: "",
+    companyName: "",
+    companyWebsite: "",
+    companyFIEN: "",
     yearInBusiness: "",
     employees: "",
     state: "",
@@ -36,29 +36,22 @@ export default function PersonalDetail() {
     fetchStates();
   }, []);
 
-  useEffect(() => {
-    // Fetch user profile and populate form
-    const fetchProfile = async () => {
-      try {
-        const profile = await getUserProfile(); // No profileId means "current user"
-        setFormData({
-          firstName: profile.full_name || "",
-          username: profile.username || "",
-          email: profile.email || "",
-          companyName: profile.company_name || "",
-          companyWebsite: profile.companyWebsite || "",
-          companyFIEN: profile.fein_or_ssn_number || "",
-          yearInBusiness: profile.year_in_business || "",
-          employees: profile.no_of_employees || "1-10",     // Default option value
-          contractSize: profile.target_contract_size || "upto-75000",
-          state: profile.state || "",
-        });
-      } catch (error) {
-        console.error("Failed to fetch user profile", error);
-      }
-    };
-    fetchProfile();
-  }, []);
+ useEffect(() => {
+    if (profileData) {
+      setFormData({
+        firstName: profileData.full_name || "",
+        username: profileData.username || "",
+        email: profileData.email || "",
+        companyName: profileData.company_name || "",
+        companyWebsite: profileData.companyWebsite || "",
+        companyFIEN: profileData.fein_or_ssn_number || "",
+        yearInBusiness: profileData.year_in_business || "",
+        employees: profileData.no_of_employees || "1-10",
+        contractSize: profileData.target_contract_size || "upto-75000",
+        state: profileData.state || "",
+      });
+    }
+  }, [profileData]);
 
 
   const constructPayload = (data) => ({
@@ -72,21 +65,27 @@ export default function PersonalDetail() {
   });
   console.log(constructPayload(formData), "Constructed Payload");
 
-
-
-  const handleUpdateProfile = async () => {
+const handleUpdateProfile = async () => {
     try {
       const payload = constructPayload(formData);
-      console.log(payload, "Payload to be sent");
-      const response = await updateProfile(payload); // updateProfile should send JSON
-
-      console.log("Profile updated:", response);
-      // Handle success UI, reload profile if needed
+      console.log("Updating profile with payload:", payload);
+      
+      const response = await updateProfile(payload);
+      console.log("Profile updated successfully:", response);
+      
+      // Call parent's update function to refresh data
+      if (onProfileUpdate) {
+        await onProfileUpdate();
+      }
+      
+      // Exit editing mode after successful update
+      setIsEditing(false);
+      
     } catch (error) {
       console.error("Update failed:", error);
+      // You can add error handling UI here
     }
   };
-
 
 
   const handleChange = (e) => {
