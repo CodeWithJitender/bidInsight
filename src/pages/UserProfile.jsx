@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom"
 import {
   faLink,
   faDatabase,
@@ -23,7 +24,7 @@ import { useSelector } from 'react-redux';
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
-
+  const navigate = useNavigate(); // Add this line
   // Redux se data lena
   const profileData = useSelector((state) => state.profile.profile);
   const authData = useSelector((state) => state.auth.user);
@@ -88,6 +89,14 @@ export default function UserProfile() {
       return 'Invalid Date';
     }
   };
+
+    // Logout function
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  };
+
 
   // User data nikalna
   const getUserData = () => {
@@ -171,7 +180,7 @@ export default function UserProfile() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
+        <div onClick={handleLogout}  className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
           <FontAwesomeIcon icon={faSignOutAlt} />
           <span>Logout</span>
         </div>
