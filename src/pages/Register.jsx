@@ -468,10 +468,10 @@ useEffect(() => {
                     onChange={handleCheckboxChange}
                   />
                   I accept the&nbsp;
-                  <Link className="underline" target="_blank" to="/policy">Privacy Policy</Link>,&nbsp;
-                  <Link className="underline" target="_blank" to="/terms">T&C</Link>,&nbsp;
-                  <Link className="underline" target="_blank" to="/member-terms">Member Terms</Link>,&nbsp;
-                  <Link className="underline" target="_blank" to="/disclaimer">Disclaimer</Link>.
+                  <Link className="underline" target="_blank" to="/Privacy_Notice.pdf">Privacy Policy</Link>,&nbsp;
+                  <Link className="underline" target="_blank" to="/Terms_&_Conditions.pdf">T&C</Link>,&nbsp;
+                  <Link className="underline" target="_blank" to="/Member_Terms_&_Conditions.pdf">Member Terms</Link>.&nbsp;
+                  {/* <Link className="underline" target="_blank" to="/disclaimer">Disclaimer</Link>. */}
                 </label>
 
                 {checkboxMessage && (
