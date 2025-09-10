@@ -32,6 +32,8 @@ const SummaryPage = lazy(() => import("./pages/SummaryPage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
+const Payment = lazy(() => import("./components/Payment"));
+// const PaymentUnsuccessful = lazy(() => import("./sections/payment/PaymentUnsuccessful"));
 
 
 const App = () => {
@@ -41,7 +43,35 @@ const App = () => {
       once: true,
     });
   }, []);
-
+ const content = {
+    image: "/process-activation.png",
+    title: "Your Plan is on the Way!",
+    description:
+      "We’ve received your payment and are setting up your subscription. This may take a few minutes. You’ll get notified once everything is ready.",
+    // details: [
+    //   { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
+    //   { label: "Transaction Date", value: "12/09/2025" },
+    //   { label: "Payment Mode", value: "MasterCard 0922" },
+    //   { label: "Subtotal", value: "$302.00" },
+    //   { label: "Tax", value: "$10.00" },
+    // ],
+    buttons: [
+      {
+        type: "link",
+        text: "Go Back to Home Page",
+        url: "/",
+      },
+      {
+        type: "button",
+        text: "Download Invoice",
+        onClick: () => alert("Downloading Invoice..."),
+      },
+    ],
+    note: {
+      text: " If it takes longer than expected, please reach us at ",
+      email: "support@bidinsight.com",
+    },
+  };
 
   return (
     <LayoutWrapper>
@@ -74,6 +104,8 @@ const App = () => {
           <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
           <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
           <Route path="/*" element={<Error404 />} />
+          <Route path="/payment" element={<Payment content={content} />} />
+          {/* <Route path="/payment-unsuccessful" element={<PaymentUnsuccessful />} /> */}
         </Routes>
       </Suspense> 
     </LayoutWrapper>

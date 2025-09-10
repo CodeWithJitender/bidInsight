@@ -1,151 +1,57 @@
-import React, { useRef, useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import React from "react";
+import { motion } from "framer-motion";
+import Heading from "../../components/Heading";
 
-gsap.registerPlugin(ScrollTrigger);
-
-function Mission({ pera, mHeading, mPera }) {
-  const parentRef = useRef(null);
-  const textRef = useRef(null);
-  const stickyRef = useRef(null);
-  const stickyRefParent = useRef(null);
-  const headingRefs = useRef([]);
-  const contentRef = useRef(null);
-
-  useGSAP(() => {
-    // Animate mission-cover text (existing)
-    const parent = parentRef.current;
-    const text = textRef.current;
-    if (parent && text) {
-      gsap.fromTo(
-        text,
-        { x: "0%" },
-        {
-          x: "-20%",
-          opacity: 1,
-          ease: "linear",
-          scrollTrigger: {
-            trigger: parent,
-            start: "top 100%",
-            end: "top 0%",
-            scrub: 1,
-          },
-        }
-      );
-    }
-
-    // Animate sticky white div on scroll
-    const sticky = stickyRef.current;
-    const stickyParent = stickyRefParent.current;
-    if (sticky && stickyParent) {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: stickyParent,
-          start: "top top",
-          end: "top -400%",
-          scrub: 1,
-        },
-      });
-      // First animate the container
-      tl.fromTo(
-        sticky,
-        {
-          opacity: 1,
-          clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)",
-          scale: 0.9,
-        },
-        {
-          opacity: 1,
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-          scale: 1,
-          ease: "power3.out",
-        }
-      );
-
-      tl.fromTo(contentRef.current,{
-          opacity: 0,
-          y: 20,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.1,
-          ease: "power3.out",
-      });
-
-      // Then animate each heading sequentially
-      headingRefs.current.forEach((heading, index) => {
-        // Show this heading
-        tl.fromTo(
-          heading,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" },
-          index === 0 ? "0" : ">"  // Start immediately for first one
-        );
-        
-        // Hold for a shorter moment
-        tl.to(heading, { opacity: 1, duration: 0.3 });
-        
-        // Hide this heading
-        tl.to(
-          heading,
-          { opacity: 0, duration: 0.2, ease: "power3.in" },
-          ">"  // Start after previous animation completes
-        );
-      });
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, [
-    parentRef.current,
-    textRef.current,
-    stickyRef.current,
-    stickyRefParent.current,
-  ]);
-
+const Mission = () => {
   return (
-    <div className="mission">
-      <div className="mission-top overflow-x-hidden " ref={parentRef}>
-        <div
-          className="mission-cover w-[210%] text-topH font-archivo font-bold text-center text-primary flex py-10 px-3"
-          ref={textRef}
+    <section className="w-full bg-white pt-10 md:p-0">
+      <div className="flex flex-col md:flex-row md:items-center">
+        {/* Left Side (Text Content) */}
+        <motion.div
+          className="md:w-[60%] px-5 md:px-20 py-5"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, amount: 0.3 }}
         >
-          {pera}
-        </div>
-      </div>
-      <div
-        ref={stickyRefParent}
-        className="h-[400vh] relative w-full perspective-[1000px]"
-      >
-        <div
-          className="h-screen w-full sticky top-0 left-0 z-10 flex items-center justify-center perspective-[1000px] bg-[#D5DAFF] "
-          ref={stickyRef}
+          {/* Gradient Heading */}
+          <Heading textD={"Lorem ipsum"} textL={"dolor sit amet"} />
+
+          {/* Sub Heading */}
+          <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
+            Curabitur sollicitudin leo quis velit efficitur, eget imperdiet
+            sapien aliquet.
+          </h3>
+
+          {/* Paragraph */}
+          <p className="font-inter mt-6 leading-relaxed">
+            Phasellus laoreet velit dui, faucibus pharetra lacus sagittis quis.
+            Donec in libero quam. Quisque tempor posuere libero a varius. Nullam
+            laoreet venenatis elit in tempor. Mauris vitae porttitor quam, vitae
+            accumsan elit. Sed vitae molestie erat. Sed scelerisque ligula id
+            lacus viverra vehicula. Ut lectus ante, consequat quis elit vitae,
+            dapibus ornare turpis. Nunc id tristique sapien, pellentesque
+            aliquam dui.
+          </p>
+        </motion.div>
+
+        {/* Right Side (Image + Card Effect) */}
+        <motion.div
+          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
-          {/* Remove the absolute black overlay for clarity of animation */}
-          <div ref={contentRef} className="mission-content">
-            <p className="font-inter text-p lg:text-[26px] max-w-3xl text-center">
-              {mPera}
-            </p>
-            <img src="./arrow-down.png" className="w-10 mx-auto my-10" alt="" />
-            <div className="mission-heading flex flex-col items-center relative">
-              {mHeading?.map((heading, index) => (
-                <h3
-                  ref={(el) => (headingRefs.current[index] = el)}
-                  key={index}
-                  className="font-archivo text-h2 font-bold text-primary text-center absolute top-0 left-1/2 -translate-x-1/2"
-                >
-                  {heading}
-                </h3>
-              ))}
-            </div>
-          </div>
-        </div>
+          <img
+            src="/mission.png"
+            alt="App Preview"
+            className="w-full md:w-auto md:max-h-full m-auto"
+          />
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
-}
+};
 
 export default Mission;
