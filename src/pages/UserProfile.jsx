@@ -185,7 +185,7 @@ export default function UserProfile() {
             {active}
           </h2>
           <div className="flex items-center gap-4">
-            <div className="relative">
+            {/* <div className="relative">
               <FontAwesomeIcon
                 icon={faSearch}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -199,7 +199,7 @@ export default function UserProfile() {
             <div className="relative w-12 h-12 rounded-full border border-blue-600 flex items-center justify-center">
               <FontAwesomeIcon icon={faBell} className="text-primary text-lg" />
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
-            </div>
+            </div> */}
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full hover:bg-blue-700 transition">
               Hi, {fullName}
             </button>

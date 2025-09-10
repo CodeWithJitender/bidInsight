@@ -14,9 +14,6 @@ import PaymentPage from "./pages/Payment.jsx";
 import PaymentStatus from "./pages/PaymentStatus.jsx";
 
 
-
-
-
 // Lazy-loaded Pages
 const Home = lazy(() => import("./pages/Home"));
 const Error404 = lazy(() => import("./pages/Error404"));
