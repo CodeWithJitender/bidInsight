@@ -34,7 +34,7 @@ const processData = [
     // },
   },
   {
-    image: "/payment-successfull.png",
+    image: "/payment-ussuccessfull.png",
     title: "Your Payment was Unsuccessful",
     description:
       "We’re sorry, your payment could not be completed due to a gateway error.",
@@ -47,7 +47,7 @@ const processData = [
     // ],
     buttons: [
       { type: "link", text: "Go Back to Home Page", url: "/" },
-      { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
+      { type: "button", text: "Retry Payment", onClick: () => alert("Downloading...") },
     ],
     note: {
       text: "If the issue continues, contact our support team at",
