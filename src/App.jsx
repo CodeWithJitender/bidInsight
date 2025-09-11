@@ -12,6 +12,7 @@ import OTPVerification from "./components/OTPVerification.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import PaymentPage from "./pages/Payment.jsx";
 import PaymentStatus from "./pages/PaymentStatus.jsx";
+import ConfirmPassword from "./pages/ConfirmPassword.jsx";
 
 
 // Lazy-loaded Pages
@@ -26,6 +27,7 @@ const IndustryCategories = lazy(() => import("./pages/IndustryCategories"));
 const ExtraData = lazy(() => import("./pages/ExtraData"));
 const EmailVerification = lazy(() => import("./components/EmailVerification"));
 const Verification = lazy(() => import("./pages/Verification"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Plan = lazy(() => import("./pages/Plan"));
 const SummaryPage = lazy(() => import("./pages/SummaryPage"));
@@ -80,7 +82,9 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="forgot-password" element={<OTPVerification />} />
+          {/* <Route path="forgot-password" element={<OTPVerification />} /> */}
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="confirm-password" element={<ConfirmPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/company-build" element={<CompanyBuild />} />
           <Route path="/help" element={<ProtectedRoute><HelpCenter /> </ProtectedRoute>} />

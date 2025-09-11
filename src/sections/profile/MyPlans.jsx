@@ -90,7 +90,7 @@ export default function MyPlans() {
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Amount</th>
                 <th className="py-3 px-4">Plan</th>
-                <th className="py-3 px-4 text-center  ">Download</th>
+                <th className="py-3 px-4 text-center">Download</th>
               </tr>
             </thead>
             <tbody className="font-inter font-medium">
