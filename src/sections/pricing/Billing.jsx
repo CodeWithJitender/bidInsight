@@ -115,8 +115,7 @@ function Billing() {
               </tr>
             </thead>
             <tbody>
-              {sections.filter( (sec) =>
-      !(subscriptionPlanId === "001" && sec.title === "Full Stack A.I. Arsenal")).map((section, sIdx) => (
+              {subscriptionPlanId !== "001" || sections.filter((sec) => sec.title !== "Full Stack A.I. Arsenal").map((section, sIdx) => (
                 <React.Fragment key={sIdx} className="">
                   <tr className="pt-4">
                     <td

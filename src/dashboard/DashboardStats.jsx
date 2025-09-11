@@ -16,8 +16,6 @@ const DashboardStats = ({
   const maxBookmarks = planInfo?.subscription_plan?.max_bookmark || 0;
   const maxFollows = planInfo?.subscription_plan?.max_follow || 0;
 
-
-
   const planCode = planInfo?.subscription_plan?.plan_code || planInfo?.plan_code;
   const isRestrictedBookmarkPlan = planCode === "001";
   
@@ -43,6 +41,25 @@ const DashboardStats = ({
     onNavigate("/dashboard/bookmarkBids");
   };
 
+  const handleNewBidsClickNew = () => {
+  if (planCode === "001") {
+    onFeatureRestriction(
+      "New Bids Feature Locked",
+      "Upgrade your plan to view new bids posted in the last 24 hours.",
+      "New Bids Feature",
+      true
+    );
+    return;
+  }
+  onNavigate("/dashboard?bid_type=Active&page=1&new_bids=true&pageSize=25&ordering=closing_date");
+};
+
+
+  // New handler for New Bids click
+  const handleNewBidsClick = () => {
+    onNavigate("/dashboard?bid_type=Active&page=1&new_bids=true&pageSize=25&ordering=closing_date");
+  };
+
   const stats = [
     {
       id: 1,
@@ -64,7 +81,8 @@ const DashboardStats = ({
       title: "New Bids",
       num: bidCount?.new_bids || 0,
       tag: "NEW BIDS",
-      description: "Bids added in the last 24 hours."
+      description: "Bids added in the last 24 hours.",
+      onClick: handleNewBidsClickNew // Add click handler for New Bids
     },
     {
       id: 4,

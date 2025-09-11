@@ -1,33 +1,107 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiInfo } from "react-icons/fi";
+import { getAllStates, updateProfile } from "../../services/user.service";
+// import { getUserProfile } from "../../services/bid.service";
 
-export default function PersonalDetail() {
+
+export default function PersonalDetail({ profileData, onProfileUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "Angela Stark",
-    username: "@angelastark",
-    email: "jopseph.mark12@gmail.com",
-    companyName: "Angela Stark Enterprise",
-    companyWebsite: "jopseph.mark12@gmail.com",
-    companyFIEN: "123456789",
+    firstName: "",
+    username: "",
+    email: "",
+    companyName: "",
+    companyWebsite: "",
+    companyFIEN: "",
     yearInBusiness: "",
     employees: "",
     state: "",
     contractSize: "",
   });
 
+
+  // States to store the list of states
+  const [statesList, setStatesList] = useState([]);
+
+  // Fetch all states when component mounts
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const states = await getAllStates();
+        setStatesList(states); // assuming states is an array of objects
+      } catch (error) {
+        console.error("Failed to fetch states", error);
+      }
+    };
+    fetchStates();
+  }, []);
+
+ useEffect(() => {
+    if (profileData) {
+      setFormData({
+        firstName: profileData.full_name || "",
+        username: profileData.username || "",
+        email: profileData.email || "",
+        companyName: profileData.company_name || "",
+        companyWebsite: profileData.companyWebsite || "",
+        companyFIEN: profileData.fein_or_ssn_number || "",
+        yearInBusiness: profileData.year_in_business || "",
+        employees: profileData.no_of_employees || "1-10",
+        contractSize: profileData.target_contract_size || "upto-75000",
+        state: profileData.state || "",
+      });
+    }
+  }, [profileData]);
+
+
+  const constructPayload = (data) => ({
+
+    full_name: data.firstName,
+    state: data.state,  // Ye default selected id hai, direct bhej do
+    company_name: data.companyName,
+    no_of_employees: data.employees || "1-10",
+  target_contract_size: data.contractSize || "upto-75000",
+    year_in_business: Number(data.yearInBusiness),
+  });
+  console.log(constructPayload(formData), "Constructed Payload");
+
+const handleUpdateProfile = async () => {
+    try {
+      const payload = constructPayload(formData);
+      console.log("Updating profile with payload:", payload);
+      
+      const response = await updateProfile(payload);
+      console.log("Profile updated successfully:", response);
+      
+      // Call parent's update function to refresh data
+      if (onProfileUpdate) {
+        await onProfileUpdate();
+      }
+      
+      // Exit editing mode after successful update
+      setIsEditing(false);
+      
+    } catch (error) {
+      console.error("Update failed:", error);
+      // You can add error handling UI here
+    }
+  };
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toggleEdit = () => {
+  const toggleEdit = async () => {
     if (isEditing) {
-      console.log("Saved Data:", formData);
+      // Save karne ke liye update API call karo
+      await handleUpdateProfile();
     }
     setIsEditing(!isEditing);
   };
 
+  console.log(formData, "Form Data");
   return (
     <div className="bg-white rounded-lg shadow-sm">
       {/* Header */}
@@ -53,9 +127,8 @@ export default function PersonalDetail() {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-              !isEditing && "bg-[#999999] cursor-not-allowed"
-            }`}
+            className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+              }`}
             readOnly={!isEditing}
           />
         </div>
@@ -95,9 +168,8 @@ export default function PersonalDetail() {
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-                !isEditing && "bg-[#999999] cursor-not-allowed"
-              }`}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
               readOnly={!isEditing}
             />
           </div>
@@ -128,14 +200,13 @@ export default function PersonalDetail() {
               value={formData.yearInBusiness}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-                !isEditing && "bg-[#999999] cursor-not-allowed"
-              }`}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
             >
               <option value="">Select an option</option>
-              <option value="1-3 years">1-3 years</option>
-              <option value="3-5 years">3-5 years</option>
-              <option value="5+ years">5+ years</option>
+              <option value="1">1-3</option>
+              <option value="4">4-7</option>
+              <option value="8">8+</option>
             </select>
           </div>
 
@@ -146,39 +217,36 @@ export default function PersonalDetail() {
             </label>
             <select
               name="employees"
-              value={formData.employees}
+              value={formData.employees || "1-10"}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-                !isEditing && "bg-[#999999] cursor-not-allowed"
-              }`}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
             >
               <option value="">Select an option</option>
               <option value="1-10">1-10</option>
               <option value="11-50">11-50</option>
-              <option value="51-200">51-200</option>
-              <option value="200+">200+</option>
+              <option value="50+">50+</option>
             </select>
           </div>
 
           {/* State */}
           <div>
-            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              State *
-            </label>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2" >State *</label>
             <select
               name="state"
               value={formData.state}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-                !isEditing && "bg-[#999999] cursor-not-allowed"
-              }`}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
             >
-              <option value="">Select an option</option>
-              <option value="California">California</option>
-              <option value="Texas">Texas</option>
-              <option value="Florida">Florida</option>
+              <option value="">Select a state</option>
+              {statesList.map((stateObj) => (
+                <option key={stateObj.id} value={stateObj.id}>
+                  {stateObj.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -192,14 +260,13 @@ export default function PersonalDetail() {
               value={formData.contractSize}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${
-                !isEditing && "bg-[#999999] cursor-not-allowed"
-              }`}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
             >
               <option value="">Select an option</option>
-              <option value="Under $50k">Under $50k</option>
-              <option value="$50k - $200k">$50k - $200k</option>
-              <option value="$200k+">$200k+</option>
+              <option value="upto-75000">Up to $75,000</option>
+              <option value="75000-500000">$75,000 to $500,000</option>
+              <option value="above-500000">Above $500,000</option>
             </select>
           </div>
         </div>

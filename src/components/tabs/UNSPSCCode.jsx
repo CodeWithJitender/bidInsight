@@ -3,18 +3,7 @@ import { Trash2, Search } from "lucide-react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getUNSPSCCodes } from "../../services/user.service.js";
 
-// const MOCK_DATA = [
-//   { code: "10000000", description: "Live Plant and Animal Material" },
-//   { code: "10100000", description: "Live animals" },
-//   { code: "10101500", description: "Livestock" },
-//   { code: "10101600", description: "Poultry" },
-//   { code: "10101700", description: "Aquatic animals" },
-//   { code: "11000000", description: "Mineral and Textile Materials" },
-//   { code: "11100000", description: "Minerals" },
-//   { code: "11101500", description: "Metallic minerals" },
-//   { code: "11101600", description: "Non-metallic minerals" },
-//   { code: "12000000", description: "Chemical including Bio Chemicals" },
-// ];
+
 
 const UNSPSCCode = ({ 
   filters = {}, 
@@ -53,12 +42,59 @@ const UNSPSCCode = ({
     setFilters({ ...filters, UNSPSCCode: [] });
   };
 
-  useEffect(() => {
+   const fetchDescriptionsForSelectedCodes = async (codes) => {
+    const codesWithoutDesc = codes.filter(item => !item.description || item.description === "");
+    
+    if (codesWithoutDesc.length === 0) return codes;
+
+    try {
+      // Fetch descriptions for codes that don't have them
+      const updatedCodes = await Promise.all(codes.map(async (item) => {
+        if (!item.description || item.description === "") {
+          try {
+            const response = await getUNSPSCCodes({ code: item.code });
+            if (response && response.results && response.results.length > 0) {
+              return {
+                ...item,
+                description: response.results[0].description || "No description"
+              };
+            }
+          } catch (error) {
+            console.warn(`Could not fetch description for code ${item.code}`);
+          }
+        }
+        return item;
+      }));
+      
+      return updatedCodes;
+    } catch (error) {
+      console.error("Error fetching descriptions:", error);
+      return codes.map(item => ({
+        ...item,
+        description: item.description || "No description"
+      }));
+    }
+  };
+
+   useEffect(() => {
     if (filters.UNSPSCCode && Array.isArray(filters.UNSPSCCode)) {
-      setSelected(filters.UNSPSCCode);
+      // Check if any selected codes are missing descriptions
+      const needsDescriptions = filters.UNSPSCCode.some(item => !item.description || item.description === "");
+      
+      if (needsDescriptions) {
+        // Fetch descriptions for codes without them
+        fetchDescriptionsForSelectedCodes(filters.UNSPSCCode).then(updatedCodes => {
+          setSelected(updatedCodes);
+          // Update filters with descriptions - but don't create infinite loop
+          if (JSON.stringify(updatedCodes) !== JSON.stringify(filters.UNSPSCCode)) {
+            setFilters({ ...filters, UNSPSCCode: updatedCodes });
+          }
+        });
+      } else {
+        setSelected(filters.UNSPSCCode);
+      }
     }
   }, [filters.UNSPSCCode]);
-
   const fetchData = async (page = 1, append = false, currentSearch = "") => {
     try {
       if (page === 1) setLoading(true);
@@ -131,6 +167,8 @@ const UNSPSCCode = ({
     setPagination((prev) => ({ ...prev, page: 1 }));
     setSearchTerm(value);
   };
+
+  console.log(filters," selected UNSPSC codes ...........................................................", selected);
 
   return (
     <div className="min-h-screen flex flex-col justify-between p-10 ps-14 overflow-y-auto">

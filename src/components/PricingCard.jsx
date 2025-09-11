@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { postPricingPlans } from "../services/admin.service"; // Update path
+import { initiatePlanOrder } from "../services/pricing.service";
 
 function PricingCard({ title, price, features, delay, icon, isComingSoon, planID }) {
   const navigate = useNavigate();
@@ -41,42 +42,46 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
   const handlePlanSelection = async () => {
     if (isComingSoon || isButtonDisabled) return;
 
-    // Guest user clicks
+    // 👉 Guest user ko signup pe bhejo
     if (!numericSubPlanId) {
-      navigate("/signup"); // redirect guest to signup page
+      navigate("/signup");
       return;
     }
 
     setIsLoading(true);
     try {
-      await postPricingPlans(numericPlanId);
-      console.log(`✅ Successfully set plan: ${title} (ID: ${numericPlanId})`);
+      // 🔹 Call backend to initiate payment intent
+      const res = await initiatePlanOrder(numericPlanId, price);
 
-      // Navigate based on plan type
-      switch (title) {
-        case "Free":
-          navigate("/dashboard?page=1&pageSize=25&bid_type=Active&ordering=closing_date");
-          break;
-        case "Starter":
-        case "Essentials":
-          navigate("/geographic-coverage");
-          break;
-        default:
-          break;
+      // Backend se response structure confirm karo:
+      // { clientSecret, publishableKey, plan }
+      if (!res?.clientSecret || !res?.publishableKey) {
+        throw new Error("Invalid response from payment API");
       }
+
+      console.log("💳 Payment details:", res);
+
+      // 🔹 Navigate to payment page
+      navigate("/payment", {
+        state: {
+          clientSecret: res.clientSecret,
+          publishableKey: res.publishableKey,
+          plan: res.plan,
+        },
+      });
     } catch (error) {
-      console.error("❌ Failed to set plan:", error);
-      alert("Failed to select plan. Please try again.");
+      console.error("❌ Failed to initiate payment:", error);
+      alert(error?.message || "Failed to initiate payment. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
+
   return (
     <div
-      className={`bg-blue text-white h-[700px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${
-        !isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
-      }`}
+      className={`bg-blue text-white h-[700px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+        }`}
       data-aos="fade-up"
       data-aos-delay={delay}
     >
@@ -106,19 +111,18 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
       {/* Action Button */}
       {shouldRenderButton && (
         <button
-          className={`bg-btn border border-white text-white p-4 font-inter font-medium rounded-2xl my-3 ${
-            isComingSoon || isLoading || isButtonDisabled
-              ? "opacity-50 cursor-not-allowed"
-              : "hover:text-blue transition-colors"
-          }`}
+          className={`bg-btn border border-white text-white p-4 font-inter font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:text-blue transition-colors"
+            }`}
           disabled={isComingSoon || isLoading || isButtonDisabled}
           onClick={handlePlanSelection}
         >
           {isComingSoon
             ? "Coming Soon"
             : isLoading
-            ? "Processing..."
-            : buttonText}
+              ? "Processing..."
+              : buttonText}
         </button>
       )}
 

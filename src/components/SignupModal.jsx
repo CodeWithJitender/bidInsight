@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 
-export default function SignupModal({ isOpen, onClose }) {
+export default function SignupModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     email: "",
     fullName: "",
   });
+  const [buttonState, setButtonState] = useState("idle");
 
   if (!isOpen) return null; // Hide when not open
 
@@ -14,10 +15,21 @@ export default function SignupModal({ isOpen, onClose }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    onClose();
+    setButtonState("loading");
+    try {
+      await onSubmit(formData);      // Wait for parent API call
+      setButtonState("success");
+      setTimeout(() => {
+        setButtonState("idle");
+        setFormData({ email: "", fullName: "" });
+        // onClose();                   // Only close after submitting
+      }, 1200); // 1.2 seconds for user to see "Submitted"
+    } catch (err) {
+      setButtonState("idle");
+      // Optionally handle error UI here
+    }
   };
 
   return (
@@ -69,12 +81,17 @@ export default function SignupModal({ isOpen, onClose }) {
           {/* Submit button */}
           <div className="flex justify-center">
 
-          <button
-            type="submit"
-            className=" bg-btn  transition py-4 px-6 rounded-full font-normal font-inter text-white"
+         <button
+              type="submit"
+              className=" bg-btn transition py-4 px-6 rounded-full font-normal font-inter text-white"
+              disabled={buttonState === "loading" || buttonState === "success"}
             >
-            Signup for Regular Updates
-          </button>
+              {buttonState === "loading"
+                ? "Submitting..."
+                : buttonState === "success"
+                ? "Submitted"
+                : "Signup for Regular Updates"}
+            </button>
               </div>
         </form>
       </div>

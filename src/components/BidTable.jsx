@@ -2,6 +2,7 @@ import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } f
 import { useNavigate } from "react-router-dom";
 import BlogShareButton from "./BlogShareButton";
 import { usePlan } from "../hooks/usePlan";
+import { useSelector } from "react-redux";
 
 const BidTable = forwardRef(({
   bids = [],
@@ -75,8 +76,14 @@ const BidTable = forwardRef(({
     }
   };
 
+  const planData = useSelector((state) => {
+    console.log(state.profile.profile.subscription_plan.plan_code, "🔥 Redux State in BidTableeeeeeeeeeeeeeeeeeeeeeeeee");
+  return state.profile.profile.subscription_plan || {};
+  
+});
 
-
+const isStarterPlan = planData?.plan_code === "002" && planData?.name === "Starter";
+console.log(isStarterPlan, "🔥 isStarterPlan in BidTableeeeeeeeeeeeeeeeeee");
 
 
   const handleFollowClick = (e, bidId) => {
@@ -192,6 +199,18 @@ const BidTable = forwardRef(({
     return <span className="ml-2"><i className={`fas ${isDescending ? 'fa-sort-down' : 'fa-sort-up'} text-white text-xs`}></i></span>;
   };
 
+  // Dynamic entity types based on plan
+const getEntityTypes = () => {
+  const baseTypes = ["Select Entity", "Federal", "State"];
+  
+  // Add "Local" only if NOT Starter plan
+  if (!isStarterPlan) {
+    baseTypes.push("Local");
+  }
+  
+  return baseTypes;
+};
+
   // Blur wrapper component
   const BlurWrapper = ({ children, shouldBlur, className = "" }) => {
     if (!shouldBlur) return children;
@@ -262,7 +281,7 @@ const BidTable = forwardRef(({
                 {/* Only show dropdown if not restricted */}
                 {dropdownOpen && !restrictions.entityDropdown && (
                   <div className="absolute mt-2 w-40 rounded-md bg-white text-black font-medium z-10">
-                    {["Select Entity", "Federal", "State", "Local"].map((type) => (
+                    {getEntityTypes().map((type) => (
                       <div
                         key={type}
                         onClick={() => handleEntityTypeClick(type)}

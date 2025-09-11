@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SignupModal from "../../components/SignupModal";
+import { comingsoonPopup } from "../../services/admin.service";
 
 function AiToolset() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -8,11 +9,27 @@ function AiToolset() {
       <img
         src="/coming-soon.jpg"
         onClick={() => setIsModalOpen(true)}
-        className="rounded-lg max-w-[40%] cursor-pointer" 
+        className="rounded-lg max-w-[40%] cursor-pointer"
         alt=""
       />
 
-      <SignupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* // In AiToolset.js */}
+      <SignupModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={async (formData) => {
+          try {
+            await comingsoonPopup({
+              email: formData.email,
+              name: formData.fullName
+            });
+            setIsModalOpen(false);
+          } catch (e) {
+            console.log(e)
+          }
+        }}
+      />
+
     </div>
   );
 }

@@ -181,6 +181,7 @@ function SummaryPage() {
 
   const bidData = bid || fallback;
   console.log("Bid Data:", bidData);
+  console.log(similarBidsData, "Similar Bids Data");  
 
   // ✅ FIXED: Show SavedSearchPopup for bookmark limits
   const showLimitRestriction = (title, message) => {

@@ -26,6 +26,7 @@ function SimilarBids({ similarBids }) {
         {similarBids.length > 0 ? (
           <div className="divide-y divide-white/20 flex flex-col ">
             {similarBids.map((bid, index) => (
+              console.log(bid, "🔥 Individual Bid in SimilarBids"),
               <div
                 key={index}
                 className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4"

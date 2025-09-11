@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import LoadingScreen from "./components/LoadingScreen";
 
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
@@ -22,7 +21,10 @@ const LayoutWrapper = ({ children }) => {
     "/plan",
     "/loader",
     "/super-admin",
+    "/user-profile",
     "/payment",
+    "/forgot-password",
+    "/confirm-password",
   ];
 
   const isHidden = hiddenRoutes.includes(location.pathname);

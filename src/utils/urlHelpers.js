@@ -275,12 +275,18 @@ export const decodeUrlToFilters = (searchParams) => {
 
   if (searchParams.get("unspsc_codes")) {
     const codes = searchParams.get("unspsc_codes").split(",");
-    decodedFilters.UNSPSCCode = codes.map((code) => ({ code }));
+    decodedFilters.UNSPSCCode = codes.map((code) => ({ 
+      code: code.trim(),
+      description: "" // Empty description - will be filled by component if needed
+    }));
   }
 
   if (searchParams.get("naics_codes")) {
     const codes = searchParams.get("naics_codes").split(",");
-    decodedFilters.NAICSCode = codes.map((code) => ({ code }));
+    decodedFilters.NAICSCode = codes.map((code) => ({ 
+      code: code.trim(),
+      description: "" // Empty description - will be filled by component if needed
+    }));
   }
 
   if (searchParams.get("open_date_after")) {
@@ -305,6 +311,9 @@ export const decodeUrlToFilters = (searchParams) => {
 
   if (searchParams.get("entity_type")) {
     decodedFilters.entityType = searchParams.get("entity_type");
+  }
+if (searchParams.get('new_bids') === 'true') {
+    decodedFilters.new_bids = true;
   }
 
   return decodedFilters;
@@ -398,6 +407,10 @@ export const buildQueryString = (filters, currentPage, perPage) => {
   // 🔥 REMOVED: This was causing conflict - entityType should be part of location handling
   if (filters.entityType) {
     params.append("entity_type", filters.entityType);
+  } 
+
+   if (filters.new_bids) {
+    params.append('new_bids', 'true');
   }
 
   // 🔥 Final URL string return करते हैं

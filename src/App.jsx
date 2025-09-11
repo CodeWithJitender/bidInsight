@@ -10,10 +10,9 @@ import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
 import OTPVerification from "./components/OTPVerification.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
-import ScrollToHashElement from "./components/ScrollToHashElement.jsx";
-
-
-
+import PaymentPage from "./pages/Payment.jsx";
+import PaymentStatus from "./pages/PaymentStatus.jsx";
+import ConfirmPassword from "./pages/ConfirmPassword.jsx";
 
 
 // Lazy-loaded Pages
@@ -28,6 +27,7 @@ const IndustryCategories = lazy(() => import("./pages/IndustryCategories"));
 const ExtraData = lazy(() => import("./pages/ExtraData"));
 const EmailVerification = lazy(() => import("./components/EmailVerification"));
 const Verification = lazy(() => import("./pages/Verification"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Plan = lazy(() => import("./pages/Plan"));
 const SummaryPage = lazy(() => import("./pages/SummaryPage"));
@@ -77,13 +77,14 @@ const App = () => {
 
   return (
     <LayoutWrapper>
-      <ScrollToHashElement />
       <ScrollToTop />
       <Suspense>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="forgot-password" element={<OTPVerification />} />
+          {/* <Route path="forgot-password" element={<OTPVerification />} /> */}
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="confirm-password" element={<ConfirmPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/company-build" element={<CompanyBuild />} />
           <Route path="/help" element={<ProtectedRoute><HelpCenter /> </ProtectedRoute>} />
@@ -104,11 +105,13 @@ const App = () => {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+          <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
           <Route path="/*" element={<Error404 />} />
           <Route path="/payment" element={<Payment content={content} />} />
           {/* <Route path="/payment-unsuccessful" element={<PaymentUnsuccessful />} /> */}
         </Routes>
-      </Suspense>
+      </Suspense> 
     </LayoutWrapper>
   );
 };
