@@ -13,8 +13,9 @@ import {
   faGavel,
   faRobot,
   faChartLine,
+  faArrowRight,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { icon } from "@fortawesome/fontawesome-svg-core";
 import Profile from "../sections/profile/Profile";
 import MyPlans from "../sections/profile/MyPlans";
 import Bids from "../sections/profile/Bids";
@@ -37,8 +38,8 @@ export default function UserProfile() {
   const getFullName = () => {
     try {
       if (profileData) {
-        const parsedProfile = typeof profileData === 'string' 
-          ? JSON.parse(profileData) 
+        const parsedProfile = typeof profileData === 'string'
+          ? JSON.parse(profileData)
           : profileData;
         console.log(parsedProfile);
         return parsedProfile?.full_name || 'User';
@@ -90,7 +91,7 @@ export default function UserProfile() {
     }
   };
 
-    // Logout function
+  // Logout function
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -168,11 +169,10 @@ export default function UserProfile() {
               <div
                 key={i}
                 onClick={() => setActive(item.title)}
-                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${
-                  active === item.title
+                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${active === item.title
                     ? "bg-white/50 text-white"
                     : "hover:text-blue-300"
-                }`}
+                  }`}
               >
                 <FontAwesomeIcon icon={item.icon} />
                 <span>{item.title}</span>
@@ -180,7 +180,7 @@ export default function UserProfile() {
             ))}
           </nav>
         </div>
-        <div onClick={handleLogout}  className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
+        <div onClick={handleLogout} className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
           <FontAwesomeIcon icon={faSignOutAlt} />
           <span>Logout</span>
         </div>
@@ -190,9 +190,20 @@ export default function UserProfile() {
       <main className="flex-1  overflow-x-hidden relative h-screen">
         {/* Top Nav */}
         <div className="flex flex-wrap justify-between py-4 px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
-          <h2 className="text-2xl font-semibold font-archivo text-gray-800">
-            {active}
-          </h2>
+          {active === "Profile" ? (
+            <button
+              className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+              onClick={() => navigate("/dashboard")}
+              style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+            >
+             <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Back to Dashboard</span>
+            </button>
+          ) : (
+            <h2 className="text-2xl font-semibold font-archivo text-gray-800">
+              {active}
+            </h2>
+          )}
           <div className="flex items-center gap-4">
             {/* <div className="relative">
               <FontAwesomeIcon
