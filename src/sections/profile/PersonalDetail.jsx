@@ -175,7 +175,7 @@ const handleUpdateProfile = async () => {
           </div>
 
           {/* Company FIEN or SSN */}
-          <div>
+          {/* <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
               Company FIEN or SSN
             </label>
@@ -188,12 +188,31 @@ const handleUpdateProfile = async () => {
               readOnly={!isEditing}
               disabled
             />
+          </div> */}
+
+          <div>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
+              No. of Employees *
+            </label>
+            <select
+              name="employees"
+              value={formData.employees || "1-10"}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
+                }`}
+            >
+              <option value="">Select an option</option>
+              <option value="1-10">1-10</option>
+              <option value="11-50">11-50</option>
+              <option value="50+">50+</option>
+            </select>
           </div>
 
           {/* Year in business */}
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              Year in business *
+              Year in Business *
             </label>
             <select
               name="yearInBusiness"
@@ -211,27 +230,32 @@ const handleUpdateProfile = async () => {
           </div>
 
           {/* No. of employees */}
+          
+
+          {/* State */}
+        
+
+          {/* Target contract size */}
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              No. of employees *
+              Target Contract Size *
             </label>
             <select
-              name="employees"
-              value={formData.employees || "1-10"}
+              name="contractSize"
+              value={formData.contractSize}
               onChange={handleChange}
               disabled={!isEditing}
               className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
                 }`}
             >
               <option value="">Select an option</option>
-              <option value="1-10">1-10</option>
-              <option value="11-50">11-50</option>
-              <option value="50+">50+</option>
+              <option value="upto-75000">Up to $75,000</option>
+              <option value="75000-500000">$75,000 to $500,000</option>
+              <option value="above-500000">Above $500,000</option>
             </select>
           </div>
 
-          {/* State */}
-          <div>
+            <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2" >State *</label>
             <select
               name="state"
@@ -247,26 +271,6 @@ const handleUpdateProfile = async () => {
                   {stateObj.name}
                 </option>
               ))}
-            </select>
-          </div>
-
-          {/* Target contract size */}
-          <div>
-            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              Target contract size *
-            </label>
-            <select
-              name="contractSize"
-              value={formData.contractSize}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "bg-[#999999] cursor-not-allowed"
-                }`}
-            >
-              <option value="">Select an option</option>
-              <option value="upto-75000">Up to $75,000</option>
-              <option value="75000-500000">$75,000 to $500,000</option>
-              <option value="above-500000">Above $500,000</option>
             </select>
           </div>
         </div>

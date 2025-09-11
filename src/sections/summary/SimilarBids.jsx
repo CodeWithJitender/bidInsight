@@ -20,7 +20,7 @@ function SimilarBids({ similarBids }) {
     <div className="summary">
       <div className="space-y-6 text-white container-fixed">
         <h1 className="font-archivo font-semibold text-p xl:text-[30px]">
-          Similar Bids
+          Explore More Bids
         </h1>
 
         {similarBids.length > 0 ? (

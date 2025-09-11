@@ -362,7 +362,7 @@ import {
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import URLBar from "../sections/super-admin/URLBar";
-import { getErrorBids } from "../services/admin.service";
+import { countbidsAdmin, getErrorBids } from "../services/admin.service";
 
 export default function SuperAdmin() {
   // Values
@@ -377,6 +377,7 @@ export default function SuperAdmin() {
   const [errorBids, setErrorBids] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [bidCounts, setBidCounts] = useState({ count: 0, new_bids: 0, new_bids_30_days: 0 });
 
   // Infinite scroll states
   const [hasMore, setHasMore] = useState(true);
@@ -441,9 +442,8 @@ export default function SuperAdmin() {
             scraper_name:
               i % 2 === 0 ? "South Carolina_state" : "New York_state",
             entity_type: "State",
-            file_path: `scrapping/helper/states/${
-              i % 2 === 0 ? "South Carolina" : "New York"
-            }_state.py`,
+            file_path: `scrapping/helper/states/${i % 2 === 0 ? "South Carolina" : "New York"
+              }_state.py`,
             state_name: i % 2 === 0 ? "South Carolina" : "New York",
             is_active: true,
             last_run: null,
@@ -452,8 +452,8 @@ export default function SuperAdmin() {
                 i % 3 === 0
                   ? "504 Gateway Timeout"
                   : i % 3 === 1
-                  ? "Connection Failed"
-                  : "Invalid Response",
+                    ? "Connection Failed"
+                    : "Invalid Response",
             },
             success: Math.random() > 0.5,
             timeStamp: "10:56:45",
@@ -477,6 +477,20 @@ export default function SuperAdmin() {
       fetchErrorBids(nextPage, true);
     }
   };
+
+
+  useEffect(() => {
+    const fetchBidCounts = async () => {
+      try {
+        const data = await countbidsAdmin();
+        if (data) setBidCounts(data);
+      } catch (e) {
+        console.log(e)
+      }
+    };
+    fetchBidCounts();
+  }, []);
+
 
   useEffect(() => {
     fetchErrorBids(1, false);
@@ -590,16 +604,16 @@ export default function SuperAdmin() {
               {[
                 {
                   label: "Total Bids",
-                  value: "15,000",
-                  change: "+10%",
+                  value: bidCounts.count.toLocaleString(),
+                  change: "+10%", // or calculate as needed
                   color: "text-green-600",
                   bg: "bg-[#4BF03C33]",
                   note: "Growth since last month",
                 },
                 {
                   label: "Scrapped Bids",
-                  value: "13,000",
-                  change: "+10%",
+                  value: bidCounts.new_bids_30_days.toLocaleString(),
+                  change: "+10%", // or calculate
                   color: "text-green-600",
                   bg: "bg-[#4BF03C33]",
                   note: "Growth since last month",
@@ -721,9 +735,8 @@ export default function SuperAdmin() {
                     <div
                       key={bid.id || i}
                       ref={i === errorBids.length - 1 ? lastElementRef : null}
-                      className={`flex justify-between items-center text-sm px-3 py-2 ${
-                        i % 2 === 0 ? "bg-gray-100" : "bg-white"
-                      }`}
+                      className={`flex justify-between items-center text-sm px-3 py-2 ${i % 2 === 0 ? "bg-gray-100" : "bg-white"
+                        }`}
                     >
                       <span className="w-[10%] text-center font-inter">
                         {bid.scraper_id || `ID-${i + 1}`}
@@ -744,9 +757,8 @@ export default function SuperAdmin() {
                         {bid.entity_type || "-"}
                       </span>
                       <span
-                        className={`w-[15%] text-center font-inter ${
-                          bid.success ? "text-green-600" : "text-red-600"
-                        }`}
+                        className={`w-[15%] text-center font-inter ${bid.success ? "text-green-600" : "text-red-600"
+                          }`}
                       >
                         {bid.success ? "Success" : "Failed"}
                       </span>

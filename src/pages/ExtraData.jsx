@@ -457,11 +457,10 @@ function ExtraData() {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 text-lg">No insurance types selected for amount entry.</p>
+                    <p className="text-gray-400 text-lg">In order to access this page, please fill the previous page.</p>
                   </div>
                 )}
               </div>
-
 
               <FormFooter
                 data={formFooter}

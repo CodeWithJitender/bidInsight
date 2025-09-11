@@ -6,7 +6,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
   const [bids, setBids] = useState(data);
   const [removedIds, setRemovedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const timers = useRef({});
 
   // Update bids when data prop changes
@@ -175,7 +175,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
 
       {/* Pagination */}
       {bids.length > 0 && (
-        <div className="flex justify-between items-center mt-4 text-sm text-white bg-blue p-3 rounded-lg font-inter">
+        <div className="flex justify-between items-center mt-4 text-sm text-black p-3 rounded-lg font-inter">
           <span>
             {indexOfFirstBid + 1}-{Math.min(indexOfLastBid, bids.length)} of{" "}
             {bids.length} results found
@@ -225,7 +225,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
             </button>
           </div>
 
-          <div>
+          {/* <div>
             Result per page:{" "}
             <select
               value={rowsPerPage}
@@ -233,15 +233,15 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="ml-2 bg-primary text-white px-2 py-1 rounded"
+              className="ml-2 text-black px-2 py-1 rounded"
             >
-              {generatePageSizes(bids.length).map((size) => (
+               {generatePageSizes(bids.length).map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
               ))}
-            </select>
-          </div>
+            </select> 
+          </div> */}
         </div>
       )}
     </div>

@@ -16,7 +16,7 @@ function Unlock({data}) {
         <p className="font-inter text-white text-lg mt-2">{p}</p>
       </div>
       <div className="bg-btn-diagonal border border-1 border-white text-white rounded-2xl px-4 py-3">
-        <Link to="/pricing">Buy plan to use</Link>
+        <Link to="/pricing">Upgrade Now</Link>
       </div>
     </div>
   );

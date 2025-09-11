@@ -4,7 +4,7 @@ import Unlock from '../../components/Unlock';
 function AiFeature() {
   const data = {
     head: "Unlock AI Features",
-    p: "To access AI-powered tools like summary generation, risk analysis, and pricing insights, sign in or create an account.",
+    p: "To access AI-powered tools like summary generation, risk analysis, and pricing insights, you need to upgrade your plan.",
     container: "flex-col justify-center max-w-[500px] mx-auto text-center p-4",
     imgSize: "w-20",
     link: "/",

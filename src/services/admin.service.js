@@ -47,3 +47,58 @@ export const postPricingPlans = async (planId) => {
     throw error;
   }
 };
+
+
+
+
+export const comingsoonPopup = async (payload) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const headers = { Authorization: `Bearer ${token}` };
+    const response = await API.post(
+      "/auth/feature-requests/",
+      payload,
+      { headers }
+    );
+    console.log(response.data, "✅ Coming soon popup submitted successfullyeeeeeeeeeeeeeeeeeeeeeeeee");
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error submitting coming soon popup:", error);
+    throw error;
+  } 
+};
+
+
+
+export const countbidsAdmin = async () => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    if (!token) return null;
+    const response = await API.get(`/bids/count/`, { headers });
+    console.log(response.data);
+    return response.data;
+  }
+  catch (error) {
+    console.error("❌ Error fetching bid count:", error);
+    throw error;
+  }
+};
+    
+
+
+export const runScraper = async (id) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    // axios.post(url, body, { headers })
+    const response = await API.post(`/scrapping/run-scraper/${id}/`, {}, { headers });
+    console.log("Run Scraper Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error running scraper:", error);
+    throw error;
+  }
+};
