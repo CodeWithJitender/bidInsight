@@ -15,29 +15,53 @@ const Mission = () => {
           viewport={{ once: true, amount: 0.3 }}
         >
           {/* Gradient Heading */}
-          <Heading textD={"Lorem ipsum"} textL={"dolor sit amet"} />
+          <Heading textD={"OUR "} textL={"MISSION"} />
 
           {/* Sub Heading */}
-          <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
+          {/* <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
             Curabitur sollicitudin leo quis velit efficitur, eget imperdiet
             sapien aliquet.
-          </h3>
+          </h3> */}
 
           {/* Paragraph */}
           <p className="font-inter mt-6 leading-relaxed">
-            Phasellus laoreet velit dui, faucibus pharetra lacus sagittis quis.
-            Donec in libero quam. Quisque tempor posuere libero a varius. Nullam
-            laoreet venenatis elit in tempor. Mauris vitae porttitor quam, vitae
-            accumsan elit. Sed vitae molestie erat. Sed scelerisque ligula id
-            lacus viverra vehicula. Ut lectus ante, consequat quis elit vitae,
-            dapibus ornare turpis. Nunc id tristique sapien, pellentesque
-            aliquam dui.
+            
+At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
+
           </p>
+          {/* Paragraph */}
+          <p className="font-inter mt-3 leading-relaxed">
+            
+<b>Empower Businesses:</b> To help all organizations, whether big or small, focus on their core business instead of searching a needle in a haystack.
+
+
+          </p>
+          {/* Paragraph */}
+          <p className="font-inter mt-3 leading-relaxed">
+            
+<b>Eliminate Guesswork:</b> To remove the guesswork from government and public-sector bidding with clarity and precision.
+
+
+          </p>
+          {/* Paragraph */}
+          <p className="font-inter mt-3 leading-relaxed">
+            
+<b>Intelligent Automation: </b>To use advanced tools and AI to streamline the search, evaluation and selection of RFPs.
+
+
+          </p>
+          {/* Paragraph */}
+          <p className="font-inter mt-3 leading-relaxed">
+            
+At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
+
+          </p>
+          
         </motion.div>
 
         {/* Right Side (Image + Card Effect) */}
         <motion.div
-          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16"
+          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16 md:py-24"
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
