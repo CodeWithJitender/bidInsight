@@ -92,7 +92,7 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
 
 
       <div className="text-sm flex items-center gap-2">
-        <span className='font-inter font-medium text-white text-sm'>Result per page:</span>
+        <span className='font-inter font-medium text-white text-sm'>Results per page:</span>
         <span className="px-2 py-1 rounded bg-btn text-white">{perPage}</span>
       </div>
 

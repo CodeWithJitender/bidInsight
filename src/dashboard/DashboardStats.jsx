@@ -41,6 +41,20 @@ const DashboardStats = ({
     onNavigate("/dashboard/bookmarkBids");
   };
 
+  const handleNewBidsClickNew = () => {
+  if (planCode === "001") {
+    onFeatureRestriction(
+      "New Bids Feature Locked",
+      "Upgrade your plan to view new bids posted in the last 24 hours.",
+      "New Bids Feature",
+      true
+    );
+    return;
+  }
+  onNavigate("/dashboard?bid_type=Active&page=1&new_bids=true&pageSize=25&ordering=closing_date");
+};
+
+
   // New handler for New Bids click
   const handleNewBidsClick = () => {
     onNavigate("/dashboard?bid_type=Active&page=1&new_bids=true&pageSize=25&ordering=closing_date");
@@ -68,7 +82,7 @@ const DashboardStats = ({
       num: bidCount?.new_bids || 0,
       tag: "NEW BIDS",
       description: "Bids added in the last 24 hours.",
-      onClick: handleNewBidsClick // Add click handler for New Bids
+      onClick: handleNewBidsClickNew // Add click handler for New Bids
     },
     {
       id: 4,

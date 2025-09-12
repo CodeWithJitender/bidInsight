@@ -1,60 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BookmarkTable from "./BookmarkTable";
 import { bookmarkedBids, followData } from "./bookmarkedBids"; // your data file
 import { Link } from "react-router-dom";
 import PersonalDetail from "./PersonalDetail";
 import ProfileForm from "./ProfileForm";
+import { getUserProfile } from "../../services/bid.service";
 
-function Profile({fullName, lastLogin}) {
+function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading }) {
   console.log(fullName, lastLogin);
-    const data = [
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-        {
-            icon:"/profile-user.png",
-            title:"Lorem Ipsum",
-            pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-            btn:"Complete Form",
-            btnLink:"/"
-        },
-       
-    ]
+
+
+  if (loading) {
+    return (
+      <div className="p-4 xl:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading profile...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 xl:p-8">
       {/* Header */}
       <div className="flex items-center justify-between bg-white mb-8">
         {/* Left: Avatar + Greeting */}
         <div className="flex items-center gap-3">
-          <img
+          {/* <img
             src="/userprofile.png"
             alt="User"
             className="w-16 h-16 rounded-full object-cover"
-          />
+          /> */}
           <div>
             <p className="text-sm text-gray-500 font-medium font-inter">
               Hello
             </p>
             <p className="text-2xl font-medium text-black font-inter">
-              {fullName}
+              {profileData?.full_name || fullName}
             </p>
           </div>
         </div>
@@ -110,7 +92,11 @@ function Profile({fullName, lastLogin}) {
         </div>
       </div> */}
 
-      <PersonalDetail/>
+      <PersonalDetail
+        profileData={profileData}
+
+        onProfileUpdate={onProfileUpdate} // Ye ab parent se aayega
+      />
       {/* <ProfileForm /> */}
     </div>
   );

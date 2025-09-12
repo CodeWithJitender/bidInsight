@@ -275,12 +275,18 @@ export const decodeUrlToFilters = (searchParams) => {
 
   if (searchParams.get("unspsc_codes")) {
     const codes = searchParams.get("unspsc_codes").split(",");
-    decodedFilters.UNSPSCCode = codes.map((code) => ({ code }));
+    decodedFilters.UNSPSCCode = codes.map((code) => ({ 
+      code: code.trim(),
+      description: "" // Empty description - will be filled by component if needed
+    }));
   }
 
   if (searchParams.get("naics_codes")) {
     const codes = searchParams.get("naics_codes").split(",");
-    decodedFilters.NAICSCode = codes.map((code) => ({ code }));
+    decodedFilters.NAICSCode = codes.map((code) => ({ 
+      code: code.trim(),
+      description: "" // Empty description - will be filled by component if needed
+    }));
   }
 
   if (searchParams.get("open_date_after")) {

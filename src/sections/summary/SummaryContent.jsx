@@ -7,8 +7,8 @@ export default function SummaryContent({ bidData = {} }) {
   const summaryText = bidData.description?.trim();
 
   const data = {
-    head: "Unlock the Bids to View Score",
-    p: "To view source links, save opportunities, and track bid deadlines, you need to sign in or create an account.",
+    head: "Unlock the Bids to View Compatibility Metrics",
+    p: "To view source links, save opportunities, and track bid deadlines, you need to upgrade your plan.",
     container: "p-4",
     link: "/pricing",
   };

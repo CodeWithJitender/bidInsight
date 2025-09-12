@@ -1,4 +1,4 @@
-// FIXED SummaryPage.js - Complete working version
+// FIXED SummaryPage.js - No popup notifications + API error handling
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BidHeader from "../sections/summary/BidHeader";
@@ -8,7 +8,6 @@ import AiFeature from "../sections/summary/AiFeature";
 import SimilarBids from "../sections/summary/SimilarBids";
 import { BookMarkedBids, getBids, totalBookmarkedBids, deleteBookmarkedBid } from "../services/bid.service.js";
 import { similarBids } from "../services/user.service.js";
-import BookmarkNotification from "../components/BookmarkNotification.jsx";
 import SavedSearchPopup from "../components/SavedSearchPopup.jsx"; 
 import { usePlan } from "../hooks/usePlan";
 
@@ -27,14 +26,7 @@ function SummaryPage() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkedCount, setBookmarkedCount] = useState(0);
   
-  // Notification state
-  const [notification, setNotification] = useState({
-    show: false,
-    message: '',
-    type: 'success'
-  });
-  
-  // ✅ FIXED: SavedSearchPopup state
+  // ✅ SavedSearchPopup state for API limit errors
   const [showLimitPopup, setShowLimitPopup] = useState(false);
   const [limitPopupData, setLimitPopupData] = useState({
     title: "",
@@ -80,6 +72,7 @@ function SummaryPage() {
     }
   }, [id, planInfo]);
 
+  // ✅ FIXED: Remove bookmark silently, show popup only for API limit errors
   const handleUnbookmark = async () => {
     if (!id || !isBookmarked) return;
 
@@ -93,42 +86,32 @@ function SummaryPage() {
       if (currentBookmark && currentBookmark.id) {
         await deleteBookmarkedBid(currentBookmark.id);
         
+        // ✅ Silent update - no popup
         setIsBookmarked(false);
         setBookmarkedCount(prev => prev - 1);
-        setNotification({
-          show: true,
-          message: "Bookmark removed!",
-          type: 'success'
-        });
       }
-    }  catch (err) {
-  console.error("Upgrade your plan to bookmark bid:", err);
+    } catch (err) {
+      console.error("Unbookmark error:", err);
 
-  // ✅ Agar backend ne restriction wali error bheji hai
-  if (err.response?.status === 403 || err.response?.data?.message?.includes("limit")) {
-    showLimitRestriction(
-      "Bookmark Limit Reached",
-      "Your plan doesn’t allow more bookmarks. Please upgrade your plan."
-    );
-    return; // Notification nahi, popup dikhao
-  }
+      // ✅ Show SavedSearchPopup ONLY for API limit errors (403)
+      if (err.response?.status === 403 && 
+          err.response?.data?.detail?.includes("save up to")) {
+        
+        // Extract limit number from error message
+        const match = err.response.data.detail.match(/save up to (\d+) bookmarks/);
+        const limit = match ? match[1] : '20';
+        
+        showLimitRestriction(
+          "Bookmark Limit Reached",
+          `You can only save up to ${limit} bookmarks with your current plan. Upgrade to save More bookmarks.`
+        );
+        return;
+      }
 
-  if (err.response?.status === 400 || err.response?.status === 409) {
-    setIsBookmarked(true);
-    setNotification({
-      show: true,
-      message: "Already bookmarked",
-      type: 'already'
-    });
-  } else {
-    setNotification({
-      show: true,
-      message: "Upgrade your plan to bookmark",
-      type: 'error'
-    });
-  }
-
-
+      // ✅ Other errors - handle silently
+      if (err.response?.status === 400 || err.response?.status === 409) {
+        setIsBookmarked(true); // Revert state silently
+      }
     } finally {
       setIsBookmarking(false);
     }
@@ -183,7 +166,7 @@ function SummaryPage() {
   console.log("Bid Data:", bidData);
   console.log(similarBidsData, "Similar Bids Data");  
 
-  // ✅ FIXED: Show SavedSearchPopup for bookmark limits
+  // ✅ Show SavedSearchPopup for bookmark limits
   const showLimitRestriction = (title, message) => {
     setLimitPopupData({
       title,
@@ -194,13 +177,13 @@ function SummaryPage() {
     setShowLimitPopup(true);
   };
 
-  // ✅ FIXED: Enhanced bookmark handler with SavedSearchPopup
+  // ✅ FIXED: Add bookmark silently, show popup only for API limit errors
   const handleBookmark = async () => {
     if (!id || isBookmarked) return;
 
     console.log("🔍 Bookmark validation - Plan:", planInfo?.plan_code, "Count:", bookmarkedCount);
 
-    // ✅ Check bookmark limits for Starter plan (002) - Show SavedSearchPopup
+    // ✅ Frontend validation - Show SavedSearchPopup for plan limits
     if (planInfo?.plan_code === '002' && bookmarkedCount >= 5) {
       showLimitRestriction(
         "Bookmark Limit Reached",
@@ -209,7 +192,6 @@ function SummaryPage() {
       return;
     }
 
-    // ✅ Check if feature is restricted (for Free plan) - Show SavedSearchPopup
     if (planInfo?.plan_code === '001') {
       showLimitRestriction(
         "Bookmark Feature Locked",
@@ -223,41 +205,41 @@ function SummaryPage() {
       const response = await BookMarkedBids(id);
       console.log("✅ Bid bookmarked successfully:", response);
       
+      // ✅ Silent update - no popup
       setIsBookmarked(true);
       setBookmarkedCount(prev => prev + 1);
-      setNotification({
-        show: true,
-        message: "Bookmark added!",
-        type: 'success'
-      });
 
     } catch (err) {
-      console.error("Upgrade your plan to bookmark bid:", err);
+      console.error("Bookmark error:", err);
       
-      if (err.response?.status === 400 || err.response?.status === 409) {
-        setIsBookmarked(true);
-        setNotification({
-          show: true,
-          message: "Already bookmarked",
-          type: 'already'
-        });
-      } else {
-        setNotification({
-          show: true,
-          message: "Upgrade your plan to bookmark",
-          type: 'error'
-        });
+      // ✅ Show SavedSearchPopup ONLY for API limit errors (403)
+      if (err.response?.status === 403 && 
+          err.response?.data?.detail?.includes("save up to")) {
+        
+        // Extract limit number from error message
+        const match = err.response.data.detail.match(/save up to (\d+) bookmarks/);
+        const limit = match ? match[1] : '20';
+        
+        showLimitRestriction(
+          "Bookmark Limit Reached",
+          `You can only save up to ${limit} bookmarks with your current plan. Upgrade to save more bookmarks.`
+        );
+        return;
       }
+      
+      // ✅ Other errors - handle silently
+      if (err.response?.status === 400 || err.response?.status === 409) {
+        setIsBookmarked(true); // Already bookmarked
+        setBookmarkedCount(prev => prev + 1);
+      }
+      
+      // ✅ All other errors handled silently - no notifications
     } finally {
       setIsBookmarking(false);
     }
   };
 
-  const hideNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
-
-  // ✅ FIXED: Close SavedSearchPopup
+  // ✅ Close SavedSearchPopup
   const handleCloseLimitPopup = () => {
     setShowLimitPopup(false);
   };
@@ -323,16 +305,7 @@ function SummaryPage() {
         </div>
       </div>
 
-      <BookmarkNotification
-        show={notification.show}
-        message={notification.message}
-        type={notification.type}
-        onClose={hideNotification}
-        duration={2000}
-        position={{ top: '280px', right: '410px' }}
-      />
-
-      {/* ✅ FIXED: SavedSearchPopup instead of FeatureRestrictionPopup */}
+      {/* ✅ SavedSearchPopup for API limit errors only */}
       <SavedSearchPopup
         isOpen={showLimitPopup}
         onClose={handleCloseLimitPopup}

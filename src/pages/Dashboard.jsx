@@ -742,7 +742,7 @@ const handleFollowedCardClick = async () => {
             </div>
           </div>
 
-          <div className="dashboard-feature pt-32">
+          <div className="dashboard-feature pt-20">
             <div className="flex justify-between items-center">
               <div className="feature-left">
                 <div

@@ -4,7 +4,7 @@ import Unlock from "../../components/Unlock";
 function BidTracking() {
   const data = {
     head: "Unlock the Bid Tracking",
-    p: "To view source links, save opportunities, and track bid deadlines, you need to sign in or create an account.",
+    p: "To view source links, save opportunities, and track bid deadlines, you need to upgrade your plan.",
     container: "flex-col justify-center max-w-[500px] mx-auto text-center p-4",
     imgSize: "w-20",
     link: "/",

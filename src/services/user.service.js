@@ -202,3 +202,22 @@ export const updateProfile = async (payload) => {
     throw error;
   }
 };
+
+
+
+export const emailAlert = async (payload) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.put("/auth/profile/", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // JSON payload
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error setting email alert:", error);
+    throw error;
+  }
+};

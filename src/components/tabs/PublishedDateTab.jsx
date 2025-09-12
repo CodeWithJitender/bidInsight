@@ -99,7 +99,7 @@ const PublishedDateTab = ({ filters = {}, setFilters }) => {
     setWithinDays(inferredWithin);
     setFromDate(inferredFrom);
     setToDate(inferredTo);
-  }, [publishedDate]);
+  }, [publishedDate, lastLogin]);
 
   // Use this approach in your calculateDateRange
   const calculateDateRange = (days) => {

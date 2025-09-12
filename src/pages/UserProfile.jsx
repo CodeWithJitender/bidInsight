@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom"
 import {
   faLink,
   faDatabase,
@@ -12,42 +13,76 @@ import {
   faGavel,
   faRobot,
   faChartLine,
+  faArrowRight,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { icon } from "@fortawesome/fontawesome-svg-core";
 import Profile from "../sections/profile/Profile";
 import MyPlans from "../sections/profile/MyPlans";
 import Bids from "../sections/profile/Bids";
 import AiToolset from "../sections/profile/AiToolset";
 import AccountSetting from "../sections/profile/AccountSetting";
 import { useSelector } from 'react-redux';
+import { getUserProfile } from "../services/bid.service";
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
-
+  const navigate = useNavigate(); // Add this line
   // Redux se data lena
   const profileData = useSelector((state) => state.profile.profile);
   const authData = useSelector((state) => state.auth.user);
   const loginData = useSelector((state) => state.login.user);
 
+  const [profileDataa, setProfileDataa] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [freshProfileData, setFreshProfileData] = useState(null);
   console.log("Auth Data:", authData);
   console.log("Login Data:", loginData);
 
+
+
+  const fetchUserProfile = async () => {
+  try {
+    setProfileLoading(true);
+    const profile = await getUserProfile();
+    setFreshProfileData(profile);  // YE CHANGE
+    console.log("Profile fetched in UserProfile:", profile);
+  } catch (error) {
+    console.error("Failed to fetch user profile", error);
+  } finally {
+    setProfileLoading(false);
+  }
+};
+
+
+const handleProfileUpdate = async () => {
+  console.log("Profile updated, refreshing data...");
+  await fetchUserProfile();
+};
+
+useEffect(() => {
+  fetchUserProfile();
+}, []);
+
+
   // Full name nikalna
   const getFullName = () => {
-    try {
-      if (profileData) {
-        const parsedProfile = typeof profileData === 'string' 
-          ? JSON.parse(profileData) 
-          : profileData;
-        console.log(parsedProfile);
-        return parsedProfile?.full_name || 'User';
-      }
-      return 'User';
-    } catch (error) {
-      console.error('Error parsing profile:', error);
-      return 'User';
+  try {
+    // Pehle fresh data se try karo
+    if (freshProfileData?.full_name) {
+      return freshProfileData.full_name;
     }
-  };
+    
+    // Fallback to Redux
+    if (profileData?.full_name) {
+      return profileData.full_name;
+    }
+    
+    return 'User';
+  } catch (error) {
+    console.error('Error parsing profile:', error);
+    return 'User';
+  }
+};
 
   // Last login nikalna - pehle auth check karo, nahi to login se lo
   const getLastLogin = () => {
@@ -89,6 +124,14 @@ export default function UserProfile() {
     }
   };
 
+  // Logout function
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  };
+
+
   // User data nikalna
   const getUserData = () => {
     try {
@@ -126,15 +169,27 @@ export default function UserProfile() {
   const renderComponent = () => {
     switch (active) {
       case "Profile":
-        return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
+        return  <Profile 
+          fullName={fullName} 
+          userData={userData} 
+          lastLogin={lastLogin}
+          profileData={freshProfileData}  
+          onProfileUpdate={handleProfileUpdate}
+          loading={profileLoading}
+        />
       case "My Plans":
         return <MyPlans />;
       case "Bids":
         return <Bids />;
       case "AI Toolset":
         return <AiToolset />;
-      case "Account Setting":
-        return <AccountSetting fullName={fullName} userData={userData} lastLogin={lastLogin} />;
+      case "Account Settings":
+        return <AccountSetting 
+          fullName={fullName} 
+          userData={userData} 
+          lastLogin={lastLogin}
+          profileData={profileData}
+        />
       default:
         return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
     }
@@ -154,16 +209,15 @@ export default function UserProfile() {
               { title: "My Plans", icon: faClipboardList },
               { title: "Bids", icon: faChartLine },
               { title: "AI Toolset", icon: faRobot },
-              { title: "Account Setting", icon: faCog },
+              { title: "Account Settings", icon: faCog },
             ].map((item, i) => (
               <div
                 key={i}
                 onClick={() => setActive(item.title)}
-                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${
-                  active === item.title
-                    ? "bg-white/50 text-white"
-                    : "hover:text-blue-300"
-                }`}
+                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${active === item.title
+                  ? "bg-white/50 text-white"
+                  : "hover:text-blue-300"
+                  }`}
               >
                 <FontAwesomeIcon icon={item.icon} />
                 <span>{item.title}</span>
@@ -171,7 +225,7 @@ export default function UserProfile() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
+        <div onClick={handleLogout} className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
           <FontAwesomeIcon icon={faSignOutAlt} />
           <span>Logout</span>
         </div>
@@ -181,11 +235,22 @@ export default function UserProfile() {
       <main className="flex-1  overflow-x-hidden relative h-screen">
         {/* Top Nav */}
         <div className="flex flex-wrap justify-between py-4 px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
-          <h2 className="text-2xl font-semibold font-archivo text-gray-800">
-            {active}
-          </h2>
+          {active === "Profile" ? (
+            <button
+              className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+              onClick={() => navigate("/dashboard")}
+              style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Back to Dashboard</span>
+            </button>
+          ) : (
+            <h2 className="text-2xl font-semibold font-archivo text-gray-800">
+              {active}
+            </h2>
+          )}
           <div className="flex items-center gap-4">
-            <div className="relative">
+            {/* <div className="relative">
               <FontAwesomeIcon
                 icon={faSearch}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -199,7 +264,7 @@ export default function UserProfile() {
             <div className="relative w-12 h-12 rounded-full border border-blue-600 flex items-center justify-center">
               <FontAwesomeIcon icon={faBell} className="text-primary text-lg" />
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
-            </div>
+            </div> */}
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full hover:bg-blue-700 transition">
               Hi, {fullName}
             </button>
@@ -207,7 +272,7 @@ export default function UserProfile() {
         </div>
 
         {/* Dynamic Section */}
-        <div>{renderComponent()}</div>
+        <div className="h-full">{renderComponent()}</div>
       </main>
     </div>
   );
