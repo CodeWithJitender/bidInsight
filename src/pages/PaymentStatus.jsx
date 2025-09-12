@@ -26,7 +26,7 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
                 // { label: "Tax", value: "$10.00" },
             ],
             buttons: [
-                { type: "link", text: "Go Back to Home Page", url: "/" },
+                { type: "link", text: "Go Back", url: "/geographic-coverage" },
                 { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
             ],
             // note: {
@@ -47,7 +47,7 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
             //   { label: "Tax", value: "$10.00" },
             // ],
             buttons: [
-                { type: "link", text: "Go Back to Home Page", url: "/" },
+                { type: "link", text: "Go Back", url: "/" },
                 { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
             ],
             note: {
