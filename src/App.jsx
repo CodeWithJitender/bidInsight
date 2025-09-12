@@ -87,7 +87,7 @@ const App = () => {
           <Route path="confirm-password" element={<ConfirmPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/company-build" element={<CompanyBuild />} />
-          <Route path="/help" element={<ProtectedRoute><HelpCenter /> </ProtectedRoute>} />
+          <Route path="/help" element={<HelpCenter />} />
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
           <Route path="/ai-toolset" element={<ProtectedRoute> <AiToolSet /> </ProtectedRoute>} />
           <Route path="/plan" element={<Plan />} />

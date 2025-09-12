@@ -39,45 +39,48 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
   }
 
   // Handle plan selection
-  const handlePlanSelection = async () => {
-    if (isComingSoon || isButtonDisabled) return;
+  // Handle plan selection
+const handlePlanSelection = async () => {
+  if (isComingSoon || isButtonDisabled) return;
 
-    // 👉 Guest user ko signup pe bhejo
-    if (!numericSubPlanId) {
-      navigate("/signup");
-      return;
+  // 🔹 Check if user is logged in by checking localStorage
+  const accessToken = localStorage.getItem("access_token");
+  
+  if (!accessToken) {
+    // If no access token, redirect to login
+    navigate("/login");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    console.log(duration, "Selected billing cycle");
+    // 🔹 Call backend to initiate payment intent
+    const res = await initiatePlanOrder(numericPlanId, price, duration);
+
+    // Backend se response structure confirm karo:
+    // { clientSecret, publishableKey, plan }
+    if (!res?.clientSecret || !res?.publishableKey) {
+      throw new Error("Invalid response from payment API");
     }
 
-    setIsLoading(true);
-    try {
+    console.log("💳 Payment details:", res);
 
-      console.log(duration, "Selected billing cycle");
-      // 🔹 Call backend to initiate payment intent
-      const res = await initiatePlanOrder(numericPlanId, price, duration);
-
-      // Backend se response structure confirm karo:
-      // { clientSecret, publishableKey, plan }
-      if (!res?.clientSecret || !res?.publishableKey) {
-        throw new Error("Invalid response from payment API");
-      }
-
-      console.log("💳 Payment details:", res);
-
-      // 🔹 Navigate to payment page
-      navigate("/payment", {
-        state: {
-          clientSecret: res.clientSecret,
-          publishableKey: res.publishableKey,
-          plan: res.plan,
-        },
-      });
-    } catch (error) {
-      console.error("❌ Failed to initiate payment:", error);
-      alert(error?.message || "Failed to initiate payment. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 🔹 Navigate to payment page
+    navigate("/payment", {
+      state: {
+        clientSecret: res.clientSecret,
+        publishableKey: res.publishableKey,
+        plan: res.plan,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Failed to initiate payment:", error);
+    alert(error?.message || "Failed to initiate payment. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
   return (
