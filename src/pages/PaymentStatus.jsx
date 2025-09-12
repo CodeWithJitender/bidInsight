@@ -2,12 +2,60 @@ import React, { useEffect, useState } from "react";
 import { Elements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { confirmPlanOrder } from "../services/pricing.service";
+import PaymentPopup from "../components/PaymentPopup";
 
-function PaymentStatusInner({ clientSecret }) {
+function PaymentStatusInner({ clientSecret, planPrice }) {
     const stripe = useStripe();
     const [status, setStatus] = useState("Checking payment...");
     const POLL_INTERVAL = 1000; // 1 second
     const MAX_DURATION = 30000; // 30 seconds
+
+    const [open, setOpen] = useState(false);
+    const [paymentResult, setPaymentResult] = useState(null); // 'success' or 'failed'
+    const processData = [
+        {
+            image: "/payment-successfull.png",
+            title: "Your Payment is Successful",
+            // description:
+            //   "Upgrade your plan to sort bids by different criteria like date, status, etc.",
+            details: [
+                { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
+                { label: "Transaction Date", value: "12/09/2025" },
+                // { label: "Payment Mode", value: "MasterCard 0922" },
+                { label: "Subtotal", value: `$${planPrice}` },
+                // { label: "Tax", value: "$10.00" },
+            ],
+            buttons: [
+                { type: "link", text: "Go Back to Home Page", url: "/" },
+                { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
+            ],
+            // note: {
+            //   text: "If the issue continues, contact our support team at",
+            //   email: "support@bidinsight.com",
+            // },
+        },
+        {
+            image: "/payment-successfull.png",
+            title: "Your Payment was Unsuccessful",
+            description:
+                "We’re sorry, your payment could not be completed due to a gateway error.",
+            // details: [
+            //   { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
+            //   { label: "Transaction Date", value: "12/09/2025" },
+            //   { label: "Payment Mode", value: "MasterCard 0922" },
+            //   { label: "Subtotal", value: "$302.00" },
+            //   { label: "Tax", value: "$10.00" },
+            // ],
+            buttons: [
+                { type: "link", text: "Go Back to Home Page", url: "/" },
+                { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
+            ],
+            note: {
+                text: "If the issue continues, contact our support team at",
+                email: "support@bidinsight.com",
+            },
+        },
+    ]
 
     useEffect(() => {
         if (!stripe || !clientSecret) return;
@@ -40,14 +88,20 @@ function PaymentStatusInner({ clientSecret }) {
                             break;
                         case "requires_payment_method":
                             setStatus("❌ Payment failed, please try again.");
+                            setPaymentResult('failed');
+                            setOpen(true);
                             return null;
                         default:
                             setStatus("❓ Something went wrong.");
+                            setPaymentResult('failed');
+                            setOpen(true);
                             return null;
                     }
                 } catch (err) {
                     console.error("Error retrieving payment:", err);
                     setStatus("❌ Error checking payment status.");
+                    setPaymentResult('failed');
+                    setOpen(true);
                     return null;
                 }
 
@@ -56,6 +110,8 @@ function PaymentStatusInner({ clientSecret }) {
 
             if (isMounted && paymentIntent?.status !== "succeeded") {
                 setStatus("❌ Payment did not succeed within 30 seconds.");
+                setPaymentResult('failed');
+                setOpen(true);
                 return null;
             }
         };
@@ -69,8 +125,10 @@ function PaymentStatusInner({ clientSecret }) {
                     const res = await confirmPlanOrder(paymentIntentId);
                     console.log(res, "Plan activation response");
 
-                    if (res.status === "success") {
+                    if (res.status === "succeeded") {
                         setStatus("✅ Payment succeeded and plan activated!");
+                        setPaymentResult('success');
+                        setOpen(true);
                         return;
                     } else {
                         setStatus("⏳ Payment succeeded, activating plan...");
@@ -84,6 +142,8 @@ function PaymentStatusInner({ clientSecret }) {
 
             if (isMounted) {
                 setStatus("❌ Payment succeeded but plan activation failed. Contact support.");
+                setPaymentResult('failed');
+                setOpen(true);
             }
         };
 
@@ -101,10 +161,26 @@ function PaymentStatusInner({ clientSecret }) {
         };
     }, [stripe, clientSecret]);
 
+    // Get the appropriate content based on payment result
+    const getPopupContent = () => {
+        if (paymentResult === 'success') {
+            return processData[0]; // First object for success
+        } else if (paymentResult === 'failed') {
+            return processData[1]; // Second object for failed
+        }
+        return null;
+    };
+
     return (
         <div className="p-6 max-w-md mx-auto text-center min-h-screen flex flex-col justify-center">
             <h2 className="text-2xl font-bold mb-4">Payment Status</h2>
             <p className="text-lg">{status}</p>
+            {open && paymentResult && (
+                <PaymentPopup 
+                    content={getPopupContent()} 
+                    onClose={() => setOpen(false)} 
+                />
+            )}
         </div>
     );
 }
@@ -113,6 +189,7 @@ export default function PaymentStatus() {
     const params = new URLSearchParams(window.location.search);
     const publishableKey = params.get("publishableKey");
     const clientSecret = params.get("payment_intent_client_secret");
+    const planPrice = params.get("plan_price");
 
     if (!publishableKey || !clientSecret) return <p>❌ Missing required Stripe parameters</p>;
 
@@ -120,7 +197,7 @@ export default function PaymentStatus() {
 
     return (
         <Elements stripe={stripePromise}>
-            <PaymentStatusInner clientSecret={clientSecret} />
+            <PaymentStatusInner clientSecret={clientSecret} planPrice={planPrice} />
         </Elements>
     );
 }

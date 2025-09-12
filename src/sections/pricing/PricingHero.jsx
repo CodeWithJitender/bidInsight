@@ -244,7 +244,7 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"yearly"} />
             </div>
           ))
           : getUpdatedPlans(plansYear).map((plan, index) => (
@@ -260,7 +260,7 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"monthly"} />
             </div>
           ))}
       </div>

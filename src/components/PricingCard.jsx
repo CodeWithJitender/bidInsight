@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { postPricingPlans } from "../services/admin.service"; // Update path
 import { initiatePlanOrder } from "../services/pricing.service";
 
-function PricingCard({ title, price, features, delay, icon, isComingSoon, planID }) {
+function PricingCard({ title, price, features, delay, icon, isComingSoon, planID, duration }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,8 +50,10 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
 
     setIsLoading(true);
     try {
+
+      console.log(duration, "Selected billing cycle");
       // 🔹 Call backend to initiate payment intent
-      const res = await initiatePlanOrder(numericPlanId, price);
+      const res = await initiatePlanOrder(numericPlanId, price, duration);
 
       // Backend se response structure confirm karo:
       // { clientSecret, publishableKey, plan }

@@ -7,12 +7,12 @@ const PaymentPopup = ({ content, onClose }) => {
       {/* Card */}
       <div className="relative w-full max-w-2xl bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
         {/* Close Button */}
-        <button
+        {/* <button
           onClick={onClose}
           className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl"
         >
           &times;
-        </button>
+        </button> */}
 
         {/* Icon / Image */}
         <div className="flex justify-center mb-6">
