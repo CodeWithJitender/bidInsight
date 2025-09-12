@@ -417,7 +417,7 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
 
       {/* Content Area */}
       <div className="flex-1 bg-white flex flex-col justify-between w-[70%]">
-        <div className="flex-1 overflow-y-auto">
+        <div className="scroll-hide flex-1 overflow-y-auto">
           {renderTabContent()}
 
           {/* Footer buttons */}
