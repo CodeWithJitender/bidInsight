@@ -13,6 +13,7 @@ import UserProfile from "./pages/UserProfile.jsx";
 import PaymentPage from "./pages/Payment.jsx";
 import PaymentStatus from "./pages/PaymentStatus.jsx";
 import ConfirmPassword from "./pages/ConfirmPassword.jsx";
+import { fetchUserProfile } from "./redux/reducer/profileSlice.js";
 
 
 // Lazy-loaded Pages
@@ -74,6 +75,10 @@ const App = () => {
       email: "support@bidinsight.com",
     },
   };
+
+  useEffect(() => {
+    fetchUserProfile()
+  },[])
 
   return (
     <LayoutWrapper>

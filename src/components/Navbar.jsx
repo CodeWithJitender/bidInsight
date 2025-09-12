@@ -20,7 +20,7 @@ const navItems = [
   { label: "Bids", path: "/dashboard" },
   { label: "Plans & Pricing", path: "/pricing" },
   { label: "About Us", path: "/about" },
-  { label: "Help Center", path: "/help" },
+  // { label: "Help Center", path: "/help" },
 ];
 
 const Navbar = () => {

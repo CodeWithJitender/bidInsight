@@ -1,5 +1,5 @@
 // sections/PricingSection.jsx
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import PricingCard from "../../components/PricingCard";
 import { Link } from "react-router-dom";
 import Heading from "../../components/Heading";
@@ -8,6 +8,7 @@ import { get } from "jquery";
 import { getPricingPlans } from "../../services/pricing.service";
 import '../../index.css';
 import { useSelector } from "react-redux";
+import { fetchUserProfile } from "../../redux/reducer/profileSlice";
 
 function PricingHero() {
   const [billingCycle, setBillingCycle] = useState("Monthly");
@@ -52,12 +53,12 @@ function PricingHero() {
         "Advanced Search (Filters)",
         "All Federal Bids",
         "All State Bids",
-        "Cities & Counties",
         "5 Saved Searches",
         "10 Follows",
         "20 Bookmarks",
         "Export 100 bids/month",
-        "RFP Compatibility Summary"
+        "Cities & Counties (Coming Soon)",
+        "RFP Compatibility Summary (Coming Soon)"
       ],
       icon: "/price-3.png",
       delay: "300",
@@ -119,12 +120,12 @@ function PricingHero() {
         "Advanced Search (Filters)",
         "All Federal Bids",
         "All State Bids",
-        "Cities & Counties",
         "5 Saved Searches",
         "10 Follows",
         "20 Bookmarks",
         "Export 100 bids/month",
-        "RFP Compatibility Summary"
+        `Cities & Counties  (Coming Soon)`,
+        "RFP Compatibility Summary (Coming Soon)"
       ],
       icon: "/price-3.png",
       delay: "300",
@@ -137,11 +138,11 @@ function PricingHero() {
         "Advanced Search (Filters)",
         "All Federal Bids",
         "All State Bids",
-        "Cities & Counties",
         "Schools, Universities & Housing Authorities",
         "Commodities",
         "10 Saved Searches",
         "25 Follows",
+        "Cities & Counties",
         "50 Bookmarks",
         "Export 500 bids/month",
         "Full AI Arsenal (6 Tools)",
@@ -184,6 +185,11 @@ function PricingHero() {
       return plan;
     });
   };
+
+  useEffect(() => {
+    console.log("🔥 Updated plans based on billing cycle:", getUpdatedPlans(plans))
+    fetchUserProfile()
+  }, []);
 
   const data = {
     title: "Plans that grow with you",

@@ -40,14 +40,31 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
 
   // Handle plan selection
   // Handle plan selection
+// PricingCard.jsx - Only modify the handlePlanSelection function
+
+// Handle plan selection
 const handlePlanSelection = async () => {
   if (isComingSoon || isButtonDisabled) return;
 
-  // 🔹 Check if user is logged in by checking localStorage
+  // ✅ FREE PLAN LOGIC - New Addition
+  if (price === "0" || title === "Free") {
+    // Check if user is logged in
+    const accessToken = localStorage.getItem("access_token");
+    
+    if (accessToken) {
+      // User logged in → go to dashboard
+      navigate("/dashboard");
+    } else {
+      // User not logged in → go to login
+      navigate("/login");
+    }
+    return; // Exit function, no payment flow
+  }
+
+  // 🔹 EXISTING PAID PLANS LOGIC - No Changes
   const accessToken = localStorage.getItem("access_token");
   
   if (!accessToken) {
-    // If no access token, redirect to login
     navigate("/login");
     return;
   }
@@ -55,18 +72,15 @@ const handlePlanSelection = async () => {
   setIsLoading(true);
   try {
     console.log(duration, "Selected billing cycle");
-    // 🔹 Call backend to initiate payment intent
+    
     const res = await initiatePlanOrder(numericPlanId, price, duration);
 
-    // Backend se response structure confirm karo:
-    // { clientSecret, publishableKey, plan }
     if (!res?.clientSecret || !res?.publishableKey) {
       throw new Error("Invalid response from payment API");
     }
 
     console.log("💳 Payment details:", res);
 
-    // 🔹 Navigate to payment page
     navigate("/payment", {
       state: {
         clientSecret: res.clientSecret,
@@ -85,7 +99,7 @@ const handlePlanSelection = async () => {
 
   return (
     <div
-      className={`bg-blue text-white h-[700px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+      className={`bg-blue text-white h-[750px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
         }`}
       data-aos="fade-up"
       data-aos-delay={delay}

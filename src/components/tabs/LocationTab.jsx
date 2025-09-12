@@ -75,6 +75,8 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
   const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
 
+  const isEssentialPlan = planCode === "003";
+
   // 🔥 CRITICAL: Sync with external filters when they change
   useEffect(() => {
     console.log("🔥 Syncing LocationTab state with filters:", filters.location);
@@ -415,26 +417,29 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
       <div className="space-y-6">
         {/* Federal Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400 p-4">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="federal"
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-              checked={locationState.federal}
-              onChange={toggleFederal}
-            />
-            <label
-              htmlFor="federal"
-              className="text-lg font-medium text-gray-900 cursor-pointer"
-            >
-              Federal
-            </label>
+         {/* ✅ Wrapper add karo */}
+          <div className={`bg-white rounded-lg border-2 border-primary overflow-hidden p-4`}>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="federal"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                checked={locationState.federal}
+                onChange={toggleFederal}
+              />
+              <label
+                htmlFor="federal"
+                className="text-lg font-medium text-gray-900 cursor-pointer"
+              >
+                Federal
+              </label>
+            </div>
           </div>
-        </div>
+
+      
 
         {/* State Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400">
+        <div className="bg-white rounded-lg border-2 border-primary overflow-hidden">
           <div
             className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
@@ -552,21 +557,24 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         </div>
 
         {/* Local Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400">
+        <div className="relative">
+          <div className={`bg-white rounded-lg border-2 border-primary overflow-hidden ${isEssentialPlan ? 'blur-[2px]' : ''}`}>
           <div
-  className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
-  onClick={() => {
-    if (planCode === "002" || profileStates.length === 0) {
-      setShowSavedSearchPopup(true);
-      return;
-    }
-    setLocalDropdownOpen(!localDropdownOpen);
-  }}
->
+            className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => {
+              if (isEssentialPlan) return; 
+              if (planCode === "002" || profileStates.length === 0) {
+                setShowSavedSearchPopup(true);
+                return;
+              }
+              setLocalDropdownOpen(!localDropdownOpen);
+            }}
+          >
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 id="local-header"
+                disabled={isEssentialPlan}
                 className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
                 checked={locationState.local.length > 0}
                 onChange={(e) => {
@@ -593,7 +601,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              {locationState.local.length > 0 && (
+              {locationState.local.length > 0 && !isEssentialPlan && ( // ✅ !isEssentialPlan ADD KARO
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -628,7 +636,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
               <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
                 {planCode === "002" || profileStates.length === 0 ? (
-                  <div className="bg-white rounded-lg border-2 border-purple-400 opacity-50 pointer-events-none select-none">
+                  <div className="bg-white rounded-lg border-2 border-primary overflow-hidden opacity-50 pointer-events-none select-none">
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
                       <span className="text-lg font-medium text-gray-400">Local (Upgrade to use)</span>
                     </div>
@@ -659,7 +667,18 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
               </div>
             </div>
           )}
+
+           {isEssentialPlan && (
+    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-lg pointer-events-none">
+      <div className=" px-6 py-3 rounded-lg shadow-xl">
+        <span className="text-black font-semibold text-lg">Coming Soon</span>
+      </div>
+    </div>
+  )}
         </div>
+        </div>
+
+
       </div>
 
       {/* Feature restriction popup */}
@@ -673,15 +692,15 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
       {/* Saved search popup */}
       {showSavedSearchPopup && (
-  <SavedSearchPopup 
-    isOpen={showSavedSearchPopup}
-    onClose={() => setShowSavedSearchPopup(false)}
-    title="Location Access Restricted"
-    message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
-    upgradeButtonText="Upgrade Plan"
-    cancelButtonText="Got It"
-  />
-)}
+        <SavedSearchPopup
+          isOpen={showSavedSearchPopup}
+          onClose={() => setShowSavedSearchPopup(false)}
+          title="Location Access Restricted"
+          message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
+          upgradeButtonText="Upgrade Plan"
+          cancelButtonText="Got It"
+        />
+      )}
     </div>
   );
 };

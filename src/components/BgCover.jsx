@@ -18,9 +18,9 @@ function BgCover({ children, title, description, onClick }) {
           </p>
         </div>
         <div className="text-end relative">
-          <Link className=" bg-white text-[12px] font-inter font-light border-0 p-1 px-2 rounded-[8px]">
+          {/* <Link className=" bg-white text-[12px] font-inter font-light border-0 p-1 px-2 rounded-[8px]">
             Buy plan
-          </Link>
+          </Link> */}
           <i className="fas fa-triangle text-[#7180FF] absolute rotate-180 top-[120%] right-[20%]"></i>
         </div>
       </div>

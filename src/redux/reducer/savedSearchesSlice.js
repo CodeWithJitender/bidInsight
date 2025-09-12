@@ -18,8 +18,18 @@ const savedSearchesSlice = createSlice({
       state.savedSearches = [];
       state.savedSearchesCount = 0;
     },
+    // ✅ NEW: Clear action for logout
+    clearSavedSearches: (state) => {
+      state.savedSearches = [];
+      state.savedSearchesCount = 0;
+    },
   },
 });
 
-export const { addSavedSearch, removeSavedSearch } = savedSearchesSlice.actions;
+export const { 
+  addSavedSearch, 
+  removeSavedSearch, 
+  clearSavedSearches 
+} = savedSearchesSlice.actions;
+
 export default savedSearchesSlice.reducer;

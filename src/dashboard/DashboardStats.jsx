@@ -74,7 +74,7 @@ const DashboardStats = ({
       title: "Active Bids",
       num: bidsInfo?.count || 0,
       tag: "ACTIVE BIDS",
-      description: "Bids that haven't been closed/awarded yet!"
+      description: "Bids that haven’t been closed/awarded yet!"
     },
     {
       id: 3,
@@ -96,7 +96,7 @@ const DashboardStats = ({
     },
     {
       id: 5,
-      title: "Followed",
+      title: "Follow",
       num: formatCountDisplay(followedCount, maxFollows, restrictions?.follow),
       tag: "FOLLOW",
       description: restrictions?.follow

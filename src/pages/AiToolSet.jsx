@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 const AiToolSet = () => {
   return (
     <div
-      className="relative flex items-center justify-center h-screen text-white overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: "url('/bg.jpg')" }}
+      className="relative flex items-center justify-center h-screen bg-blue text-white overflow-hidden"
+      
     >
       {/* Overlay for better readability */}
       <div className="absolute inset-0 bg-black/50" />

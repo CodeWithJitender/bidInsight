@@ -65,13 +65,13 @@ export default function AccountSetting({ fullName, lastLogin }) {
   }, [passwordCooldown]);
 
   const settings = [
-    {
-      title: "Payment Mode",
-      description: "Change your payment method",
-      tooltip: "This link will take you to an external page to update your payment method.",
-      icon: <FaUniversity className="text-primary text-xl" />,
-      action: "payment"
-    },
+    // {
+    //   title: "Payment Mode",
+    //   description: "Change your payment method",
+    //   tooltip: "This link will take you to an external page to update your payment method.",
+    //   icon: <FaUniversity className="text-primary text-xl" />,
+    //   action: "payment"
+    // },
     {
       title: "Change Password",
       description: "Change your password",

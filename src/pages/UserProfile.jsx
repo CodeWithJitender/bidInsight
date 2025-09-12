@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom"
+import {Link} from "react-router-dom";
 import {
   faLink,
   faDatabase,
@@ -21,8 +22,10 @@ import MyPlans from "../sections/profile/MyPlans";
 import Bids from "../sections/profile/Bids";
 import AiToolset from "../sections/profile/AiToolset";
 import AccountSetting from "../sections/profile/AccountSetting";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUserProfile } from "../services/bid.service";
+import { persistor } from '../redux/store';
+import { clearProfile } from '../redux/reducer/profileSlice';
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
@@ -37,52 +40,52 @@ export default function UserProfile() {
   const [freshProfileData, setFreshProfileData] = useState(null);
   console.log("Auth Data:", authData);
   console.log("Login Data:", loginData);
-
+  const dispatch = useDispatch();
 
 
   const fetchUserProfile = async () => {
-  try {
-    setProfileLoading(true);
-    const profile = await getUserProfile();
-    setFreshProfileData(profile);  // YE CHANGE
-    console.log("Profile fetched in UserProfile:", profile);
-  } catch (error) {
-    console.error("Failed to fetch user profile", error);
-  } finally {
-    setProfileLoading(false);
-  }
-};
+    try {
+      setProfileLoading(true);
+      const profile = await getUserProfile();
+      setFreshProfileData(profile);  // YE CHANGE
+      console.log("Profile fetched in UserProfile:", profile);
+    } catch (error) {
+      console.error("Failed to fetch user profile", error);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
 
-const handleProfileUpdate = async () => {
-  console.log("Profile updated, refreshing data...");
-  await fetchUserProfile();
-};
+  const handleProfileUpdate = async () => {
+    console.log("Profile updated, refreshing data...");
+    await fetchUserProfile();
+  };
 
-useEffect(() => {
-  fetchUserProfile();
-}, []);
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
 
   // Full name nikalna
   const getFullName = () => {
-  try {
-    // Pehle fresh data se try karo
-    if (freshProfileData?.full_name) {
-      return freshProfileData.full_name;
+    try {
+      // Pehle fresh data se try karo
+      if (freshProfileData?.full_name) {
+        return freshProfileData.full_name;
+      }
+
+      // Fallback to Redux
+      if (profileData?.full_name) {
+        return profileData.full_name;
+      }
+
+      return 'User';
+    } catch (error) {
+      console.error('Error parsing profile:', error);
+      return 'User';
     }
-    
-    // Fallback to Redux
-    if (profileData?.full_name) {
-      return profileData.full_name;
-    }
-    
-    return 'User';
-  } catch (error) {
-    console.error('Error parsing profile:', error);
-    return 'User';
-  }
-};
+  };
 
   // Last login nikalna - pehle auth check karo, nahi to login se lo
   const getLastLogin = () => {
@@ -123,14 +126,26 @@ useEffect(() => {
       return 'Invalid Date';
     }
   };
-
-  // Logout function
-  const handleLogout = () => {
+const handleLogout = async () => {
+  try {
+    console.log("Logout clicked - starting cleanup...");
+    
+    // 🔥 Sabhi slices clear karo
+    dispatch(clearProfile());
+    dispatch(logoutUser());           // authSlice
+    dispatch(clearLoginData());       // loginSlice  
+    dispatch(clearOnboardingData());  // onboardingSlice ✅
+    dispatch(clearSavedSearches());   // savedSearchesSlice (new action)
+    
+    await persistor.purge();
     localStorage.clear();
     sessionStorage.clear();
-    navigate("/login");
-  };
-
+    navigate("/login", { replace: true });
+  } catch (error) {
+    console.error('Logout error:', error);
+    navigate("/login", { replace: true });
+  }
+};
 
   // User data nikalna
   const getUserData = () => {
@@ -169,11 +184,11 @@ useEffect(() => {
   const renderComponent = () => {
     switch (active) {
       case "Profile":
-        return  <Profile 
-          fullName={fullName} 
-          userData={userData} 
+        return <Profile
+          fullName={fullName}
+          userData={userData}
           lastLogin={lastLogin}
-          profileData={freshProfileData}  
+          profileData={freshProfileData}
           onProfileUpdate={handleProfileUpdate}
           loading={profileLoading}
         />
@@ -184,9 +199,9 @@ useEffect(() => {
       case "AI Toolset":
         return <AiToolset />;
       case "Account Settings":
-        return <AccountSetting 
-          fullName={fullName} 
-          userData={userData} 
+        return <AccountSetting
+          fullName={fullName}
+          userData={userData}
           lastLogin={lastLogin}
           profileData={profileData}
         />
@@ -201,8 +216,11 @@ useEffect(() => {
       <aside className="sticky top-0 text-white w-64 pe-6 py-6 flex flex-col justify-between h-screen bg-blue">
         <div>
           <h1 className="text-2xl font-bold mb-10 ps-4">
-            <img src="logo.png" alt="" />
+            <Link to="/">
+              <img src="logo.png" alt="" />
+            </Link>
           </h1>
+
           <nav className="flex flex-col gap-6">
             {[
               { title: "Profile", icon: faUser },
