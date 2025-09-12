@@ -6,70 +6,11 @@ import PersonalDetail from "./PersonalDetail";
 import ProfileForm from "./ProfileForm";
 import { getUserProfile } from "../../services/bid.service";
 
-function Profile({fullName, lastLogin}) {
+function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading }) {
   console.log(fullName, lastLogin);
 
 
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      setLoading(true);
-      const profile = await getUserProfile();
-      setProfileData(profile);
-      console.log("Profile fetched:", profile);
-    } catch (error) {
-      console.error("Failed to fetch user profile", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // This function will be called by child component after successful update
-  const handleProfileUpdate = async () => {
-    console.log("Profile updated, refreshing data...");
-    await fetchUserProfile(); // Re-fetch latest data
-  };
-
-
-    // const data = [
-    //     {
-    //         icon:"/profile-user.png",
-    //         title:"Lorem Ipsum",
-    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-    //         btn:"Complete Form",
-    //         btnLink:"/"
-    //     },
-    //     {
-    //         icon:"/profile-user.png",
-    //         title:"Lorem Ipsum",
-    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-    //         btn:"Complete Form",
-    //         btnLink:"/"
-    //     },
-    //     {
-    //         icon:"/profile-user.png",
-    //         title:"Lorem Ipsum",
-    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-    //         btn:"Complete Form",
-    //         btnLink:"/"
-    //     },
-    //     {
-    //         icon:"/profile-user.png",
-    //         title:"Lorem Ipsum",
-    //         pera:"It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the.",
-    //         btn:"Complete Form",
-    //         btnLink:"/"
-    //     },
-       
-    // ]
-
-    if (loading) {
+  if (loading) {
     return (
       <div className="p-4 xl:p-8">
         <div className="flex items-center justify-center h-64">
@@ -153,7 +94,8 @@ function Profile({fullName, lastLogin}) {
 
       <PersonalDetail
         profileData={profileData}
-        onProfileUpdate={handleProfileUpdate}
+
+        onProfileUpdate={onProfileUpdate} // Ye ab parent se aayega
       />
       {/* <ProfileForm /> */}
     </div>

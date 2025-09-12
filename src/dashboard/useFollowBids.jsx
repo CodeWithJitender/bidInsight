@@ -41,6 +41,10 @@ export const useFollowBids = (validateFeatureUsage, showFeatureRestriction) => {
       return;
     }
 
+    if (followLoading.has(bidId)) {
+    return;
+  }
+
     setFollowLoading(prev => new Set([...prev, bidId]));
 
     try {
@@ -101,47 +105,79 @@ export const useFollowBids = (validateFeatureUsage, showFeatureRestriction) => {
     }
   }, [followedBids, validateFeatureUsage, showFeatureRestriction]);
 
-  const handleUnfollowBid = useCallback(async (bidId) => {
-    setFollowLoading(prev => new Set([...prev, bidId]));
+ // Existing handleUnfollowBid function ko ye naye code se replace karo:
 
-    try {
-      const followedBid = followedBidsData.find(bid => bid.id === bidId);
+const handleUnfollowBid = useCallback(async (bidId) => {
+  // Race condition check - duplicate calls prevent karo
+  if (followLoading.has(bidId)) {
+    return;
+  }
 
+  setFollowLoading(prev => new Set([...prev, bidId]));
+
+  try {
+    let followedBid = followedBidsData.find(bid => bid.id === bidId);
+
+    // Follow ID missing hai to silently refresh karo
+    if (!followedBid || !followedBid.follow_id) {
+      await fetchFollowedBids();
+      
+      const updatedData = await totalFollowedBids();
+      const updatedTransformed = Array.isArray(updatedData)
+        ? updatedData.map(item => ({
+            ...item.bid,
+            follow_id: item.id,
+            follow_created_at: item.created_at
+          }))
+        : [];
+      
+      followedBid = updatedTransformed.find(bid => bid.id === bidId);
+      
+      // Still missing hai to silently success (already unfollowed)
       if (!followedBid || !followedBid.follow_id) {
-        console.error("Follow ID not found for bid:", bidId);
-        await fetchFollowedBids();
-        throw new Error("Follow ID not found");
+        setFollowedBids(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(bidId);
+          return newSet;
+        });
+        setFollowedCount(prev => Math.max(0, prev - 1));
+        setFollowedBidsData(prev => prev.filter(bid => bid.id !== bidId));
+        return;
       }
-
-      const followId = followedBid.follow_id;
-      await deleteFollowedBid(followId);
-
-      setFollowedBids(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
-
-      setFollowedCount(prev => Math.max(0, prev - 1));
-      setFollowedBidsData(prev => prev.filter(bid => bid.id !== bidId));
-
-    } catch (error) {
-      console.error("Unfollow error:", error);
-      showFeatureRestriction(
-        "Unfollow Failed",
-        "Something went wrong while unfollowing this bid. Please try again.",
-        "Follow Feature",
-        false
-      );
-    } finally {
-      setFollowLoading(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(bidId);
-        return newSet;
-      });
     }
-  }, [followedBidsData, fetchFollowedBids, showFeatureRestriction]);
 
+    // API call
+    await deleteFollowedBid(followedBid.follow_id);
+
+    // Success updates
+    setFollowedBids(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(bidId);
+      return newSet;
+    });
+    setFollowedCount(prev => Math.max(0, prev - 1));
+    setFollowedBidsData(prev => prev.filter(bid => bid.id !== bidId));
+
+  } catch (error) {
+    // Sirf important errors ke liye popup show karo
+    if (error.response?.status === 403) {
+      showFeatureRestriction(
+        "Permission Error",
+        "You don't have permission to unfollow this bid.",
+        "Follow Feature",
+        true
+      );
+    }
+    // Baaki errors ignore karo (network issues, timeouts)
+    
+  } finally {
+    setFollowLoading(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(bidId);
+      return newSet;
+    });
+  }
+}, [followedBidsData, fetchFollowedBids, showFeatureRestriction, followLoading]);
 
 
   const refreshFollowedData = useCallback(async () => {

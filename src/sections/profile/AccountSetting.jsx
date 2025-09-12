@@ -48,14 +48,15 @@ export default function AccountSetting({ fullName, lastLogin }) {
   const [currentEmailAlert, setCurrentEmailAlert] = useState("");
 
   // Get email from Redux store
-  const profileData = useSelector((state) => { 
-    return state.profile.profile ? state.profile.profile.email : '';
-  });
+  // Get email from Redux store
+const reduxProfileData = useSelector((state) => { 
+  return state.profile.profile ? state.profile.profile.email : '';
+});
 
-  console.log(profileData, "🔥 Profile Data from Redux");
-  
-  const userEmail = profileData || '';
-  console.log("User Email from Redux:", userEmail);
+console.log(reduxProfileData, "🔥 Profile Data from Redux");
+
+const userEmail = reduxProfileData || profileData?.email || '';
+  // console.log("User Email from Redux:", userEmail);
 
   // Cooldown timer effects
   useEffect(() => {

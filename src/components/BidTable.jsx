@@ -90,6 +90,10 @@ console.log(isStarterPlan, "🔥 isStarterPlan in BidTableeeeeeeeeeeeeeeeeee");
     console.log(bidId, "🔥 Follow button clicked for BID_ID");
     e.stopPropagation();
 
+     if (safeFollowLoading.has(bidId)) {
+    return;
+  }
+
     // Check if already followed using Set
     const isFollowed = followedBids && followedBids.has
       ? followedBids.has(bidId)

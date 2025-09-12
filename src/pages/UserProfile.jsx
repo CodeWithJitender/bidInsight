@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom"
 import {
@@ -22,6 +22,7 @@ import Bids from "../sections/profile/Bids";
 import AiToolset from "../sections/profile/AiToolset";
 import AccountSetting from "../sections/profile/AccountSetting";
 import { useSelector } from 'react-redux';
+import { getUserProfile } from "../services/bid.service";
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
@@ -31,25 +32,57 @@ export default function UserProfile() {
   const authData = useSelector((state) => state.auth.user);
   const loginData = useSelector((state) => state.login.user);
 
+  const [profileDataa, setProfileDataa] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [freshProfileData, setFreshProfileData] = useState(null);
   console.log("Auth Data:", authData);
   console.log("Login Data:", loginData);
 
+
+
+  const fetchUserProfile = async () => {
+  try {
+    setProfileLoading(true);
+    const profile = await getUserProfile();
+    setFreshProfileData(profile);  // YE CHANGE
+    console.log("Profile fetched in UserProfile:", profile);
+  } catch (error) {
+    console.error("Failed to fetch user profile", error);
+  } finally {
+    setProfileLoading(false);
+  }
+};
+
+
+const handleProfileUpdate = async () => {
+  console.log("Profile updated, refreshing data...");
+  await fetchUserProfile();
+};
+
+useEffect(() => {
+  fetchUserProfile();
+}, []);
+
+
   // Full name nikalna
   const getFullName = () => {
-    try {
-      if (profileData) {
-        const parsedProfile = typeof profileData === 'string'
-          ? JSON.parse(profileData)
-          : profileData;
-        console.log(parsedProfile);
-        return parsedProfile?.full_name || 'User';
-      }
-      return 'User';
-    } catch (error) {
-      console.error('Error parsing profile:', error);
-      return 'User';
+  try {
+    // Pehle fresh data se try karo
+    if (freshProfileData?.full_name) {
+      return freshProfileData.full_name;
     }
-  };
+    
+    // Fallback to Redux
+    if (profileData?.full_name) {
+      return profileData.full_name;
+    }
+    
+    return 'User';
+  } catch (error) {
+    console.error('Error parsing profile:', error);
+    return 'User';
+  }
+};
 
   // Last login nikalna - pehle auth check karo, nahi to login se lo
   const getLastLogin = () => {
@@ -136,7 +169,14 @@ export default function UserProfile() {
   const renderComponent = () => {
     switch (active) {
       case "Profile":
-        return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
+        return  <Profile 
+          fullName={fullName} 
+          userData={userData} 
+          lastLogin={lastLogin}
+          profileData={freshProfileData}  
+          onProfileUpdate={handleProfileUpdate}
+          loading={profileLoading}
+        />
       case "My Plans":
         return <MyPlans />;
       case "Bids":
@@ -144,7 +184,12 @@ export default function UserProfile() {
       case "AI Toolset":
         return <AiToolset />;
       case "Account Settings":
-        return <AccountSetting fullName={fullName} userData={userData} lastLogin={lastLogin} />;
+        return <AccountSetting 
+          fullName={fullName} 
+          userData={userData} 
+          lastLogin={lastLogin}
+          profileData={profileData}
+        />
       default:
         return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
     }
@@ -170,8 +215,8 @@ export default function UserProfile() {
                 key={i}
                 onClick={() => setActive(item.title)}
                 className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${active === item.title
-                    ? "bg-white/50 text-white"
-                    : "hover:text-blue-300"
+                  ? "bg-white/50 text-white"
+                  : "hover:text-blue-300"
                   }`}
               >
                 <FontAwesomeIcon icon={item.icon} />
@@ -196,7 +241,7 @@ export default function UserProfile() {
               onClick={() => navigate("/dashboard")}
               style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
             >
-             <FontAwesomeIcon icon={faArrowLeft} />
+              <FontAwesomeIcon icon={faArrowLeft} />
               <span>Back to Dashboard</span>
             </button>
           ) : (

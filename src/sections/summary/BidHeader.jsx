@@ -89,9 +89,11 @@ const BidHeader = ({
               ))}
 
               {/* External Link or Disabled */}
+              {/* // External Link section ko ye replace karo: */}
+              {/* // External Link section ko ye replace karo: */}
               {sourceLink && sourceLink !== "nd-bidder" ? (
                 <a
-                  href={sourceLink}
+                  href={sourceLink.startsWith('http') ? sourceLink : `https://${sourceLink}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center flex-col text-center gap-2"
