@@ -6,6 +6,7 @@ export default function CheckoutForm({ clientSecret, plan, publishableKey }) {
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  console.log(plan, "Plan details in checkout form");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +18,7 @@ export default function CheckoutForm({ clientSecret, plan, publishableKey }) {
       elements,
       confirmParams: {
         // Optional: where to redirect after off-session payments (like UPI, wallets)
-        return_url: `${window.location.origin}/payment-status?publishableKey=${publishableKey}&payment_intent_client_secret=${clientSecret}`
+        return_url: `${window.location.origin}/payment-status?publishableKey=${publishableKey}&payment_intent_client_secret=${clientSecret}&plan_price=${plan.price_amount}`,
       },
     });
 
