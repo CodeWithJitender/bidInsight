@@ -221,3 +221,22 @@ export const emailAlert = async (payload) => {
     throw error;
   }
 };
+
+
+         
+export const deactivateAccount = async () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.post("/auth/user/deactivate-account/", {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+        "Content-Type": "application/json", // JSON payload
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deactivating account:", error);
+    throw error;
+  }
+};
