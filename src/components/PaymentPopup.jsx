@@ -5,7 +5,7 @@ const PaymentPopup = ({ content, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       {/* Card */}
-      <div className="relative w-full max-w-2xl bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
+      <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -20,7 +20,7 @@ const PaymentPopup = ({ content, onClose }) => {
             <img
               src={content.image}
               alt="Payment Status"
-              className="max-w-[180px]"
+              className="max-w-[120px]"
             />
           )}
         </div>
@@ -28,7 +28,7 @@ const PaymentPopup = ({ content, onClose }) => {
         {/* Title & Description */}
         <div className="max-w-2xl mx-auto text-center">
           {content.title && (
-            <h1 className="h3 font-bold font-archivo text-g mb-5">
+            <h1 className="h3 font-bold font-archivo text-g mb-3">
               {content.title}
             </h1>
           )}
@@ -49,7 +49,7 @@ const PaymentPopup = ({ content, onClose }) => {
         </div>
 
         {/* Buttons */}
-        <div className="mt-16 grid sm:grid-cols-2 justify-center gap-6">
+        <div className="mt-10 grid sm:grid-cols-2 justify-center gap-6">
           {content.buttons &&
             content.buttons.map((btn, idx) =>
               btn.type === "link" ? (

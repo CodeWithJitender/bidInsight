@@ -118,9 +118,9 @@ function Home() {
   return (
     <div className="overflow-x-hidden">
       <Hero />
-      <div className="" onClick={() => setOpen(true)}>
+      {/* <div className="" onClick={() => setOpen(true)}>
         hell
-      </div>
+      </div> */}
       <div className="" id='why-bidinsight'>
      <KeyValuePro/>
      </div>
