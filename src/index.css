@@ -22,8 +22,8 @@
   padding: 80px 40px;
   margin: auto;
 }
-.container-p{
-    padding: 80px 40px;
+.container-p {
+  padding: 80px 40px;
 }
 header {
   z-index: 100;
@@ -321,28 +321,31 @@ p {
 }
 
 .our-story .slick-slide p {
-  color: #FFFFFFB2;
+  color: #ffffffb2;
   /* transform: translateX(150px); */
 }
 .our-story .slick-slide.slick-active.slick-current p {
   color: white;
   transform: translateX(0px);
-} 
-
-
-
-@keyframes shimmerFlow {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
-
 @keyframes shimmerFlow {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
-
+@keyframes shimmerFlow {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
 
 @keyframes shimmer {
   0% {
@@ -366,37 +369,63 @@ p {
 
 /* Background Starry Gradient */
 .bg-summary-glow {
-  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 400px),
-              radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 400px),
-              linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
-  background-image: url('/path-to-your-stars-noise.png'), radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 400px),
-                    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 400px),
-                    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.05),
+      transparent 400px
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0.03),
+      transparent 400px
+    ),
+    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
+  background-image: url("/path-to-your-stars-noise.png"),
+    radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.05),
+      transparent 400px
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0.03),
+      transparent 400px
+    ),
+    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
   background-size: contain, cover, cover, cover;
 }
-
-
-
-
 
 .bg-bidtable-glow {
-  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 400px),
-              radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 400px),
-              linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
-  background-image: url('/stars-noise.png'),
-                    radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 400px),
-                    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 400px),
-                    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.05),
+      transparent 400px
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0.03),
+      transparent 400px
+    ),
+    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
+  background-image: url("/stars-noise.png"),
+    radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.05),
+      transparent 400px
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0.03),
+      transparent 400px
+    ),
+    linear-gradient(180deg, #0e1856 0%, #1b2d6e 50%, #273d8a 100%);
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
   background-size: contain, cover, cover, cover;
 }
 
-
-
-
 /* .blur-overlay { */
-  /* backdrop-filter: blur(4px);
+/* backdrop-filter: blur(4px);
   background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
 }
 
@@ -408,7 +437,6 @@ p {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 } */
-
 
 .swiper {
   width: 500px;
@@ -423,4 +451,13 @@ p {
   font-size: 22px;
   font-weight: bold;
   color: #fff;
+}
+@layer utilities {
+  .scroll-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+  .scroll-hide {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
