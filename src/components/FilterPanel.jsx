@@ -523,7 +523,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
 
       {/* Content Area */}
       <div className="flex-1 bg-white flex flex-col justify-between w-[70%]">
-        <div className="flex-1 overflow-y-auto">
+        <div className="scroll-hide flex-1 overflow-y-auto">
           {renderTabContent()}
           {/* Sticky Bottom Buttons */}
           <div className="flex gap-4 p-5 px-10 bg-white sticky bottom-0">

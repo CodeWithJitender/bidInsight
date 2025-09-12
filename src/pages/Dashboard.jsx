@@ -853,7 +853,7 @@ const handleFollowedCardClick = async () => {
                   </div>
 
                   {/* Save Search Button with restrictions */}
-                  <BgCover>
+                  <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
                     <div
                       className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
                         }`}

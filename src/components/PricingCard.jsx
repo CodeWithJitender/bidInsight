@@ -80,7 +80,7 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
 
   return (
     <div
-      className={`bg-blue text-white h-[700px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+      className={`bg-blue text-white h-[750px] w-full min-w-[320px] mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
         }`}
       data-aos="fade-up"
       data-aos-delay={delay}

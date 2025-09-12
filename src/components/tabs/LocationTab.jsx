@@ -415,7 +415,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
       <div className="space-y-6">
         {/* Federal Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400 p-4">
+        <div className="bg-white rounded-lg border-2 border-primary overflow-hidden p-4">
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -434,7 +434,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         </div>
 
         {/* State Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400">
+        <div className="bg-white rounded-lg border-2 border-primary overflow-hidden">
           <div
             className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => setStateDropdownOpen(!stateDropdownOpen)}
@@ -552,7 +552,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         </div>
 
         {/* Local Section */}
-        <div className="bg-white rounded-lg border-2 border-purple-400">
+        <div className="bg-white rounded-lg border-2 border-primary overflow-hidden">
           <div
   className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
   onClick={() => {
@@ -628,7 +628,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
               <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
                 {planCode === "002" || profileStates.length === 0 ? (
-                  <div className="bg-white rounded-lg border-2 border-purple-400 opacity-50 pointer-events-none select-none">
+                  <div className="bg-white rounded-lg border-2 border-primary overflow-hidden opacity-50 pointer-events-none select-none">
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
                       <span className="text-lg font-medium text-gray-400">Local (Upgrade to use)</span>
                     </div>
