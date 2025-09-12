@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
 import FormField from "../components/FormField";
-import FormPassword from "../components/FormPassword";
 import FormFooter from "../components/FormFooter";
-import { Link } from "react-router-dom";
 import ProcessWrapper from "../components/ProcessWrapper";
 import FormImg from "../components/FormImg";
-import api from "../utils/axios";
-import { useDispatch } from "react-redux";
-import { setLoginData } from "../redux/reducer/loginSlice";
+import { forgotPasswordRequest } from "../services/user.service"; // Import your API function
+import { useState } from "react";
 
-
-function Login() {
+function ForgotPassword() {
   const data = {
     title: "Forgot your password and Continue",
     para: "All government bids. One dashboard. Zero hassles.",
@@ -23,12 +19,14 @@ function Login() {
     headingSize: "h1",
     pSize: "text-xl",
   };
+
   const formHeader = {
-    title: "Register",
-    link: "/register",
+    title: "Back to Login",
+    link: "/login",
     steps: "",
     activeStep: "",
   };
+
   const formFooter = {
     back: {
       text: "Back to Login",
@@ -36,136 +34,151 @@ function Login() {
     },
     next: {  
       text: "Send OTP",
-      link: "/",
+      link: "", // Empty because we handle navigation in function
     },
   };
 
-  const [fields, setFields] = useState({
-    email: "",
-    password: "",
-  });
-  const [touched, setTouched] = useState({
-    email: false,
-    password: false,
-  });
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
-  const [loginError, setLoginError] = useState("");
+  const [email, setEmail] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [error, setError] = useState("");
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-
-  // Real-time validation: only show error for invalid email format or password < 6
-  const validateField = (name, value) => {
-    let msg = "";
-    if (name === "email" && value && !emailRegex.test(value)) {
-      msg = "Please enter a valid email";
-    } else if (name === "password" && value && value.length < 6) {
-      msg = "Please enter a valid password";
+  // Email validation
+  const validateEmail = (value) => {
+    if (!value) {
+      return "Email is required";
     }
-    setErrors((prev) => ({ ...prev, [name]: msg }));
+    if (!emailRegex.test(value)) {
+      return "Please enter a valid email";
+    }
+    return "";
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFields((prev) => ({ ...prev, [name]: value }));
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    validateField(name, value);
-    setLoginError(""); // Clear login error on change
+    const { value } = e.target;
+    setEmail(value);
+    setTouched(true);
+    
+    // Real-time validation
+    const validationError = validateEmail(value);
+    setError(validationError);
+    setApiError(""); // Clear API error on change
   };
 
   const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    validateField(name, value);
+    const { value } = e.target;
+    setTouched(true);
+    const validationError = validateEmail(value);
+    setError(validationError);
   };
 
-  const getMessageType = (name) => {
-    if (!touched[name]) return "";
-    return errors[name] ? "error" : "";
+  const getMessageType = () => {
+    if (!touched) return "";
+    return error ? "error" : "";
   };
 
-  const handleLogin = async (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
-    setLoginError("");
-    // Only check for empty fields and format errors
-    let valid = true;
-    let newErrors = { ...errors };
-    if (!fields.email || !emailRegex.test(fields.email)) {
-      newErrors.email = !fields.email ? "Please enter a valid email format" : errors.email;
-      valid = false;
+    setApiError("");
+
+    // Validate email before API call
+    const validationError = validateEmail(email);
+    if (validationError) {
+      setError(validationError);
+      setTouched(true);
+      return;
     }
-    if (!fields.password || fields.password.length < 6) {
-      newErrors.password = !fields.password ? "Please enter a valid password" : errors.password;
-      valid = false;
-    }
-    setErrors(newErrors);
-    if (!valid) return;
+
+    setLoading(true);
+    
     try {
-      const res = await api.post("/auth/login/", fields);
-      const loginPayload = {
-        user: res.data.user,
-  access: res.data.access,
+      const response = await forgotPasswordRequest(email);
+      
+      if (response.status === 200 || response.status === 201) {
+        // Navigate to verification page with email data
+        navigate("/forgot-otp", { 
+          state: { email: email } 
+        });
       }
-      if (res.data && res.data.access) {
-        localStorage.setItem("access_token", res.data.access);
-      }
-      dispatch(setLoginData(loginPayload));
-      navigate("/dashboard");
     } catch (err) {
-      if (err.response && err.response.status === 400) {
-        setLoginError("Invalid email or password");
-      } else if (err.response) {
-        setLoginError("Invalid email or password");
+      console.error("Forgot password error:", err);
+      
+      if (err.response) {
+        if (err.response.status === 404) {
+          setApiError("Email not found. Please check your email address.");
+        } else if (err.response.status === 400) {
+          setApiError("Invalid email format or request.");
+        } else if (err.response.status === 429) {
+          setApiError("Too many requests. Please try again later.");
+        } else {
+          setApiError("Something went wrong. Please try again.");
+        }
+      } else if (err.request) {
+        setApiError("Network error. Please check your connection.");
       } else {
-        setLoginError("Network Error: " + err.message);
+        setApiError("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <ProcessWrapper>
       <div className="form-left">
-        <div className="pe-3  flex flex-col h-full justify-between">
+        <div className="pe-3 flex flex-col h-full justify-between">
           <div className="">
             <FormHeader {...formHeader} />
             <HeroHeading data={data} />
           </div>
+          
           <form
             action=""
             method="post"
             className="flex flex-col justify-between h-full"
-            onSubmit={handleLogin}
+            onSubmit={handleSendOTP}
           >
             <div className="">
               <FormField
                 label="Email"
                 type="email"
                 name="email"
-                placeholder="e.g. jopseph.mark12@gmail.com"
+                placeholder="e.g. joseph.mark12@gmail.com"
                 delay={100}
-                value={fields.email}
+                value={email}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                message={errors.email}
-                messageType={getMessageType("email")}
+                message={error}
+                messageType={getMessageType()}
               />
+              
+              {/* API Error Display */}
               <div className="float-right pr-20">
-              {loginError && (
-                <div style={{ marginTop: "2px", color: "#ef4444", fontSize: "15px" }}>{loginError}</div>
-              )}
+                {apiError && (
+                  <div style={{ 
+                    marginTop: "2px", 
+                    color: "#ef4444", 
+                    fontSize: "15px" 
+                  }}>
+                    {apiError}
+                  </div>
+                )}
               </div>
             </div>
 
-           
-            <FormFooter data={formFooter} onNextClick={handleLogin} />
+            <FormFooter 
+              data={formFooter} 
+              onNextClick={handleSendOTP}
+              loading={loading}
+            />
           </form>
         </div>
       </div>
+      
       <div className="sticky top-0">
         <FormImg src={"loginbid.png"} />
       </div>
@@ -173,4 +186,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;

@@ -1,72 +1,103 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
-import FormField from "../components/FormField";
 import FormPassword from "../components/FormPassword";
 import FormFooter from "../components/FormFooter";
-import { Link } from "react-router-dom";
 import ProcessWrapper from "../components/ProcessWrapper";
 import FormImg from "../components/FormImg";
-import api from "../utils/axios";
-import { useDispatch } from "react-redux";
-import { setLoginData } from "../redux/reducer/loginSlice";
-
+import { forgotPasswordVerify } from "../services/user.service"; // Import your API function
 
 function ConfirmPassword() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get email and OTP from previous page
+  const email = location.state?.email;
+  const otp = location.state?.otp;
+
+  // Redirect if no email or OTP found
+  useEffect(() => {
+    if (!email || !otp) {
+      navigate("/forgot-password");
+    }
+  }, [email, otp, navigate]);
+
   const data = {
     title: "Reset password to access BidInsight",
-    para: "All government bids. One dashboard. Zero hassles.",
+    para: "Create a strong password for your account security.",
     btnText: false,
     btnLink: false,
     container: "max-w-4xl mx-auto text-left",
     headingSize: "h1",
     pSize: "text-xl",
   };
+
   const formHeader = {
-    title: "Register",
-    link: "/register",
+    title: "Back to Verification",
+    link: "/forgot-verification",
     steps: "",
     activeStep: "",
   };
+
   const formFooter = {
     back: {
-      text: "Cancel",
-      link: "/login",
+      text: "Back",
+      link: "/forgot-verification",
     },
-    next: {  
+    next: {
       text: "Save New Password",
-      link: "/",
+      link: "",
     },
   };
 
   const [fields, setFields] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
+
   const [touched, setTouched] = useState({
-    email: false,
     password: false,
+    confirmPassword: false,
   });
+
   const [errors, setErrors] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
-  const [loginError, setLoginError] = useState("");
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Password validation regex - at least 8 chars, 1 uppercase, 1 number, 1 special char
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  // Real-time validation: only show error for invalid email format or password < 6
+  // Real-time validation
   const validateField = (name, value) => {
     let msg = "";
-    if (name === "email" && value && !emailRegex.test(value)) {
-      msg = "Please enter a valid email";
-    } else if (name === "password" && value && value.length < 6) {
-      msg = "Please enter a valid password";
+    
+    if (name === "password") {
+      if (!value) {
+        msg = "Password is required";
+      } else if (value.length < 8) {
+        msg = "Password must be at least 8 characters long";
+      } else if (!/(?=.*[A-Z])/.test(value)) {
+        msg = "Password must contain at least one uppercase letter";
+      } else if (!/(?=.*\d)/.test(value)) {
+        msg = "Password must contain at least one number";
+      } else if (!/(?=.*[@$!%*?&])/.test(value)) {
+        msg = "Password must contain at least one special character (@$!%*?&)";
+      } else if (!passwordRegex.test(value)) {
+        msg = "Password format is invalid";
+      }
+    } else if (name === "confirmPassword") {
+      if (!value) {
+        msg = "Please confirm your password";
+      } else if (value !== fields.password) {
+        msg = "Passwords do not match";
+      }
     }
+    
     setErrors((prev) => ({ ...prev, [name]: msg }));
   };
 
@@ -75,7 +106,13 @@ function ConfirmPassword() {
     setFields((prev) => ({ ...prev, [name]: value }));
     setTouched((prev) => ({ ...prev, [name]: true }));
     validateField(name, value);
-    setLoginError(""); // Clear login error on change
+    setApiError(""); // Clear API error on change
+
+    // Also validate confirm password when password changes
+    if (name === "password" && fields.confirmPassword && touched.confirmPassword) {
+      const confirmPasswordError = value !== fields.confirmPassword ? "Passwords do not match" : "";
+      setErrors((prev) => ({ ...prev, confirmPassword: confirmPasswordError }));
+    }
   };
 
   const handleBlur = (e) => {
@@ -89,62 +126,114 @@ function ConfirmPassword() {
     return errors[name] ? "error" : "";
   };
 
-  const handleLogin = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
-    setLoginError("");
-    // Only check for empty fields and format errors
+    setApiError("");
+
+    // Validate all fields before API call
     let valid = true;
     let newErrors = { ...errors };
-    if (!fields.email || !emailRegex.test(fields.email)) {
-      newErrors.email = !fields.email ? "Please enter a valid email format" : errors.email;
+
+    // Password validation
+    if (!fields.password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (!passwordRegex.test(fields.password)) {
+      if (fields.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters long";
+      } else if (!/(?=.*[A-Z])/.test(fields.password)) {
+        newErrors.password = "Password must contain at least one uppercase letter";
+      } else if (!/(?=.*\d)/.test(fields.password)) {
+        newErrors.password = "Password must contain at least one number";
+      } else if (!/(?=.*[@$!%*?&])/.test(fields.password)) {
+        newErrors.password = "Password must contain at least one special character";
+      }
       valid = false;
     }
-    if (!fields.password || fields.password.length < 6) {
-      newErrors.password = !fields.password ? "Please enter a valid password" : errors.password;
+
+    // Confirm password validation
+    if (!fields.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+      valid = false;
+    } else if (fields.password !== fields.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
       valid = false;
     }
+
     setErrors(newErrors);
+    setTouched({ password: true, confirmPassword: true });
+
     if (!valid) return;
+
+    setLoading(true);
+
     try {
-      const res = await api.post("/auth/login/", fields);
-      const loginPayload = {
-        user: res.data.user,
-  access: res.data.access,
+      // Combine all data for API call
+      const payload = {
+        email: email,
+        otp: otp,
+         new_password: fields.password
+      };
+
+      const response = await forgotPasswordVerify(payload);
+
+      if (response.status === 200 || response.status === 201) {
+        // Success - redirect to login with success message
+        navigate("/login", { 
+          state: { 
+            message: "Password reset successfully! Please login with your new password.",
+            messageType: "success"
+          } 
+        });
       }
-      if (res.data && res.data.access) {
-        localStorage.setItem("access_token", res.data.access);
-      }
-      dispatch(setLoginData(loginPayload));
-      navigate("/dashboard");
     } catch (err) {
-      if (err.response && err.response.status === 400) {
-        setLoginError("Invalid email or password");
-      } else if (err.response) {
-        setLoginError("Invalid email or password");
+      console.error("Password reset error:", err);
+
+      if (err.response) {
+        if (err.response.status === 400) {
+          setApiError("Invalid OTP or request. Please try the process again.");
+        } else if (err.response.status === 404) {
+          setApiError("Reset request not found. Please start the process again.");
+        } else if (err.response.status === 410) {
+          setApiError("OTP has expired. Please request a new one.");
+        } else if (err.response.status === 429) {
+          setApiError("Too many attempts. Please try again later.");
+        } else {
+          setApiError("Something went wrong. Please try again.");
+        }
+      } else if (err.request) {
+        setApiError("Network error. Please check your connection.");
       } else {
-        setLoginError("Network Error: " + err.message);
+        setApiError("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (!email || !otp) {
+    return null; // Component will redirect
+  }
 
   return (
     <ProcessWrapper>
       <div className="form-left">
-        <div className="pe-3  flex flex-col h-full justify-between">
+        <div className="pe-3 flex flex-col h-full justify-between">
           <div className="">
             <FormHeader {...formHeader} />
             <HeroHeading data={data} />
           </div>
+          
           <form
             action=""
             method="post"
             className="flex flex-col justify-between h-full"
-            onSubmit={handleLogin}
+            onSubmit={handleResetPassword}
           >
             <div className="">
               <FormPassword
                 label="Enter your new password"
-                placeholder="e.g. m@rkJos6ph"
+                placeholder="e.g. M@rkJos6ph"
                 name="password"
                 id="password"
                 delay={100}
@@ -154,30 +243,54 @@ function ConfirmPassword() {
                 message={errors.password}
                 messageType={getMessageType("password")}
               />
+              
               <FormPassword
                 label="Confirm your new password"
-                placeholder="e.g. m@rkJos6ph"
-                name="password"
-                id="password"
-                delay={100}
-                value={fields.password}
+                placeholder="e.g. M@rkJos6ph"
+                name="confirmPassword"
+                id="confirmPassword"
+                delay={200}
+                value={fields.confirmPassword}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                message={errors.password}
-                messageType={getMessageType("password")}
+                message={errors.confirmPassword}
+                messageType={getMessageType("confirmPassword")}
               />
+
+              {/* Password Requirements Info */}
+              <div className="mt-2 text-sm text-gray-300">
+                <p>Password must contain:</p>
+                <ul className="list-disc list-inside ml-2 text-xs">
+                  <li>At least 8 characters</li>
+                  <li>One uppercase letter (A-Z)</li>
+                  <li>One number (0-9)</li>
+                  <li>One special character (@$!%*?&)</li>
+                </ul>
+              </div>
+
+              {/* API Error Display */}
               <div className="float-right pr-20">
-              {loginError && (
-                <div style={{ marginTop: "2px", color: "#ef4444", fontSize: "15px" }}>{loginError}</div>
-              )}
+                {apiError && (
+                  <div style={{ 
+                    marginTop: "2px", 
+                    color: "#ef4444", 
+                    fontSize: "15px" 
+                  }}>
+                    {apiError}
+                  </div>
+                )}
               </div>
             </div>
 
-           
-            <FormFooter data={formFooter} onNextClick={handleLogin} />
+            <FormFooter 
+              data={formFooter} 
+              onNextClick={handleResetPassword}
+              loading={loading}
+            />
           </form>
         </div>
       </div>
+      
       <div className="sticky top-0">
         <FormImg src={"loginbid.png"} />
       </div>
