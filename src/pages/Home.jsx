@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Hero from "../sections/home/Hero";
 import KeyValuePro from "../sections/home/KeyValuePro";
 import LockedFeature from "../sections/home/LockedFeature";
@@ -8,8 +8,20 @@ import CallToAction from "../sections/home/CallToAction";
 import ComparisonGrid from "../sections/home/ComparisonGrid";
 import PricingHero from "../sections/pricing/PricingHero";
 import PaymentPopup from "../components/PaymentPopup";
+import { useLocation } from "react-router-dom";
 
 function Home() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [hash]);
   const [open, setOpen] = useState(false);
   const processData = [
     {
@@ -109,7 +121,9 @@ function Home() {
       <div className="" onClick={() => setOpen(true)}>
         hell
       </div>
-      <KeyValuePro />
+      <div className="" id='why-bidinsight'>
+     <KeyValuePro/>
+     </div>
       <LockedFeature />
       <HowItWorks />
       {/* <PricingSection /> */}
