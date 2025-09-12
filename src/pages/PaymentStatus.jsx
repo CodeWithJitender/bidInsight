@@ -69,7 +69,7 @@ function PaymentStatusInner({ clientSecret }) {
                     const res = await confirmPlanOrder(paymentIntentId);
                     console.log(res, "Plan activation response");
 
-                    if (res.status === "success") {
+                    if (res.status === "succeeded") {
                         setStatus("✅ Payment succeeded and plan activated!");
                         return;
                     } else {

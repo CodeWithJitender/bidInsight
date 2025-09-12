@@ -11,11 +11,12 @@ export const getPricingPlans = async () => {
   }
 };
 
-export const initiatePlanOrder = async (planId, amount) => {
+export const initiatePlanOrder = async (planId, amount, billingCycle) => {
   try {
     const res = await API.post("/auth/plans/buy-plan/", {
       plan_id: planId,
       amount: amount,
+      duration: billingCycle,
     });
     return res.data;
   } catch (error) {
@@ -26,7 +27,7 @@ export const initiatePlanOrder = async (planId, amount) => {
 export const confirmPlanOrder = async (paymentIntentId) => {
   try {
     const res = await API.post("/auth/plans/buy-plan/acknowledge/", {
-      paymentIntentId
+      paymentIntentId,
     });
     return res.data;
   } catch (error) {
