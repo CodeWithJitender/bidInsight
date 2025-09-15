@@ -57,54 +57,54 @@ function LockedFeature() {
     };
   }, [throttledResize]);
 
-  useGSAP(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // useGSAP(() => {
+  //   const container = containerRef.current;
+  //   if (!container) return;
 
-    const sections = container.querySelectorAll(".panel");
-    if (sections.length === 0) return;
+  //   const sections = container.querySelectorAll(".panel");
+  //   if (sections.length === 0) return;
 
-    // Kill any existing timeline
-    if (timelineRef.current) {
-      timelineRef.current.kill();
-    }
+  //   // Kill any existing timeline
+  //   if (timelineRef.current) {
+  //     timelineRef.current.kill();
+  //   }
 
-    // Set up initial transforms for better performance
-    gsap.set(sections, {
-      force3D: true,
-      willChange: "transform"
-    });
+  //   // Set up initial transforms for better performance
+  //   gsap.set(sections, {
+  //     force3D: true,
+  //     willChange: "transform"
+  //   });
 
-    // Create the timeline animation
-    timelineRef.current = gsap.to(sections, {
-      xPercent: -100 * (sections.length - 2),
-      ease: "none",
-      duration: 1, // Add duration for smoother animation
-      scrollTrigger: {
-        trigger: container,
-        // pin: true,
-        scrub: 1.2, // Slightly higher scrub value for smoother feel
-        start: "top -20",
-        end: () => `top -130%`, // Dynamic end calculation
-        pin: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        fastScrollEnd: true, // Better performance on fast scrolling
-      },
-    });
+  //   // Create the timeline animation
+  //   timelineRef.current = gsap.to(sections, {
+  //     xPercent: -100 * (sections.length - 2),
+  //     ease: "none",
+  //     duration: 1, // Add duration for smoother animation
+  //     scrollTrigger: {
+  //       trigger: container,
+  //       // pin: true,
+  //       scrub: 1.2, // Slightly higher scrub value for smoother feel
+  //       start: "top -20",
+  //       end: () => `top -130%`, // Dynamic end calculation
+  //       pin: true,
+  //       anticipatePin: 1,
+  //       invalidateOnRefresh: true,
+  //       fastScrollEnd: true, // Better performance on fast scrolling
+  //     },
+  //   });
 
-    // Cleanup function
-    return () => {
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-        timelineRef.current = null;
-      }
-      gsap.set(sections, {
-        clearProps: "all",
-        willChange: "auto"
-      });
-    };
-  }, []);
+  //   // Cleanup function
+  //   return () => {
+  //     if (timelineRef.current) {
+  //       timelineRef.current.kill();
+  //       timelineRef.current = null;
+  //     }
+  //     gsap.set(sections, {
+  //       clearProps: "all",
+  //       willChange: "auto"
+  //     });
+  //   };
+  // }, []);
 
   // Optimized panel rendering
   const renderPanel = useCallback((item, index) => (
