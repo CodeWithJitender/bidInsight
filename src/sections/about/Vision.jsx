@@ -26,6 +26,16 @@ function Vision() {
           {/* Paragraph */}
           <p className="font-inter mt-6 leading-relaxed"> We see a future where the directionless path of procurement portals, PDFs and manual filters is a thing of the past and in its place stands a transparent, AI‑powered marketplace of opportunity. Our vision is to revolutionize every stage of the bidding journey by delivering:</p>
 
+          
+
+ 
+
+ 
+
+
+
+
+
           <p className="font-inter mt-3 leading-relaxed"> <b>Seamless Aggregation:</b>  Real‑time access to every open solicitation (federal, state and local) in one place.</p>
           <p className="font-inter mt-3  leading-relaxed"> <b>Actionable Insights:</b> Built‑in analytics that illuminate win‑rate trends, compatibility summaries empowering you to make data‑driven decisions.</p>
           <p className="font-inter mt-3  leading-relaxed"> <b>Aligned Ecosystem:</b> A community-powered network that connects bidders, mentors and partners fostering shared insights, best‑practice exchanges and collective success.</p>
@@ -36,7 +46,7 @@ function Vision() {
 
         {/* Right Side (Image + Card Effect) */}
         <motion.div
-          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16 md:order-1 md:py-18"
+          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16 md:order-1 md:py-24"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}

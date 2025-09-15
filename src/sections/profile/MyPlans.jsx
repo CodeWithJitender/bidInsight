@@ -1,7 +1,11 @@
-import React from "react";
+import React, { use } from "react";
 import { FiDownload, FiExternalLink } from "react-icons/fi";
 import FeatureSlider from "./FeatureSlider";
 import { useSelector } from "react-redux";
+import { useState } from "react";
+import { getAllStates } from "../../services/user.service"; // adjust path
+// Add this import at top
+import FormSelect from "../../components/FormSelect"; // adjust path
 
 export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
   const subscriptionPlanId = useSelector(
@@ -9,6 +13,39 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   );
 
   const transactions = paymentData || [];
+
+
+  const [showStatePopup, setShowStatePopup] = useState(false);
+  const [allStates, setAllStates] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+
+  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
+  console.log(userStates);
+
+  // Handle bolt-on click
+  const handleBoltOnClick = async () => {
+    setLoading(true);
+    try {
+      const states = await getAllStates();
+      // Filter out states that user already has
+      const filteredStates = states.filter(
+        state => !userStates.some(userState => userState.id === state.id)
+      );
+      setAllStates(filteredStates);
+      setShowStatePopup(true);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Add after handleBoltOnClick
+  const handleStateSelect = (selectedStateId) => {
+    console.log("Selected state ID:", selectedStateId);
+    const selectedState = allStates.find(state => state.id.toString() === selectedStateId);
+    console.log("Selected state object:", selectedState);
+  };
 
   // Check if user is on free plan
   const isFreeplan = subscriptionPlanId === "001";
@@ -112,11 +149,16 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               <div className="text-lg font-inter font-medium text-[#999999]">
                 <div className="flex items-center gap-2">
                   Bolt-On
-                  <FiExternalLink className="text-purple-500 cursor-pointer" />
+                  {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") && (
+                    <FiExternalLink
+                      className="text-purple-500 cursor-pointer"
+                      onClick={handleBoltOnClick}
+                    />
+                  )}
                 </div>
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : "State"}
+                {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") ? "State" : "N/A"}
               </div>
             </p>
           </div>
@@ -177,6 +219,39 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
           )}
         </div>
       )}
+
+
+      {/* State Selection Popup - ADD HERE */}
+      {/* State Selection Popup with FormSelect */}
+      {showStatePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Select States</h3>
+            {loading ? (
+              <div className="text-center p-4">Loading states...</div>
+            ) : (
+              <FormSelect
+                label="Select State"
+                name="selectedState"
+                options={allStates.map(state => ({
+                  value: state.id.toString(),
+                  label: state.name
+                }))}
+                placeholder="Choose a state"
+                required={false}
+                onChange={(e) => handleStateSelect(e.target.value)}
+              />
+            )}
+            <button
+              onClick={() => setShowStatePopup(false)}
+              className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
