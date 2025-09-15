@@ -14,7 +14,7 @@ import { resendOtp, verifyOtp } from "../services/user.service";
 
 function Verification() {
   const data = {
-    title: "Verify your Email to begin your Biding",
+    title: "Verify Your Email to Begin Your Bidding",
     para: "All government bids. One dashboard. Zero hassles.",
     btnText: false,
     btnLink: false,

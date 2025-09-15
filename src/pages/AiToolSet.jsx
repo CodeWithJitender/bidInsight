@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 const AiToolSet = () => {
   return (
     <div
-      className="relative flex items-center justify-center h-screen bg-blue-700 text-white overflow-hidden"
-      
+      className="relative flex items-center justify-center h-screen text-white overflow-hidden bg-blue bg-center"
+      // style={{ backgroundImage: "url('/bg.jpg')" }}
     >
       {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 " />
 
       {/* Content */}
       <motion.div
@@ -32,7 +32,7 @@ const AiToolSet = () => {
 
         {/* Heading */}
         <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-          AI Toolkit{" "}
+          A.I. Toolset{" "}
           <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
             Coming Soon
             {/* Glowing Underline */}

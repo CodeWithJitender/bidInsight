@@ -116,16 +116,28 @@ function Home() {
     },
   };
   return (
-    <div className='overflow-x-hidden'>
-     <Hero/>
+    <div className="overflow-x-hidden md:mt-auto">
+      <Hero />
+      {/* <div className="" onClick={() => setOpen(true)}>
+        hell
+      </div> */}
+      <div className="" id='why-bidinsight'>
      <KeyValuePro/>
-     <LockedFeature />
-     <HowItWorks/>
-     {/* <PricingSection /> */}
-     <PricingHero />
-     <ComparisonGrid />
-     <CallToAction t1='Still Thinking ' t2='About It?' p='Dive right in and discover how BidInsight simplifies your gov­ern­ment bidding - no heavy lifting required. Start your free trial now and see opportunities tailored to you, risk-free.' link='/pricing' />
-       {open && <PaymentPopup content={content} onClose={() => setOpen(false)} />}
+     </div>
+      <LockedFeature />
+      <HowItWorks />
+      {/* <PricingSection /> */}
+      <PricingHero />
+      <ComparisonGrid />
+      <CallToAction
+        t1="Still Thinking "
+        t2="About It?"
+        p="Dive right in and discover how BidInsight simplifies your gov­ern­ment bidding - no heavy lifting required. Start your free trial now and see opportunities tailored to you, risk-free."
+        link="/pricing"
+      />
+      {open && (
+        <PaymentPopup content={content} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 }
