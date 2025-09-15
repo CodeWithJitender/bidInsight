@@ -78,21 +78,23 @@ const Footer = () => {
             Your next government contract awaits!
           </h1>
           <div className="mt-12 border-t border-white/20 pt-4 flex flex-col md:flex-row justify-between items-center gap-3" >
-            <Link
-              to="/terms"
+            <a
+              href="/Terms_&_Conditions.pdf"
+              target="_blank"
               className="hover:text-white mb-2 md:mb-0 font-t text-lg"
             >
               Terms & Conditions
-            </Link>
+            </a>
             <span className="text-center font-t text-lg">
               @2025 BidInsight - All Rights Reserved
             </span>
-            <Link
-              to="/privacy"
+            <a
+              href="Privacy_Notice.pdf"
+              target="_blank"
               className="hover:text-white mt-2 md:mt-0 font-t text-lg"
             >
               Privacy Policy
-            </Link>
+            </a>
           </div>
         </div>
        </div>
