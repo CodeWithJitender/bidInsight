@@ -23,7 +23,7 @@ export default {
         h1: ["clamp(40px, 5vw, 70px)", { lineHeight: "1.1" }],
         h2: ["clamp(24px, 5vw, 60px)", { lineHeight: "1.1" }],
         h3: ["clamp(16px, 5vw, 40px)", { lineHeight: "1.1" }],
-        p: ["clamp(14px, 5vw, 24px)", { lineHeight: "1.1" }],
+        p: ["clamp(14px, 2vw, 24px)", { lineHeight: "1.1" }],
       },
     },
   },

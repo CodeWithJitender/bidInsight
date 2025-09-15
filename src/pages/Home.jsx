@@ -116,8 +116,12 @@ function Home() {
     },
   };
   return (
-    <div className='overflow-x-hidden'>
-     <Hero/>
+    <div className="overflow-x-hidden md:mt-auto">
+      <Hero />
+      {/* <div className="" onClick={() => setOpen(true)}>
+        hell
+      </div> */}
+      <div className="" id='why-bidinsight'>
      <KeyValuePro/>
      <LockedFeature />
      <HowItWorks/>

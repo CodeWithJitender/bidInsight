@@ -61,14 +61,14 @@ function OurStory() {
           onMouseLeave={() => setHovered(false)}
         >
           <Slider {...settings}>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
               
 BidInsight was born out of frustration and a determination to do better. As a consulting and staffing firm specializing in government contracts, we spent our days hopping between multiple procurement portals such as GSA, SAM.gov, state and local sites, just to compile a list of potential RFPs. Then came the manual deep‑dives: reading specs, assessing scope and matching requirements to our capabilities. What should have been strategic decision‑making became a drain on resources, pulling us away from high‑impact work.
 
               </p>
             </div>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
          
               </p>
@@ -85,25 +85,25 @@ BidInsight was born out of frustration and a determination to do better. As a co
 
               </p>
             </div>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
                 So we decided to build the solution ourselves. We assembled a team of procurement veterans, data scientists and software engineers set out on an unwavering mission to create a platform that did more than scrape. We built BidInsight: an AI‑driven engine that continuously learns from your firm’s history – your past awards, team structure, contract values – and uses that intelligence to rank every new solicitation by compatibility. The result? A streamlined workflow that moves you from “what’s out there?” to “this is what we should pursue” in seconds, not hours.
 
               </p>
             </div>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
                
 
               </p>
             </div>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
                Today, BidInsight powers the bidding efforts of companies across every industry and geography. We’re proud to deliver clarity where once there was chaos and to help our users turn opportunity into growth.
 
               </p>
             </div>
-            <div className="pe-20 font-inter text-p ">
+            <div className="sm:pe-20 font-inter text-p ">
               <p>
               
               </p>

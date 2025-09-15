@@ -24,7 +24,7 @@ const { hash } = useLocation();
     }
   }, [hash]);
   return (
-    <div className="">
+    <div className="overflow-x-hidden">
       <Hero />
       <div className="" id="mission">
         <Mission />
