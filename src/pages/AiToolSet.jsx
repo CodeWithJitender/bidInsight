@@ -32,7 +32,7 @@ const AiToolSet = () => {
 
         {/* Heading */}
         <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-          AI Toolkit{" "}
+          A.I. Toolset{" "}
           <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
             Coming Soon
             {/* Glowing Underline */}
