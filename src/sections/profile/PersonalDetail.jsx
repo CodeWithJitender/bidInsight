@@ -148,7 +148,7 @@ const handleUpdateProfile = async () => {
             disabled
           />
           <FiInfo
-            className="absolute right-3 top-9 text-gray-400 cursor-pointer"
+            className="absolute right-3 top-9 text-gray-400  cursor-pointer"
             title="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
           />
         </div>
@@ -184,7 +184,7 @@ const handleUpdateProfile = async () => {
               name="companyFIEN"
               value={formData.companyFIEN}
               onChange={handleChange}
-              className={`w-full p-5 font-inter border rounded-md   cursor-not-allowed`}
+              className={`w-full p-5 font-inter border rounded-md bg-[#999999] cursor-not-allowed`}
               readOnly={!isEditing}
               disabled
             />
@@ -262,7 +262,7 @@ const handleUpdateProfile = async () => {
               value={formData.state}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
                 }`}
             >
               <option value="">Select a state</option>
@@ -271,6 +271,26 @@ const handleUpdateProfile = async () => {
                   {stateObj.name}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Target contract size */}
+          <div>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
+              Target contract size *
+            </label>
+            <select
+              name="contractSize"
+              value={formData.contractSize}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
+                }`}
+            >
+              <option value="">Select an option</option>
+              <option value="upto-75000">Up to $75,000</option>
+              <option value="75000-500000">$75,000 to $500,000</option>
+              <option value="above-500000">Above $500,000</option>
             </select>
           </div>
         </div>
