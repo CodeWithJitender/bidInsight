@@ -4,7 +4,6 @@ import FeatureSlider from "./FeatureSlider";
 import { useSelector } from "react-redux";
 
 export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
-  console.log(profileData.subscription_plan, "🔥 Profile Data in MyPlanssssssssssssssssssssssssssssssssssssss");
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
@@ -61,8 +60,16 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
             <div>
               <div className="flex items-stretch">
                 <div className="">
-                  <i className="fas fa-robot w-20 h-20 flex items-center justify-center bg-primary rounded-[10px] text-white text-xl"></i>
-                  {/* <img src="/ai-myplan.png" className="bg-primary" alt="" /> */}
+                  {/* Replace this with conditional images */}
+                  {subscriptionPlanId === "001" && (
+                    <img src="/price-1.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Free Plan" />
+                  )}
+                  {subscriptionPlanId === "002" && (
+                    <img src="/price-2.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Pro Plan" />
+                  )}
+                  {subscriptionPlanId === "003" && (
+                    <img src="/price-3.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Enterprise Plan" />
+                  )}
                 </div>
                 <div className="h-20 flex flex-col justify-between ps-4">
                   <div className="text-lg font-inter font-medium text-[#999999]">
