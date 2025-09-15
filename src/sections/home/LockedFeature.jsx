@@ -82,26 +82,14 @@ function LockedFeature() {
       duration: 1, // Add duration for smoother animation
       scrollTrigger: {
         trigger: container,
-        pin: true,
+        // pin: true,
         scrub: 1.2, // Slightly higher scrub value for smoother feel
-        start: "top top",
-        end: () => `+=${Math.max(1000, sections.length * 300)}`, // Dynamic end calculation
+        start: "top -20",
+        end: () => `top -130%`, // Dynamic end calculation
+        pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         fastScrollEnd: true, // Better performance on fast scrolling
-        onToggle: (self) => {
-          // Optimize during animation
-          if (self.isActive) {
-            gsap.set(sections, { willChange: "transform" });
-          } else {
-            gsap.set(sections, { willChange: "auto" });
-          }
-        },
-        onRefresh: () => {
-          // Recalculate on window resize
-          const newEnd = `+=${Math.max(1000, sections.length * 300)}`;
-          self.end = newEnd;
-        }
       },
     });
 
@@ -111,7 +99,7 @@ function LockedFeature() {
         timelineRef.current.kill();
         timelineRef.current = null;
       }
-      gsap.set(sections, { 
+      gsap.set(sections, {
         clearProps: "all",
         willChange: "auto"
       });
@@ -122,12 +110,12 @@ function LockedFeature() {
   const renderPanel = useCallback((item, index) => (
     <div
       key={`panel-${index}-${item.title}`}
-      className="panel my-14 rounded-[30px]  max-h-[670px] h-full flex-[50%]"
+      className="panel my-14 rounded-[30px] overflow-hidden max-h-[670px] h-full flex-[50%]"
     >
       <div className="locked-item  rounded-[30px] h-full">
         <div className="locked-img">
-          <img 
-            src={item.img} 
+          <img
+            src={item.img}
             alt={item.title}
             loading="lazy"
             decoding="async"
@@ -169,10 +157,9 @@ function LockedFeature() {
         </div>
       </div>
 
-      <div className="locked-content w-full overflow-hidden">
-        <div
-          className="locked-content-inner bg-blue h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
-          ref={containerRef}
+      <div className="locked-content w-full">
+        <div ref={containerRef}
+          className="locked-content-inner sticky top-0 bg-blue min-h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
           style={{
             transform: 'translateZ(0)', // Enable hardware acceleration
             backfaceVisibility: 'hidden'
@@ -196,6 +183,7 @@ function LockedFeature() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
