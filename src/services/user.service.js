@@ -209,7 +209,7 @@ export const emailAlert = async (payload) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
   try {
-    const response = await API.put("/auth/profile/", payload, {
+    const response = await API.post("/auth/user-settings/", payload, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json", // JSON payload
@@ -218,6 +218,37 @@ export const emailAlert = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error setting email alert:", error);
+    throw error;
+  }
+};
+
+export const EmailAlertUpdate = async (payload, id) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.put(`/auth/user-settings/${id}/`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // JSON payload
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating email alert:", error);
+    throw error;
+  }
+};
+
+export const getApiEmailAlert = async () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.get("/auth/user-settings/", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching email alert settings:", error);
     throw error;
   }
 };
