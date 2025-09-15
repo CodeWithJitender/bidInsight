@@ -11,7 +11,7 @@ function Hero() {
     container: "max-w-4xl mx-auto text-center",
   };
   return (
-    <div className="hero-home bg-[url('https://bid-insight.vercel.app/hero-bg.jpg')] bg-image  md:pt-36 pb-20">
+    <div className="hero-home bg-[url('https://bid-insight.vercel.app/hero-bg.jpg')] bg-image pt-20 md:pt-36 pb-20">
       <div className="container-section">
         <HeroHeading data={data} />
         <div className="hero-img  m-auto mt-20">

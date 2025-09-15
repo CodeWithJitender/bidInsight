@@ -15,7 +15,7 @@ const Mission = () => {
           viewport={{ once: true, amount: 0.3 }}
         >
           {/* Gradient Heading */}
-          <Heading textD={"OUR "} textL={"MISSION"} />
+          <Heading textD={"Our "} textL={"Mission"} />
 
           {/* Sub Heading */}
           {/* <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
@@ -24,38 +24,38 @@ const Mission = () => {
           </h3> */}
 
           {/* Paragraph */}
-          <p className="font-inter mt-6 leading-relaxed">
+          <div className="font-inter mt-6 leading-relaxed text-base md:text-xl">
             
 At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
 
-          </p>
+          </div>
           {/* Paragraph */}
-          <p className="font-inter mt-3 leading-relaxed">
+          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
             
 <b>Empower Businesses:</b> To help all organizations, whether big or small, focus on their core business instead of searching a needle in a haystack.
 
 
-          </p>
+          </div>
           {/* Paragraph */}
-          <p className="font-inter mt-3 leading-relaxed">
+          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
             
 <b>Eliminate Guesswork:</b> To remove the guesswork from government and public-sector bidding with clarity and precision.
 
 
-          </p>
+          </div>
           {/* Paragraph */}
-          <p className="font-inter mt-3 leading-relaxed">
-            
+          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+
 <b>Intelligent Automation: </b>To use advanced tools and AI to streamline the search, evaluation and selection of RFPs.
 
 
-          </p>
+          </div>
           {/* Paragraph */}
-          <p className="font-inter mt-3 leading-relaxed">
+          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
             
 At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
 
-          </p>
+          </div>
           
         </motion.div>
 

@@ -116,7 +116,7 @@ function Home() {
     },
   };
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-hidden md:mt-auto">
       <Hero />
       {/* <div className="" onClick={() => setOpen(true)}>
         hell
