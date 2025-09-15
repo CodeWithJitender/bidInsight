@@ -206,11 +206,11 @@ const NeedHelpModal = ({ onClose }) => {
         </button>
 
         {/* Title */}
-        <h2 className="text-center mb-2 text-h3 text-g font-bold">Need help</h2>
-        <p className="text-center text-white/90 mb-6  max-w-xl mx-auto text-p font-inter">
+        <h2 className="text-center mb-2 text-h3 text-g font-bold mb-3">Need help</h2>
+        {/* <p className="text-center text-white/90 mb-6  max-w-xl mx-auto text-p font-inter">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. In accumsan eros non fringilla
           faucibus.
-        </p>
+        </p> */}
 
         {/* FAQ Accordion */}
         <div className="space-y-3 max-h-[500px] pe-4 overflow-scroll">
