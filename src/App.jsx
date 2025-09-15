@@ -15,7 +15,7 @@ import PaymentStatus from "./pages/PaymentStatus.jsx";
 import ConfirmPassword from "./pages/ConfirmPassword.jsx";
 import { fetchUserProfile } from "./redux/reducer/profileSlice.js";
 import ForgotVerification from "./pages/ForgotVerification.jsx";
-
+// import PaymentPopup from "./components/PaymentPopup.jsx";
 
 // Lazy-loaded Pages
 const Home = lazy(() => import("./pages/Home"));
@@ -37,6 +37,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
 const Payment = lazy(() => import("./components/Payment"));
+
 // const PaymentUnsuccessful = lazy(() => import("./sections/payment/PaymentUnsuccessful"));
 
 
@@ -95,6 +96,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/company-build" element={<CompanyBuild />} />
           <Route path="/help" element={<HelpCenter />} />
+          {/* <Route path="/paymentpopup" element={<PaymentPopup />} /> */}
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
           <Route path="/ai-toolset" element={<ProtectedRoute> <AiToolSet /> </ProtectedRoute>} />
           <Route path="/plan" element={<Plan />} />
@@ -110,7 +112,7 @@ const App = () => {
           <Route path="/summary/:id" element={<Suspense fallback={<ShimmerSummaryCard />}> <ProtectedRoute><SummaryPage /></ProtectedRoute> </Suspense>} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/super-admin" element={<ProtectedRoute><SuperAdmin /></ProtectedRoute>} />
           <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
           <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />

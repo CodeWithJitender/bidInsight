@@ -34,8 +34,8 @@ function ConfirmPassword() {
   };
 
   const formHeader = {
-    title: "Back to Verification",
-    link: "/forgot-verification",
+    title: "",
+    link: "/forgot-otp",
     steps: "",
     activeStep: "",
   };
@@ -43,7 +43,7 @@ function ConfirmPassword() {
   const formFooter = {
     back: {
       text: "Back",
-      link: "/forgot-verification",
+      link: "/forgot-otp",
     },
     next: {
       text: "Save New Password",

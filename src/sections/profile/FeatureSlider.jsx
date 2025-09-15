@@ -9,7 +9,29 @@ import "swiper/css/effect-cards";
 // import required modules
 import { EffectCards, Autoplay } from "swiper/modules";
 
-export default function App() {
+export default function FeatureSlider({ currentPlan }) {
+
+  const getImagesForPlan = (planCode) => {
+    const planConfig = {
+      '001': { folder: 'free', count: 8 },
+      '002': { folder: 'starter', count: 6 },
+      '003': { folder: 'essentials', count: 7 }
+    };
+
+    // Default fallback free plan
+    const config = planConfig[planCode] || planConfig['001'];
+
+    // Images array banao
+    return Array.from({ length: config.count }, (_, index) => {
+      const imageNumber = index + 1;
+      return `/features/${config.folder}/${imageNumber}.jpg`;
+    });
+  };
+
+  // Current plan ke liye images get karo
+  const images = getImagesForPlan(currentPlan);
+
+
   return (
     <Swiper
       effect="cards"
@@ -21,21 +43,19 @@ export default function App() {
       }}
       className="mySwiper max-w-[80%]"
     >
-      <SwiperSlide>
-        <img src="/feature.png" alt="" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/feature.png" alt="" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/feature.png" alt="" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/feature.png" alt="" />
-      </SwiperSlide>
-      <SwiperSlide>
-        <img src="/feature.png" alt="" />
-      </SwiperSlide>
+      {images.map((imageSrc, index) => (
+        <SwiperSlide key={index}>
+          <img
+            src={imageSrc}
+            alt={`Feature ${index + 1}`}
+          className="w-full h-full object-cover rounded-xl"
+            onError={(e) => {
+              // Fallback image agar koi image load nahi ho
+              e.target.src = '/feature.png';
+            }}
+          />
+        </SwiperSlide>
+      ))}
     </Swiper>
   );
 }

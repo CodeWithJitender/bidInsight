@@ -1,6 +1,8 @@
 import React from "react";
-import { X, Crown, AlertTriangle } from "lucide-react";
+import { Crown, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { data } from "jquery";
 
 const SavedSearchPopup = ({
   isOpen,
@@ -12,6 +14,9 @@ const SavedSearchPopup = ({
 }) => {
   const navigate = useNavigate();
 
+  const dataPlan = useSelector((state) => state.profile?.profile); // To re-render on profile change
+  console.log(dataPlan, "🔥 Profile Data in SavedSearchPopup");
+
   if (!isOpen) return null;
 
   const handleUpgrade = () => {
@@ -20,59 +25,62 @@ const SavedSearchPopup = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2">
-      <div className="bg-gradient-to-br from-[#20232f] via-[#283593] to-[#4a5ba8] rounded-xl shadow-lg max-w-xs w-full mx-2 overflow-hidden border border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-200">
-
-        {/* Header */}
-        <div className="px-4 py-3 relative flex items-center border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/10 rounded-lg flex items-center justify-center">
-              <AlertTriangle size={18} className="text-yellow-300" />
-            </div>
-            <div>
-              <h2 className="font-bold text-base text-white">{title}</h2>
-              <p className="text-indigo-100 text-xs">Saved Searches</p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
+      {/* Card - Using PaymentPopup styling */}
+      <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
+        
+        {/* Icon / Image - Using AlertTriangle from original */}
+        <div className="flex justify-center mb-6">
+          <div className="w-[80px] h-[80px] bg-white/10 rounded-full flex items-center justify-center">
+            <img src="/popuplogo.png" alt="" />
           </div>
+        </div>
+
+        {/* Title & Description */}
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="h3 font-bold font-archivo text-g mb-3">
+            {title}
+          </h1>
+          <p className="text-lg font-inter">{message}</p>
+        </div>
+
+        {/* Access Details - Similar to Payment Details structure */}
+        <div className="text-left space-y-3 text-lg font-inter mt-6">
+          <div className="flex justify-between">
+            <span className="">Plan Type</span>
+            <span className="opacity-80">Starter Plan</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="">Current Status</span>
+            <span className="opacity-80">Limit Reached</span>
+          </div>
+          {/* <div className="flex justify-between">
+            <span className="font-semibold">Feature</span>
+            <span className="opacity-80">Saved Searches</span>
+          </div> */}
+        </div>
+
+        {/* Buttons - Using PaymentPopup button structure */}
+        <div className="mt-10 grid sm:grid-cols-2 justify-center gap-6">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-white/70 hover:text-white focus:outline-none transition"
-            aria-label="Close"
+            className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center"
           >
-            <X size={16} />
+            {cancelButtonText}
+          </button>
+          
+          <button
+            onClick={handleUpgrade}
+            className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
+          >
+            <Crown size={20} />
+            {upgradeButtonText}
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-4 bg-white/5 rounded-b-xl">
-          <div className="text-center mb-4">
-            <div className="w-10 h-10 bg-indigo-100/70 rounded-full flex items-center justify-center mx-auto mb-2 border border-indigo-300/20">
-              <Crown className="text-indigo-600" size={18} />
-            </div>
-            <h3 className="font-semibold text-white text-sm mb-2">
-              Access Restricted
-            </h3>
-            <div className="bg-white/10 rounded-lg p-2 mb-2 border border-white/10">
-              <p className="text-indigo-100 text-xs">{message}</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={onClose}
-              className="px-3 py-2 border border-white/10 text-white rounded-lg hover:bg-white/10 transition font-medium text-xs"
-            >
-              {cancelButtonText}
-            </button>
-
-            <button
-              onClick={handleUpgrade}
-              className="px-3 py-2 bg-gradient-to-r from-sky-600 via-indigo-800 to-indigo-600 text-white rounded-lg hover:opacity-90 transition font-medium text-xs flex items-center justify-center gap-1"
-            >
-              <Crown size={13} />
-              {upgradeButtonText}
-            </button>
-          </div>
+        {/* Note - Adding upgrade benefits */}
+        <div className="text-xs font-inter mt-2 w-full text-center leading-tight">
+          <b>NOTE:</b> Upgrade to unlock unlimited saved searches and premium features.
         </div>
       </div>
     </div>

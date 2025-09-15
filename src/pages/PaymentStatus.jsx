@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Elements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useSelector } from "react-redux"; // Add this import
 import { confirmPlanOrder } from "../services/pricing.service";
 import PaymentPopup from "../components/PaymentPopup";
 
@@ -12,50 +13,49 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
 
     const [open, setOpen] = useState(false);
     const [paymentResult, setPaymentResult] = useState(null); // 'success' or 'failed'
+    
+    // Redux store se profile check karo
+    const profileData = useSelector(state => state.profile?.profile);
+    
+    // Check if profile exists function
+   const checkProfileExists = () => {
+    if (!profileData) return false;
+    
+    // Data already object format mein hai
+    const profileObject = profileData?.profile;
+    
+    if (!profileObject || profileObject === null) {
+        return false; // Go to onboarding
+    }
+    
+    return true; // Go to dashboard
+};
+
     const processData = [
         {
             image: "/payment-successfull.png",
             title: "Your Payment is Successful",
-            // description:
-            //   "Upgrade your plan to sort bids by different criteria like date, status, etc.",
             details: [
                 { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
                 { label: "Transaction Date", value: "12/09/2025" },
-                // { label: "Payment Mode", value: "MasterCard 0922" },
                 { label: "Subtotal", value: `$${planPrice}` },
-                // { label: "Tax", value: "$10.00" },
             ],
-            buttons: [
-                { type: "link", text: "Go Back", url: "/geographic-coverage" },
-                { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
-            ],
-            // note: {
-            //   text: "If the issue continues, contact our support team at",
-            //   email: "support@bidinsight.com",
-            // },
+            buttons: [], // Will be set dynamically based on profile status
         },
         {
             image: "/payment-successfull.png",
             title: "Your Payment was Unsuccessful",
             description:
-                "We’re sorry, your payment could not be completed due to a gateway error.",
-            // details: [
-            //   { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
-            //   { label: "Transaction Date", value: "12/09/2025" },
-            //   { label: "Payment Mode", value: "MasterCard 0922" },
-            //   { label: "Subtotal", value: "$302.00" },
-            //   { label: "Tax", value: "$10.00" },
-            // ],
+                "We're sorry, your payment could not be completed due to a gateway error.",
             buttons: [
-                { type: "link", text: "Go Back", url: "/" },
-                { type: "button", text: "Download Invoice", onClick: () => alert("Downloading...") },
+                { type: "link", text: "Try Again", url: "/" },
             ],
             note: {
                 text: "If the issue continues, contact our support team at",
                 email: "support@bidinsight.com",
             },
         },
-    ]
+    ];
 
     useEffect(() => {
         if (!stripe || !clientSecret) return;
@@ -164,9 +164,19 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
     // Get the appropriate content based on payment result
     const getPopupContent = () => {
         if (paymentResult === 'success') {
-            return processData[0]; // First object for success
+            const hasProfile = checkProfileExists();
+            
+            // Dynamic button based on profile status
+            const successButtons = hasProfile 
+                ? [{ type: "link", text: "Go to Dashboard", url: "/dashboard" }]
+                : [{ type: "link", text: "Complete your onboarding", url: "/geographic-coverage" }];
+            
+            return {
+                ...processData[0],
+                buttons: successButtons
+            };
         } else if (paymentResult === 'failed') {
-            return processData[1]; // Second object for failed
+            return processData[1]; // Failed payment content
         }
         return null;
     };

@@ -13,7 +13,7 @@ import { addSavedSearch } from "../redux/reducer/savedSearchesSlice";
 import ProfessionalSavedSearchDropdown from '../components/ProfessionalSavedSearchDropdown';
 import StatShimmer from "../components/shimmereffects/StatShimmer";
 import BidTableShimmer from "../components/shimmereffects/BidTableShimmer";
-import { useUserTimezone } from "../timezone/useUserTimezone";
+// import { useUserTimezone } from "../timezone/useUserTimezone";
 import { fetchUserProfile } from "../redux/reducer/profileSlice";
 import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
 import { deleteFollowedBid } from "../services/bid.service";
@@ -39,7 +39,7 @@ function Dashboard() {
   const dispatch = useDispatch();
   const { bidsInfo } = useSelector((state) => state.bids);
   const { savedSearches } = useSelector((state) => state.savedSearches);
-  const { timezone: userTimezone } = useUserTimezone();
+  // const { timezone: userTimezone } = useUserTimezone();
 
   // 🔥 USE CUSTOM HOOKS
   const {
@@ -317,8 +317,8 @@ const handleFollowedCardClick = async () => {
   } else {
     const searchParams = new URLSearchParams(location.search);
     
-    console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
-    console.log("🔥 new_bids param:", searchParams.get('new_bids'));
+    // console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
+    // console.log("🔥 new_bids param:", searchParams.get('new_bids'));
 
     // YAH FIX KARO - URL se filters decode karo
     if (searchParams.toString() !== '') {
@@ -326,7 +326,7 @@ const handleFollowedCardClick = async () => {
       if (!decodedFilters.ordering) {
         decodedFilters.ordering = "closing_date";
       }
-      console.log("🔥 Decoded filters:", decodedFilters);
+      // console.log("🔥 Decoded filters:", decodedFilters);
       setFilters(decodedFilters);
       setAppliedFilters(decodedFilters);
     } else {
@@ -477,14 +477,14 @@ const handleFollowedCardClick = async () => {
     if (savedSearchId && savedSearches.length > 0) {
       // ✅ ADD: Skip if already processing same search
       if (selectedSavedSearch?.id?.toString() === savedSearchId) {
-        console.log("🔄 Same search already selected in useEffect, skipping");
+        // console.log("🔄 Same search already selected in useEffect, skipping");
         return;
       }
 
       const matchedSearch = savedSearches.find((item) => item.id.toString() === savedSearchId);
 
       if (matchedSearch) {
-        console.log("✅ Found matching saved search:", matchedSearch.name);
+        // console.log("✅ Found matching saved search:", matchedSearch.name);
 
         const searchObject = {
           id: matchedSearch.id,
@@ -501,7 +501,7 @@ const handleFollowedCardClick = async () => {
           decodedFilters.ordering = "closing_date";
         }
 
-        console.log("✅ Applying filters from saved search:", decodedFilters);
+        // console.log("✅ Applying filters from saved search:", decodedFilters);
         setFilters(decodedFilters);
         setAppliedFilters(decodedFilters);
 
@@ -526,7 +526,7 @@ const handleFollowedCardClick = async () => {
     const fetchData = async () => {
       try {
         const savedSearches = await getSavedSearches();
-        console.log("🔥 Fetched saved searches:", savedSearches);
+        // console.log("🔥 Fetched saved searches:", savedSearches);
         dispatch(addSavedSearch(savedSearches));
       } catch (error) {
         console.error("Error fetching saved searches:", error);
@@ -548,7 +548,7 @@ const handleFollowedCardClick = async () => {
 
     // 🔥 ONLY UPDATE IF DIFFERENT TO AVOID INFINITE LOOPS
     if (pageFromUrl !== currentPage) {
-      console.log(`🔥 Syncing page from URL: ${pageFromUrl}`);
+      // console.log(`🔥 Syncing page from URL: ${pageFromUrl}`);
       setCurrentPage(pageFromUrl);
     }
   }, [location.search]);
@@ -570,7 +570,7 @@ const handleFollowedCardClick = async () => {
     if (searchId === "_default_" || !searchId) {
       const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
 
-      console.log("🔥 Resetting to default dashboard state");
+      // console.log("🔥 Resetting to default dashboard state");
 
       setFilters(defaultFilters);
       setAppliedFilters(defaultFilters);
@@ -588,11 +588,11 @@ const handleFollowedCardClick = async () => {
       if (!token) return;
 
       const matched = savedSearches.find((item) => item.id === searchId);
-      console.log(matched?.query_string, "🔥 Matched saved search");
+      // console.log(matched?.query_string, "🔥 Matched saved search");
       if (!matched) return;
 
       if (selectedSavedSearch?.id === matched.id) {
-        console.log("🔄 Same search already selected, skipping duplicate processing");
+        // console.log("🔄 Same search already selected, skipping duplicate processing");
         return;
       }
 
@@ -602,7 +602,7 @@ const handleFollowedCardClick = async () => {
       if (!decodedFilters.ordering) {
         decodedFilters.ordering = "closing_date";
       }
-      console.log(decodedFilters, "🔥 Decoded filters from saved search");
+      // console.log(decodedFilters, "🔥 Decoded filters from saved search");
 
       setSelectedSavedSearch({
         id: matched.id,
@@ -914,7 +914,6 @@ const handleFollowedCardClick = async () => {
               </div>
             ) : (
               <BidTable
-                timezone={userTimezone}
                 bids={
                   isFollowView
                     ? followedBidsData

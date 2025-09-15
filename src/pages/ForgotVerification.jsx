@@ -32,7 +32,7 @@ function ForgotVerification() {
   };
 
   const formHeader = {
-    title: "Back to Forgot Password",
+    title: "",
     link: "/forgot-password",
     steps: "",
     activeStep: 0,

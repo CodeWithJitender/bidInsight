@@ -38,10 +38,10 @@ const BidTable = forwardRef(({
     blurConfig,
     validateAndExecute
   } = usePlan();
-  console.log("blurConfig->>>>>>>", blurConfig);
+  // console.log("blurConfig->>>>>>>", blurConfig);
 
 
-  console.log("plan info ->>>>>>>>>>>>>>>>>>>>>>>...", planInfo);
+  // console.log("plan info ->>>>>>>>>>>>>>>>>>>>>>>...", planInfo);
 
   useEffect(() => {
     setData([...bids]);
@@ -71,23 +71,23 @@ const BidTable = forwardRef(({
       );
     } else {
       // For users without restriction - directly navigate
-      console.log("✅ Navigating to bid summary:", id);
+      // console.log("✅ Navigating to bid summary:", id);
       navigate(`/summary/${id}`);
     }
   };
 
   const planData = useSelector((state) => {
-    console.log(state.profile.profile.subscription_plan.plan_code, "🔥 Redux State in BidTableeeeeeeeeeeeeeeeeeeeeeeeee");
-  return state.profile.profile.subscription_plan || {};
+    // console.log(state.profile.profile.subscription_plan.plan_code, "🔥 Redux State in BidTableeeeeeeeeeeeeeeeeeeeeeeeee");
+  return state.profile?.profile?.subscription_plan || {};
   
 });
 
 const isStarterPlan = planData?.plan_code === "002" && planData?.name === "Starter";
-console.log(isStarterPlan, "🔥 isStarterPlan in BidTableeeeeeeeeeeeeeeeeee");
+// console.log(isStarterPlan, "🔥 isStarterPlan in BidTableeeeeeeeeeeeeeeeeee");
 
 
   const handleFollowClick = (e, bidId) => {
-    console.log(bidId, "🔥 Follow button clicked for BID_ID");
+    // console.log(bidId, "🔥 Follow button clicked for BID_ID");
     e.stopPropagation();
 
      if (safeFollowLoading.has(bidId)) {
@@ -185,7 +185,7 @@ console.log(isStarterPlan, "🔥 isStarterPlan in BidTableeeeeeeeeeeeeeeeeee");
     }
 
     // 🔥 FIXED: For STARTER (002) and above - allow normal sorting
-    console.log("✅ Starter+ plan - Sorting allowed for field:", field);
+    // console.log("✅ Starter+ plan - Sorting allowed for field:", field);
     onSort(field);
   };
 
@@ -432,8 +432,9 @@ const getEntityTypes = () => {
                   {/* Status - No blur */}
                   <td className="px-4 py-4 font-medium font-inter">{statusLabel}</td>
 
+                    
                   {/* Share - With restriction */}
-                  <td className="px-4 py-4 btn-box text-center">
+                  <td className="px-4  py-4 text-center flex justify-center items-center">
                     {restrictions?.share ? (
                       <div
                         className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center opacity-50 relative"
@@ -459,7 +460,7 @@ const getEntityTypes = () => {
                   </td>
 
                   {/* Follow - With restriction */}
-                  <td className="px-4 py-4 text-center">
+                  <td className="px-4 py-4 text-center pl-10">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -503,6 +504,7 @@ const getEntityTypes = () => {
                       )}
                     </button>
                   </td>
+
                 </tr>
               );
             })

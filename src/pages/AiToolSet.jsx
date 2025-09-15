@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 const AiToolSet = () => {
   return (
     <div
-      className="relative flex items-center justify-center h-screen bg-blue text-white overflow-hidden"
+      className="relative flex items-center justify-center h-screen bg-blue-700 text-white overflow-hidden"
       
     >
       {/* Overlay for better readability */}

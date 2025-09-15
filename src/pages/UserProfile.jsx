@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom"
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   faLink,
   faDatabase,
@@ -26,6 +26,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUserProfile } from "../services/bid.service";
 import { persistor } from '../redux/store';
 import { clearProfile } from '../redux/reducer/profileSlice';
+import { logoutUser } from "../redux/reducer/authSlice";
+import { clearLoginData } from "../redux/reducer/loginSlice";
+import { clearOnboardingData } from "../redux/reducer/onboardingSlice";
+import { clearSavedSearches } from "../redux/reducer/savedSearchesSlice";
+import { userPaymentTable, paymentRecipt } from "../services/user.service"; // ye add karo
 
 export default function UserProfile() {
   const [active, setActive] = useState("Profile");
@@ -38,6 +43,8 @@ export default function UserProfile() {
   const [profileDataa, setProfileDataa] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [freshProfileData, setFreshProfileData] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   console.log("Auth Data:", authData);
   console.log("Login Data:", loginData);
   const dispatch = useDispatch();
@@ -56,6 +63,38 @@ export default function UserProfile() {
     }
   };
 
+  const fetchPaymentData = async () => {
+    try {
+      setPaymentLoading(true);
+      const payments = await userPaymentTable();
+
+      console.log("Payment Data Response:", payments); // Console log
+      setPaymentData(payments);
+    } catch (error) {
+      console.error("Failed to fetch payment data", error);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const handleReceiptDownload = async (paymentId) => {
+    try {
+      console.log("Downloading receipt for payment ID:", paymentId);
+      const response = await paymentRecipt(paymentId);
+      console.log("Receipt response:", response);
+
+      if (response?.receipt_url) {
+        window.open(response.receipt_url, '_blank');
+      } else {
+        console.error("No receipt URL found in response");
+        alert("Receipt not available");
+      }
+    } catch (error) {
+      console.error("Failed to download receipt:", error);
+      alert("Failed to download receipt. Please try again.");
+    }
+  };
+
 
   const handleProfileUpdate = async () => {
     console.log("Profile updated, refreshing data...");
@@ -64,6 +103,7 @@ export default function UserProfile() {
 
   useEffect(() => {
     fetchUserProfile();
+    fetchPaymentData(); // ye line add karo
   }, []);
 
 
@@ -126,26 +166,27 @@ export default function UserProfile() {
       return 'Invalid Date';
     }
   };
-const handleLogout = async () => {
-  try {
-    console.log("Logout clicked - starting cleanup...");
-    
-    // 🔥 Sabhi slices clear karo
-    dispatch(clearProfile());
-    dispatch(logoutUser());           // authSlice
-    dispatch(clearLoginData());       // loginSlice  
-    dispatch(clearOnboardingData());  // onboardingSlice ✅
-    dispatch(clearSavedSearches());   // savedSearchesSlice (new action)
-    
-    await persistor.purge();
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate("/login", { replace: true });
-  } catch (error) {
-    console.error('Logout error:', error);
-    navigate("/login", { replace: true });
-  }
-};
+  const handleLogout = async () => {
+    try {
+      console.log("Logout clicked - starting cleanup...");
+
+      // 🔥 Sabhi slices clear karo
+      dispatch(clearProfile());
+      dispatch(logoutUser());           // authSlice
+      dispatch(clearLoginData());       // loginSlice  
+      dispatch(clearOnboardingData());  // onboardingSlice ✅
+      dispatch(clearSavedSearches());   // savedSearchesSlice (new action)
+
+      await persistor.purge();
+      localStorage.clear();
+      sessionStorage.clear();
+
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      navigate("/login", { replace: true });
+    }
+  };
 
   // User data nikalna
   const getUserData = () => {
@@ -193,7 +234,12 @@ const handleLogout = async () => {
           loading={profileLoading}
         />
       case "My Plans":
-        return <MyPlans />;
+        return <MyPlans
+          paymentData={paymentData}
+          paymentLoading={paymentLoading}
+          onReceiptDownload={handleReceiptDownload}
+          profileData={freshProfileData}
+        />;
       case "Bids":
         return <Bids />;
       case "AI Toolset":

@@ -49,7 +49,7 @@ const PaymentPopup = ({ content, onClose }) => {
         </div>
 
         {/* Buttons */}
-        <div className="mt-10 grid sm:grid-cols-2 justify-center gap-6">
+        <div className="mt-10 p-2 justify-center gap-6">
           {content.buttons &&
             content.buttons.map((btn, idx) =>
               btn.type === "link" ? (
@@ -64,7 +64,7 @@ const PaymentPopup = ({ content, onClose }) => {
                 <button
                   key={idx}
                   onClick={btn.onClick}
-                  className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold"
+                  className="w-full font-archivo  text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold"
                 >
                   {btn.text}
                 </button>

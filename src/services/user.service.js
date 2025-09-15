@@ -240,3 +240,36 @@ export const deactivateAccount = async () => {
     throw error;
   }
 };
+
+
+
+export const userPaymentTable = async () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.get("/payments/my-payments/", {
+      headers: {  Authorization: `Bearer ${token}` },
+    });
+    console.log(response.data, "🔥 Payment data fetched");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching payment data:", error);
+    throw error;
+  } 
+};
+
+export const paymentRecipt = async (id) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found"); 
+  try {
+    const response = await API.get(`/payments/receipt/${id}/`, {
+      headers: {  Authorization: `Bearer ${token}` },
+    });
+    console.log(response.data, "🔥 Payment data fetched");
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching payment data:", error);
+    throw error;
+  }
+};

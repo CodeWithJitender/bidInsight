@@ -15,36 +15,35 @@ function Vision() {
           viewport={{ once: true, amount: 0.3 }}
         >
           {/* Gradient Heading */}
-          <Heading textD={"Lorem ipsum"} textL={"dolor sit amet"} />
+          <Heading textD={"OUR "} textL={"VISION"} />
 
           {/* Sub Heading */}
-          <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
+          {/* <h3 className="h3 mt-4 font-archivo font-bold text-black leading-snug">
             Curabitur sollicitudin leo quis velit efficitur, eget imperdiet
             sapien aliquet.
-          </h3>
+          </h3> */}
 
           {/* Paragraph */}
-          <p className="font-inter mt-6 leading-relaxed">
-            Phasellus laoreet velit dui, faucibus pharetra lacus sagittis quis.
-            Donec in libero quam. Quisque tempor posuere libero a varius. Nullam
-            laoreet venenatis elit in tempor. Mauris vitae porttitor quam, vitae
-            accumsan elit. Sed vitae molestie erat. Sed scelerisque ligula id
-            lacus viverra vehicula. Ut lectus ante, consequat quis elit vitae,
-            dapibus ornare turpis. Nunc id tristique sapien, pellentesque
-            aliquam dui.
-          </p>
+          <p className="font-inter mt-6 leading-relaxed"> We see a future where the directionless path of procurement portals, PDFs and manual filters is a thing of the past and in its place stands a transparent, AI‑powered marketplace of opportunity. Our vision is to revolutionize every stage of the bidding journey by delivering:</p>
+
+          <p className="font-inter mt-3 leading-relaxed"> <b>Seamless Aggregation:</b>  Real‑time access to every open solicitation (federal, state and local) in one place.</p>
+          <p className="font-inter mt-3  leading-relaxed"> <b>Actionable Insights:</b> Built‑in analytics that illuminate win‑rate trends, compatibility summaries empowering you to make data‑driven decisions.</p>
+          <p className="font-inter mt-3  leading-relaxed"> <b>Aligned Ecosystem:</b> A community-powered network that connects bidders, mentors and partners fostering shared insights, best‑practice exchanges and collective success.</p>
+          <p className="font-inter mt-3  leading-relaxed"> <b>Strategic Prioritization:</b>  An AI compatibility engine that learns your unique profile including, but not limited to, team size, preferred contract value and summarizes each bid by fit, so you pursue only the highest‑value targets.</p>
+
+          <p className="font-inter mt-3  leading-relaxed">By combining cutting‑edge AI with a user‑centric design, we’ll give every organization the confidence to bid smarter, move faster and compete on equal footing.</p>
         </motion.div>
 
         {/* Right Side (Image + Card Effect) */}
         <motion.div
-          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16 md:order-1"
+          className="relative bg-blue md:w-[40%] mt-5 md:mt-0 flex justify-center items-center md:h-screen p-6 md:p-16 md:order-1 md:py-18"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           viewport={{ once: true, amount: 0.3 }}
         >
           <img
-            src="/mission.png"
+            src="/vission.png"
             alt="App Preview"
             className="w-full md:w-auto md:max-h-full m-auto"
           />
