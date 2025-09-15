@@ -22,6 +22,7 @@ function FormSelect({
   message = "",
   messageType = "",
   touched = false,
+  dark = true
 }) {
   const dropdownRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -162,6 +163,7 @@ function FormSelect({
   const displayMessageType = getDisplayMessageType();
   const isSuccess = displayMessageType === "success";
   const isError = displayMessageType === "error";
+  
 
   return (
     <div
@@ -175,7 +177,7 @@ function FormSelect({
 
       {/* Custom Dropdown */}
       <div
-        className="relative font-t p-3 py-5 rounded-[20px] border border-gray-300 text-white cursor-pointer"
+        className={`relative font-t p-3 py-5 rounded-[20px] border border-gray-300 ${dark ? "text-white" : "text-black"} cursor-pointer`}
         onClick={handleDropdownToggle}
       >
         <div className="flex items-center justify-between">
