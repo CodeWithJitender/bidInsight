@@ -6,6 +6,8 @@ import { useState } from "react";
 import { getAllStates } from "../../services/user.service"; // adjust path
 // Add this import at top
 import FormSelect from "../../components/FormSelect"; // adjust path
+import { initiateBoltOrder } from "../../services/pricing.service";
+import { useNavigate } from "react-router-dom";
 
 export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
   const subscriptionPlanId = useSelector(
@@ -18,6 +20,9 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   const [showStatePopup, setShowStatePopup] = useState(false);
   const [allStates, setAllStates] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedState, setSelectedState] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
 
   const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
@@ -32,6 +37,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       const filteredStates = states.filter(
         state => !userStates.some(userState => userState.id === state.id)
       );
+
       setAllStates(filteredStates);
       setShowStatePopup(true);
     } catch (error) {
@@ -42,9 +48,8 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
   // Add after handleBoltOnClick
   const handleStateSelect = (selectedStateId) => {
-    console.log("Selected state ID:", selectedStateId);
     const selectedState = allStates.find(state => state.id.toString() === selectedStateId);
-    console.log("Selected state object:", selectedState);
+    setSelectedState(selectedState);
   };
 
   // Check if user is on free plan
@@ -84,6 +89,34 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   const handleDownloadClick = (paymentId) => {
     if (onReceiptDownload) {
       onReceiptDownload(paymentId);
+    }
+  };
+
+  const handlePlanSelection = async () => {
+
+    setLoading(true);
+    try {
+
+      const res = await initiateBoltOrder(selectedState.id);
+      if (!res) {
+        throw new Error("Failed to initiate payment");
+      }
+
+      console.log("💳 Payment details:", res);
+
+      navigate("/payment", {
+        state: {
+          clientSecret: res.clientSecret,
+          publishableKey: res.publishableKey,
+          plan: res.plan,
+        },
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error("❌ Failed to initiate payment:", error);
+      alert(error?.message || "Failed to initiate payment. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,6 +264,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               <div className="text-center p-4">Loading states...</div>
             ) : (
               <FormSelect
+                dark={false}
                 label="Select State"
                 name="selectedState"
                 options={allStates.map(state => ({
@@ -242,12 +276,21 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 onChange={(e) => handleStateSelect(e.target.value)}
               />
             )}
-            <button
-              onClick={() => setShowStatePopup(false)}
-              className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-            >
-              Close
-            </button>
+            <div className="flex justify-between mt-6 gap-4 w-full">
+              <button
+                onClick={() => setShowStatePopup(false)}
+                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              >
+                Close
+              </button>
+              <button
+              disabled={!selectedState}
+                onClick={() => handlePlanSelection(selectedState.id)}
+                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              >
+                {isLoading ? "Loading..." : "Proceed"}
+              </button>
+            </div>
           </div>
         </div>
       )}

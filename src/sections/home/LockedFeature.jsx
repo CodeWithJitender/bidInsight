@@ -162,7 +162,7 @@ function LockedFeature() {
           className="locked-content-inner sticky top-0 bg-blue min-h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
           style={{
             transform: 'translateZ(0)', // Enable hardware acceleration
-            backfaceVisibility: 'hidden'
+            // backfaceVisibility: 'hidden'
           }}
         >
           {data.map(renderPanel)}

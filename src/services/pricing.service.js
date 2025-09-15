@@ -24,6 +24,19 @@ export const initiatePlanOrder = async (planId, amount, billingCycle) => {
     throw error;
   }
 };
+
+export const initiateBoltOrder = async (stateId) => {
+  try {
+    const res = await API.post("/auth/plans/buy-bolt/", {
+      addOn: { state_id: stateId },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error initiating bolt order:", error);
+    throw error;
+  }
+};
+
 export const confirmPlanOrder = async (paymentIntentId) => {
   try {
     const res = await API.post("/auth/plans/buy-plan/acknowledge/", {
