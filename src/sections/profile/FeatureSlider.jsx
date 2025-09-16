@@ -1,7 +1,7 @@
 import React from "react";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/effect-cards";
@@ -45,7 +45,7 @@ export default function FeatureSlider({ currentPlan }) {
     >
       {images.map((imageSrc, index) => (
         <SwiperSlide key={index}>
-          <img
+          <LazyLoadImage
             src={imageSrc}
             alt={`Feature ${index + 1}`}
           className="w-full h-full object-cover rounded-xl"

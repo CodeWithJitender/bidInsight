@@ -1,4 +1,6 @@
 import React from 'react'
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
 
 function Hero() {
   return (
@@ -9,7 +11,7 @@ function Hero() {
             <h1 className='text-h1 font-archivo font-bold text-g max-w-2xl mx-auto' data-aos="fade-up" data-aos-delay="300">
                Clarity, Automation, Growth, Reports
             </h1>
-            <img src="hero-img.png" className='mt-6 lg:mt-12' alt="" data-aos="fade-up" data-aos-delay="400"  />
+            <LazyLoadImage src="hero-img.png" className='mt-6 lg:mt-12' alt="" data-aos="fade-up" data-aos-delay="400"  />
         </div>
       </div>
       </div>

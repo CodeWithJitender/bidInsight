@@ -1,5 +1,6 @@
 import React from "react";
 import HeroHeading from "../../components/HeroHeading";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 function KeyValuePro() {
   const data = {
@@ -11,7 +12,7 @@ function KeyValuePro() {
     <div className="key-value-pro bg-blue">
       <div className="container-section">
         <HeroHeading data={data}/>
-        <img src="Mapchart.png" className="w-full mt-10" alt="" data-aos="fade-up" data-aos-delay="300"/>
+        <LazyLoadImage src="Mapchart.png" className="w-full mt-10" alt="" data-aos="fade-up" data-aos-delay="300"/>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 const ComparisonGrid = () => {
   return (
@@ -9,7 +10,7 @@ const ComparisonGrid = () => {
         </h1>
 
         <div className="">
-          <img src="you-decide.png" className="w-full" alt="" data-aos="fade-up" data-aos-delay="200"  />
+          <LazyLoadImage src="you-decide.png" className="w-full" alt="" data-aos="fade-up" data-aos-delay="200"  />
           {/* <div className="comparison-grid">
             <div className="grid-item" id="grid-item-1">
             </div>

@@ -4,12 +4,17 @@ import API from "../utils/axios.js";
 
 export const signupUser = async (formData) => {
   try {
-    const response = await API.post("/auth/signup/", formData);
+    const response = await API.post("/auth/signup/", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
     return response;
   } catch (error) {
-    throw error; // Let caller handle it in try/catch
+    throw error;
   }
 };
+
 
 export const validateEmailAPI = async (email) => {
   try {
@@ -19,7 +24,6 @@ export const validateEmailAPI = async (email) => {
     console.error("Error validating email:", error);
   }
 }
-
 
 
 export const verifyOtp = async (payload) => {

@@ -1,5 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
 import Heading from "../../components/Heading";
 
 function Vision() {
@@ -52,7 +54,7 @@ function Vision() {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           viewport={{ once: true, amount: 0.3 }}
         >
-          <img
+          <LazyLoadImage
             src="/vission.png"
             alt="App Preview"
             className="w-full md:w-auto md:max-h-full m-auto"

@@ -553,7 +553,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
       
       const payload = {
         email_alerts: option.value,
-        email: userEmail  // Add email to payload for PUT request
+        // email: userEmail  // Add email to payload for PUT request
       };
       
       console.log("📧 Email Alert Payload:", payload);

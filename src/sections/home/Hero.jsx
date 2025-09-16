@@ -1,5 +1,6 @@
 import React from "react";
 import HeroHeading from "../../components/HeroHeading";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 function Hero() {
   const data = {
@@ -15,7 +16,7 @@ function Hero() {
       <div className="container-section">
         <HeroHeading data={data} />
         <div className="hero-img  m-auto mt-20">
-            <img src="hero-img.png" alt="" data-aos="fade-up" data-aos-delay="300" />
+            <LazyLoadImage src="hero-img.png" alt="" data-aos="fade-up" data-aos-delay="300" />
         </div>
       </div>
     </div>

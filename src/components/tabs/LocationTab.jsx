@@ -305,13 +305,13 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       const selectedStates = [];
       // Only select the first state (Starter plan allows 1)
 
-        if (profileStates.length > 0) {
-      selectedStates.push(profileStates[0].name);
-    }
+      if (profileStates.length > 0) {
+        selectedStates.push(profileStates[0].name);
+      }
 
-     if (activeAddonState && !selectedStates.includes(activeAddonState.name)) {
-      selectedStates.push(activeAddonState.name);
-    }
+      if (activeAddonState && !selectedStates.includes(activeAddonState.name)) {
+        selectedStates.push(activeAddonState.name);
+      }
 
 
       setLocationState(prev => ({
@@ -435,26 +435,26 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
       <div className="space-y-6">
         {/* Federal Section */}
-         {/* ✅ Wrapper add karo */}
-          <div className={`bg-white rounded-lg border-2 border-primary overflow-hidden p-4`}>
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="federal"
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                checked={locationState.federal}
-                onChange={toggleFederal}
-              />
-              <label
-                htmlFor="federal"
-                className="text-lg font-medium text-gray-900 cursor-pointer"
-              >
-                Federal
-              </label>
-            </div>
+        {/* ✅ Wrapper add karo */}
+        <div className={`bg-white rounded-lg border-2 border-primary overflow-hidden p-4`}>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="federal"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              checked={locationState.federal}
+              onChange={toggleFederal}
+            />
+            <label
+              htmlFor="federal"
+              className="text-lg font-medium text-gray-900 cursor-pointer"
+            >
+              Federal
+            </label>
           </div>
+        </div>
 
-      
+
 
         {/* State Section */}
         <div className="bg-white rounded-lg border-2 border-primary overflow-hidden">
@@ -577,123 +577,123 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         {/* Local Section */}
         <div className="relative">
           <div className={`bg-white rounded-lg border-2 border-primary overflow-hidden ${isEssentialPlan ? 'blur-[2px]' : ''}`}>
-          <div
-            className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => {
-              if (isEssentialPlan) return; 
-              if (planCode === "002" || profileStates.length === 0) {
-                setShowSavedSearchPopup(true);
-                return;
-              }
-              setLocalDropdownOpen(!localDropdownOpen);
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="local-header"
-                disabled={isEssentialPlan}
-                className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
-                checked={locationState.local.length > 0}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  if (planCode === "002" || profileStates.length === 0) {
-                    setShowSavedSearchPopup(true);
-                    return;
-                  }
-                  toggleAllLocal();
-                }}
-                ref={(el) => {
-                  if (el) {
-                    el.indeterminate = locationState.local.length > 0 && !isAllLocalSelected;
-                  }
-                }}
-              />
-              <label
-                htmlFor="local-header"
-                className="text-lg font-medium text-gray-900 cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Local ({locationState.local.length})
-              </label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {locationState.local.length > 0 && !isEssentialPlan && ( // ✅ !isEssentialPlan ADD KARO
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearLocal();
-                  }}
-                  className="text-sm text-blue-500 hover:text-blue-700 underline"
-                >
-                  Clear All
-                </button>
-              )}
-              <div className="p-1 hover:bg-gray-100 rounded">
-                {localDropdownOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </div>
-            </div>
-          </div>
-
-          {localDropdownOpen && (
-            <div className="p-4">
-              <div className="relative mb-4">
+            <div
+              className="flex items-center justify-between p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => {
+                if (isEssentialPlan) return;
+                if (planCode === "002" || profileStates.length === 0) {
+                  setShowSavedSearchPopup(true);
+                  return;
+                }
+                setLocalDropdownOpen(!localDropdownOpen);
+              }}
+            >
+              <div className="flex items-center gap-3">
                 <input
-                  type="text"
-                  placeholder="Search local entities..."
-                  className="w-full px-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
-                  value={localSearchTerm}
-                  onChange={(e) => setLocalSearchTerm(e.target.value)}
+                  type="checkbox"
+                  id="local-header"
+                  disabled={isEssentialPlan}
+                  className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                  checked={locationState.local.length > 0}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    if (planCode === "002" || profileStates.length === 0) {
+                      setShowSavedSearchPopup(true);
+                      return;
+                    }
+                    toggleAllLocal();
+                  }}
+                  ref={(el) => {
+                    if (el) {
+                      el.indeterminate = locationState.local.length > 0 && !isAllLocalSelected;
+                    }
+                  }}
                 />
-                <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={18}
-                />
+                <label
+                  htmlFor="local-header"
+                  className="text-lg font-medium text-gray-900 cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Local ({locationState.local.length})
+                </label>
               </div>
 
-              <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
-                {planCode === "002" || profileStates.length === 0 ? (
-                  <div className="bg-white rounded-lg border-2 border-primary overflow-hidden opacity-50 pointer-events-none select-none">
-                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                      <span className="text-lg font-medium text-gray-400">Local (Upgrade to use)</span>
-                    </div>
-                    <div className="p-4 text-gray-400">Local filtering is not available on your plan.</div>
-                  </div>
-                ) : filteredLocal.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500">No local entities found</div>
-                ) : (
-                  filteredLocal.map((entity) => {
-                    const name = entity.name;
-                    const checked = locationState.local.includes(name);
-                    return (
-                      <label
-                        key={name}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                      >
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
-                          checked={checked}
-                          onChange={() => toggleLocal(name)}
-                        />
-                        <span className="text-gray-900">{name}</span>
-                      </label>
-                    );
-                  })
+              <div className="flex items-center gap-2">
+                {locationState.local.length > 0 && !isEssentialPlan && ( // ✅ !isEssentialPlan ADD KARO
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearLocal();
+                    }}
+                    className="text-sm text-blue-500 hover:text-blue-700 underline"
+                  >
+                    Clear All
+                  </button>
                 )}
+                <div className="p-1 hover:bg-gray-100 rounded">
+                  {localDropdownOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
               </div>
             </div>
-          )}
 
-           {isEssentialPlan && (
-    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-lg pointer-events-none">
-      <div className=" px-6 py-3 rounded-lg shadow-xl">
-        <span className="text-black font-semibold text-lg">Coming Soon</span>
-      </div>
-    </div>
-  )}
-        </div>
+            {localDropdownOpen && (
+              <div className="p-4">
+                <div className="relative mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search local entities..."
+                    className="w-full px-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                    value={localSearchTerm}
+                    onChange={(e) => setLocalSearchTerm(e.target.value)}
+                  />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
+                </div>
+
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+                  {planCode === "002" || profileStates.length === 0 ? (
+                    <div className="bg-white rounded-lg border-2 border-primary overflow-hidden opacity-50 pointer-events-none select-none">
+                      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                        <span className="text-lg font-medium text-gray-400">Local (Upgrade to use)</span>
+                      </div>
+                      <div className="p-4 text-gray-400">Local filtering is not available on your plan.</div>
+                    </div>
+                  ) : filteredLocal.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">No local entities found</div>
+                  ) : (
+                    filteredLocal.map((entity) => {
+                      const name = entity.name;
+                      const checked = locationState.local.includes(name);
+                      return (
+                        <label
+                          key={name}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                            checked={checked}
+                            onChange={() => toggleLocal(name)}
+                          />
+                          <span className="text-gray-900">{name}</span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isEssentialPlan && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-lg pointer-events-none">
+                <div className=" px-6 py-3 rounded-lg shadow-xl">
+                  <span className="text-black font-semibold text-lg">Coming Soon</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
 

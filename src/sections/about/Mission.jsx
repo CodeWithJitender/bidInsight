@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Heading from "../../components/Heading";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
 
 const Mission = () => {
   return (
@@ -67,7 +69,7 @@ At BidInsight, we believe that every business, whether you’re a nimble startup
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           viewport={{ once: true, amount: 0.3 }}
         >
-          <img
+          <LazyLoadImage
             src="/mission.png"
             alt="App Preview"
             className="w-full md:w-auto md:max-h-full m-auto"
