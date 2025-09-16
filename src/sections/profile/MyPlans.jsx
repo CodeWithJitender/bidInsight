@@ -26,6 +26,11 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
 
 
   const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
+  const activeAddon = useSelector((state) =>
+    state.profile?.profile?.subscription_plan?.active_addon || null
+  );
+
+  const hasActiveAddon = Boolean(activeAddon);
   console.log(userStates);
 
   // Handle bolt-on click
@@ -79,7 +84,14 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   const getPlanName = (metadata) => {
     try {
       const detail = JSON.parse(metadata.detail);
-      return detail.plan.name || 'N/A';
+
+      // Check if it's a bolt-on purchase
+      if (metadata.purpose === "buy_addon_state" && detail.addon_state) {
+        return `Bolt-on State: ${detail.addon_state.name}`;
+      }
+
+      // Regular plan purchase
+      return detail.plan?.name || 'N/A';
     } catch {
       return 'N/A';
     }
@@ -182,11 +194,14 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               <div className="text-lg font-inter font-medium text-[#999999]">
                 <div className="flex items-center gap-2">
                   Bolt-On
-                  {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") && (
+                  {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") && !hasActiveAddon && (
                     <FiExternalLink
                       className="text-purple-500 cursor-pointer"
                       onClick={handleBoltOnClick}
                     />
+                  )}
+                  {hasActiveAddon && (
+                    <span className="text-[#999999] text-sm">(Added)</span>
                   )}
                 </div>
               </div>
@@ -231,7 +246,12 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                     key={tx.id}
                     className="border-b last:border-0 hover:bg-gray-50"
                   >
-                    <td className="py-3 px-4">Payment for {getPlanName(tx.metadata)}</td>
+                    <td className="py-3 px-4">
+                      {tx.metadata.purpose === "buy_addon_state"
+                        ? `Bolt-on Purchase`
+                        : `Payment for ${getPlanName(tx.metadata)}`
+                      }
+                    </td>
                     <td className="py-3 px-4">{tx.stripe_payment_intent_id}</td>
                     <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
                     <td className="py-3 px-4 font-bold">{formatAmount(tx.amount)}</td>
@@ -284,7 +304,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Close
               </button>
               <button
-              disabled={!selectedState}
+                disabled={!selectedState}
                 onClick={() => handlePlanSelection(selectedState.id)}
                 className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
               >

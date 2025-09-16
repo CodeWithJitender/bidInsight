@@ -16,7 +16,7 @@ function PricingHero() {
   const subscriptionPlanName = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
   );
-  console.log(subscriptionPlanName, "Selected subscription plan name");
+
 
 
   const plans = [
@@ -212,31 +212,31 @@ function PricingHero() {
         data-aos-delay="100"
       >
         <button
-          onClick={() => setBillingCycle("Annual")}
-          className={`px-2 py-4 rounded-full transition ${billingCycle === "Annual"
-            ? "pricing-btn-bg text-white"
-            : "text-white"
-            }`}
-        >
-          Annual
-          <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
-            -25%
-          </span>
-        </button>
-        <button
           onClick={() => setBillingCycle("Monthly")}
-          className={`px-5 py-2 rounded-full transition ${billingCycle === "Monthly"
+          className={`px-2 py-4 rounded-full transition ${billingCycle === "Monthly"
             ? "pricing-btn-bg text-white"
             : "text-white"
             }`}
         >
           Monthly
+          <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
+            -25%
+          </span>
+        </button>
+        <button
+          onClick={() => setBillingCycle("Annual")} 
+          className={`px-5 py-2 rounded-full transition ${billingCycle === "Annual"
+            ? "pricing-btn-bg text-white"
+            : "text-white"
+            }`}
+        >
+          Annual
         </button>
       </div>
 
       {/* Pricing Cards - Simplified Animation */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
-        {billingCycle === "Annual"
+        {billingCycle === "Monthly"
           ? getUpdatedPlans(plans).map((plan, index) => (
             <div
               key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
@@ -250,7 +250,7 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"yearly"} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"monthly"} />
             </div>
           ))
           : getUpdatedPlans(plansYear).map((plan, index) => (
@@ -266,7 +266,7 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"monthly"} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"yearly"} />
             </div>
           ))}
       </div>

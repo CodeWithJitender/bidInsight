@@ -73,8 +73,10 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
   // Plan and profile data from Redux
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
-  const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
+  const activeAddonState = useSelector(state => state.profile?.profile?.subscription_plan?.active_addon?.state);
 
+  const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
+  console.log(activeAddonState)
   const isEssentialPlan = planCode === "003";
 
   // 🔥 CRITICAL: Sync with external filters when they change
@@ -294,25 +296,41 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
     return (locationState.federal ? 1 : 0) + locationState.states.length + locationState.local.length;
   }, [locationState.federal, locationState.states.length, locationState.local.length]);
 
+
+
   // Enforce single state selection for Starter plan
   useEffect(() => {
-    if (planCode === "002" && profileStates.length > 0) {
+    if (planCode === "002" && (profileStates.length > 0 || activeAddonState)) {
+
+      const selectedStates = [];
       // Only select the first state (Starter plan allows 1)
+
+        if (profileStates.length > 0) {
+      selectedStates.push(profileStates[0].name);
+    }
+
+     if (activeAddonState && !selectedStates.includes(activeAddonState.name)) {
+      selectedStates.push(activeAddonState.name);
+    }
+
+
       setLocationState(prev => ({
         ...prev,
         federal: true, // <-- Yeh line add karo!
-        states: [profileStates[0].name]
+        states: selectedStates
       }));
       setFilters(prev => ({
         ...prev,
         location: {
           ...prev.location,
           federal: true, // <-- Yeh bhi add karo!
-          states: [profileStates[0].name]
+          states: selectedStates
         }
       }));
     }
-  }, [planCode, profileStates, setFilters]);
+  }, [planCode, profileStates, activeAddonState, setFilters]);
+
+
 
   const [showRestrictionPopup, setShowRestrictionPopup] = useState(false);
   const [showSavedSearchPopup, setShowSavedSearchPopup] = useState(false);
