@@ -651,16 +651,6 @@ export default function AccountSetting({ fullName, lastLogin }) {
         User Account Settings
       </h2>
 
-      {/* Loading indicator for initial settings fetch */}
-      {/* {settingsLoading && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-600 flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-            Loading email alert settings...
-          </p>
-        </div>
-      )} */}
-
       {/* Settings List */}
       <div className="space-y-4">
         {settings.map((item, i) => (
