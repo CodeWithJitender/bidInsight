@@ -30,6 +30,8 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
     state.profile?.profile?.subscription_plan?.active_addon || null
   );
 
+  console.log("Active addon:", activeAddon);
+
   const hasActiveAddon = Boolean(activeAddon);
   console.log(userStates);
 
@@ -163,6 +165,8 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 </div>
               </div>
             </div>
+
+
             <div className="text-right">
               <p className="text-sm text-gray-500">Last Payment</p>
               <p className="font-medium">
@@ -170,6 +174,9 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               </p>
             </div>
           </div>
+
+
+
           <div className="flex justify-between w-full">
             <p className="mt-5 ">
               <div className="text-lg font-inter font-medium text-[#999999]">
@@ -200,13 +207,17 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                       onClick={handleBoltOnClick}
                     />
                   )}
-                  {hasActiveAddon && (
-                    <span className="text-[#999999] text-sm">(Added)</span>
-                  )}
+
                 </div>
               </div>
               <div className="font-inter text-lg font-medium">
                 {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") ? "State" : "N/A"}
+
+                {hasActiveAddon && (
+                  <span className="text-[#999999] text-sm">
+                    ({activeAddon?.name || activeAddon?.state?.name || "Unknown State"})
+                  </span>
+                )}
               </div>
             </p>
           </div>

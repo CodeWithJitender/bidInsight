@@ -17,7 +17,7 @@ function PricingHero() {
     (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
   );
 
-
+ 
 
   const plans = [
     {
