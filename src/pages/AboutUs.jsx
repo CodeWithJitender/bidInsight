@@ -10,8 +10,7 @@ import ScrollToHashElement from "../components/ScrollToHashElement";
 import { useLocation } from "react-router-dom";
 
 function AboutUs() {
-  // This component serves as the main entry point for the About Us page,
-  // rendering various sections that describe the company's mission, vision, story, values, and brand
+
 const { hash } = useLocation();
 
   useEffect(() => {

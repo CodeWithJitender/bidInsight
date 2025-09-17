@@ -1,6 +1,6 @@
 // FIXED SummaryPage.js - No popup notifications + API error handling
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BidHeader from "../sections/summary/BidHeader";
 import SummaryContent from "../sections/summary/SummaryContent";
 import BidTracking from "../sections/summary/BidTracking";
@@ -8,8 +8,9 @@ import AiFeature from "../sections/summary/AiFeature";
 import SimilarBids from "../sections/summary/SimilarBids";
 import { BookMarkedBids, getBids, totalBookmarkedBids, deleteBookmarkedBid } from "../services/bid.service.js";
 import { similarBids } from "../services/user.service.js";
-import SavedSearchPopup from "../components/SavedSearchPopup.jsx"; 
+import SavedSearchPopup from "../components/SavedSearchPopup.jsx";
 import { usePlan } from "../hooks/usePlan";
+// Line 3 mein change
 
 function SummaryPage() {
   const { id } = useParams();
@@ -20,21 +21,23 @@ function SummaryPage() {
   const [similarBidsData, setSimilarBidsData] = useState([]);
   const [similarBidsLoading, setSimilarBidsLoading] = useState(false);
   const [similarBidsError, setSimilarBidsError] = useState(null);
-  
+
+  const navigate = useNavigate();
   // Bookmark state
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkedCount, setBookmarkedCount] = useState(0);
-  
+
   // ✅ SavedSearchPopup state for API limit errors
   const [showLimitPopup, setShowLimitPopup] = useState(false);
+  const [showBackToDashboard, setShowBackToDashboard] = useState(false);
   const [limitPopupData, setLimitPopupData] = useState({
     title: "",
     message: "",
     upgradeButtonText: "Upgrade Plan",
     cancelButtonText: "Cancel"
   });
-  
+
   const { planInfo, validateFeatureUsage, getFeatureRestriction } = usePlan();
   console.log(id, "ID from URL");
 
@@ -47,21 +50,28 @@ function SummaryPage() {
     source: "#",
   };
 
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+    setShowLimitPopup(false);
+  };
+
+
+
   // Fetch bookmarked count
   useEffect(() => {
     const fetchBookmarkedCount = async () => {
       try {
         const bookmarkedBids = await totalBookmarkedBids();
         setBookmarkedCount(bookmarkedBids.length);
-        
-        const isCurrentBidBookmarked = bookmarkedBids.some(bookmark => 
+
+        const isCurrentBidBookmarked = bookmarkedBids.some(bookmark =>
           bookmark.bid.id === parseInt(id)
         );
         setIsBookmarked(isCurrentBidBookmarked);
-        
+
         console.log("Current bid bookmarked:", isCurrentBidBookmarked);
         console.log("Bookmark data structure:", bookmarkedBids[0]);
-        
+
       } catch (error) {
         console.error("Error fetching bookmarked count:", error);
       }
@@ -79,13 +89,13 @@ function SummaryPage() {
     setIsBookmarking(true);
     try {
       const bookmarkedBids = await totalBookmarkedBids();
-      const currentBookmark = bookmarkedBids.find(bookmark => 
+      const currentBookmark = bookmarkedBids.find(bookmark =>
         bookmark.bid.id === parseInt(id)
       );
-      
+
       if (currentBookmark && currentBookmark.id) {
         await deleteBookmarkedBid(currentBookmark.id);
-        
+
         // ✅ Silent update - no popup
         setIsBookmarked(false);
         setBookmarkedCount(prev => prev - 1);
@@ -94,13 +104,13 @@ function SummaryPage() {
       console.error("Unbookmark error:", err);
 
       // ✅ Show SavedSearchPopup ONLY for API limit errors (403)
-      if (err.response?.status === 403 && 
-          err.response?.data?.detail?.includes("save up to")) {
-        
+      if (err.response?.status === 403 &&
+        err.response?.data?.detail?.includes("save up to")) {
+
         // Extract limit number from error message
         const match = err.response.data.detail.match(/save up to (\d+) bookmarks/);
         const limit = match ? match[1] : '20';
-        
+
         showLimitRestriction(
           "Bookmark Limit Reached",
           `You can only save up to ${limit} bookmarks with your current plan. Upgrade to save More bookmarks.`
@@ -118,6 +128,7 @@ function SummaryPage() {
   };
 
   // Existing bid fetch useEffect
+  // Existing bid fetch useEffect
   useEffect(() => {
     const fetchBid = async () => {
       try {
@@ -126,6 +137,19 @@ function SummaryPage() {
         setBid(data);
       } catch (err) {
         console.error("❌ Failed to fetch bid", err);
+
+        // ✅ 404 error ke liye popup show karo - YE WALA PART REPLACE KARO
+        if (err.response?.status === 404 &&
+          err.response?.data?.detail === "No Bid matches the given query.") {
+
+          showLimitRestriction(
+            "Bid Not Available",
+            "This bid is not accessible with your current plan. Upgrade to access bids from all states.",
+            true // ✅ YE ADD KARO - needBackToDashboard flag
+          );
+          return;
+        }
+
         setBid(null);
       } finally {
         setLoading(false);
@@ -164,19 +188,20 @@ function SummaryPage() {
 
   const bidData = bid || fallback;
   console.log("Bid Data:", bidData);
-  console.log(similarBidsData, "Similar Bids Data");  
+  console.log(similarBidsData, "Similar Bids Data");
 
   // ✅ Show SavedSearchPopup for bookmark limits
-  const showLimitRestriction = (title, message) => {
+  // Current function replace karo with:
+  const showLimitRestriction = (title, message, needBackToDashboard = false) => {
     setLimitPopupData({
       title,
       message,
       upgradeButtonText: "Upgrade Plan",
-      cancelButtonText: "Cancel"
+      cancelButtonText: needBackToDashboard ? "Back to Dashboard" : "Cancel"
     });
+    setShowBackToDashboard(needBackToDashboard); // Add this line
     setShowLimitPopup(true);
   };
-
   // ✅ FIXED: Add bookmark silently, show popup only for API limit errors
   const handleBookmark = async () => {
     if (!id || isBookmarked) return;
@@ -204,44 +229,45 @@ function SummaryPage() {
     try {
       const response = await BookMarkedBids(id);
       console.log("✅ Bid bookmarked successfully:", response);
-      
+
       // ✅ Silent update - no popup
       setIsBookmarked(true);
       setBookmarkedCount(prev => prev + 1);
 
     } catch (err) {
       console.error("Bookmark error:", err);
-      
+
       // ✅ Show SavedSearchPopup ONLY for API limit errors (403)
-      if (err.response?.status === 403 && 
-          err.response?.data?.detail?.includes("save up to")) {
-        
+      if (err.response?.status === 403 &&
+        err.response?.data?.detail?.includes("save up to")) {
+
         // Extract limit number from error message
         const match = err.response.data.detail.match(/save up to (\d+) bookmarks/);
         const limit = match ? match[1] : '20';
-        
+
         showLimitRestriction(
           "Bookmark Limit Reached",
           `You can only save up to ${limit} bookmarks with your current plan. Upgrade to save more bookmarks.`
         );
         return;
       }
-      
+
       // ✅ Other errors - handle silently
       if (err.response?.status === 400 || err.response?.status === 409) {
         setIsBookmarked(true); // Already bookmarked
         setBookmarkedCount(prev => prev + 1);
       }
-      
+
       // ✅ All other errors handled silently - no notifications
     } finally {
       setIsBookmarking(false);
     }
   };
 
-  // ✅ Close SavedSearchPopup
+  // Add one line:
   const handleCloseLimitPopup = () => {
     setShowLimitPopup(false);
+    setShowBackToDashboard(false); // Add this line
   };
 
   // Determine location based on entity_type
@@ -272,7 +298,7 @@ function SummaryPage() {
               onBookmark={handleBookmark}
               onUnbookmark={handleUnbookmark}
               isBookmarking={isBookmarking}
-              isBookmarked={isBookmarked} 
+              isBookmarked={isBookmarked}
             />
           </div>
 
@@ -309,6 +335,8 @@ function SummaryPage() {
       <SavedSearchPopup
         isOpen={showLimitPopup}
         onClose={handleCloseLimitPopup}
+        showBackToDashboard={showBackToDashboard}
+        onBackToDashboard={handleBackToDashboard}
         title={limitPopupData.title}
         message={limitPopupData.message}
         upgradeButtonText={limitPopupData.upgradeButtonText}

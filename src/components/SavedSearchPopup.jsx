@@ -11,8 +11,21 @@ const SavedSearchPopup = ({
   message = "You've reached your saved search limit for the Starter plan. Upgrade to create unlimited saved searches.",
   upgradeButtonText = "Upgrade Plan",
   cancelButtonText = "Cancel",
+  showBackToDashboard = false,
+  onBackToDashboard,
 }) => {
   const navigate = useNavigate();
+
+  const handleCancel = () => {
+    if (showBackToDashboard && onBackToDashboard) {
+      onBackToDashboard(); // Navigate to dashboard
+    } else {
+      onClose(); // Normal close
+    }
+  };
+
+  // Button text decide karo
+  const cancelText = showBackToDashboard ? "Back to Dashboard" : cancelButtonText;
 
   const dataPlan = useSelector((state) => state.profile?.profile); // To re-render on profile change
   console.log(dataPlan, "🔥 Profile Data in SavedSearchPopup");
@@ -63,10 +76,10 @@ const SavedSearchPopup = ({
         {/* Buttons - Using PaymentPopup button structure */}
         <div className="mt-10 grid sm:grid-cols-2 justify-center gap-6">
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center"
           >
-            {cancelButtonText}
+            {cancelText}
           </button>
           
           <button
@@ -80,7 +93,7 @@ const SavedSearchPopup = ({
 
         {/* Note - Adding upgrade benefits */}
         <div className="text-xs font-inter mt-2 w-full text-center leading-tight">
-          <b>NOTE:</b> Upgrade to unlock unlimited saved searches and premium features.
+          <b>NOTE:</b> Upgrade to unlock unlimited bid summary, saved searches and premium features.
         </div>
       </div>
     </div>
