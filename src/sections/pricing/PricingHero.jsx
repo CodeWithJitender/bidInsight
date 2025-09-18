@@ -17,7 +17,7 @@ function PricingHero() {
     (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
   );
 
- 
+
 
   const plans = [
     {
@@ -42,7 +42,7 @@ function PricingHero() {
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "/price-2.png",
+      icon: "https://bid-insight.vercel.app/price-2.png",
       delay: "200",
       planID: "002"
     },
@@ -109,7 +109,7 @@ function PricingHero() {
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "/price-2.png",
+      icon: "https://bid-insight.vercel.app/price-2.png",
       delay: "200",
       planID: "002"
     },
@@ -200,7 +200,7 @@ function PricingHero() {
   console.log(planDetails, "Plan details from API");
 
   return (
-    <section className="py-[130px] px-4 bg-blue text-center">
+    <section id="pricing-cards" className="py-[130px] px-4 bg-blue text-center">
       <div className="mb-5" data-aos="fade-up">
         <HeroHeading data={data} />
       </div>
@@ -224,7 +224,7 @@ function PricingHero() {
           </span>
         </button>
         <button
-          onClick={() => setBillingCycle("Annual")} 
+          onClick={() => setBillingCycle("Annual")}
           className={`px-5 py-2 rounded-full transition ${billingCycle === "Annual"
             ? "pricing-btn-bg text-white"
             : "text-white"
@@ -270,6 +270,9 @@ function PricingHero() {
             </div>
           ))}
       </div>
+
+
+      <p className="text-white text-lg w-[63%] mx-auto mt-14"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
 
       <style jsx>{`
         @keyframes fadeInUp {

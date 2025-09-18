@@ -106,12 +106,12 @@ function Billing() {
                     <div className="mb-2 font-medium font-inter text-p">
                       {plan}
                     </div>
-                    <button className="font-normal px-4 py-1 border border-primary text-primary rounded-full hover:bg-blue-50  transition font-inter text-p">
+                    <a href="#pricing-cards" className="font-normal px-4 py-1 border border-primary text-primary rounded-full hover:bg-blue-50  transition font-inter text-p">
                       Get {plan}{" "}
                       <span>
                         <i class="fal fa-long-arrow-right rotate-[-45deg]"></i>
                       </span>
-                    </button>
+                    </a>
                   </th>
                 ))}
               </tr>

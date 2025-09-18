@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { postPricingPlans } from "../services/admin.service"; // Update path
 import { initiatePlanOrder } from "../services/pricing.service";
@@ -40,61 +40,68 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
 
   // Handle plan selection
   // Handle plan selection
-// PricingCard.jsx - Only modify the handlePlanSelection function
+  // PricingCard.jsx - Only modify the handlePlanSelection function
 
-// Handle plan selection
-const handlePlanSelection = async () => {
-  if (isComingSoon || isButtonDisabled) return;
+  // Handle plan selection
+  const handlePlanSelection = async () => {
+    if (isComingSoon || isButtonDisabled) return;
 
-  // ✅ FREE PLAN LOGIC - New Addition
-  if (price === "0" || title === "Free") {
-    // Check if user is logged in
+    const pricingElement = document.getElementById('pricing-cards');
+    pricingElement.scrollIntoView({ 
+  behavior: 'smooth', 
+  block: 'center' // center me le jayega instead of top
+});
+
+
+    // ✅ FREE PLAN LOGIC - New Addition
+    if (price === "0" || title === "Free") {
+      // Check if user is logged in
+      const accessToken = localStorage.getItem("access_token");
+
+      if (accessToken) {
+        // User logged in → go to dashboard
+        navigate("/dashboard");
+      } else {
+        // User not logged in → go to login
+        navigate("/login");
+      }
+      return; // Exit function, no payment flow
+    }
+
+    // 🔹 EXISTING PAID PLANS LOGIC - No Changes
     const accessToken = localStorage.getItem("access_token");
-    
-    if (accessToken) {
-      // User logged in → go to dashboard
-      navigate("/dashboard");
-    } else {
-      // User not logged in → go to login
+
+    if (!accessToken) {
       navigate("/login");
-    }
-    return; // Exit function, no payment flow
-  }
-
-  // 🔹 EXISTING PAID PLANS LOGIC - No Changes
-  const accessToken = localStorage.getItem("access_token");
-  
-  if (!accessToken) {
-    navigate("/login");
-    return;
-  }
-
-  setIsLoading(true);
-  try {
-    console.log(duration, "Selected billing cycle");
-    
-    const res = await initiatePlanOrder(numericPlanId, price, duration);
-
-    if (!res?.clientSecret || !res?.publishableKey) {
-      throw new Error("Invalid response from payment API");
+      return;
     }
 
-    console.log("💳 Payment details:", res);
+    setIsLoading(true);
+    try {
+      console.log(duration, "Selected billing cycle");
 
-    navigate("/payment", {
-      state: {
-        clientSecret: res.clientSecret,
-        publishableKey: res.publishableKey,
-        plan: res.plan,
-      },
-    });
-  } catch (error) {
-    console.error("❌ Failed to initiate payment:", error);
-    alert(error?.message || "Failed to initiate payment. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      const res = await initiatePlanOrder(numericPlanId, price, duration);
+
+      if (!res?.clientSecret || !res?.publishableKey) {
+        throw new Error("Invalid response from payment API");
+      }
+
+      console.log("💳 Payment details:", res);
+
+      navigate("/payment", {
+        state: {
+          clientSecret: res.clientSecret,
+          publishableKey: res.publishableKey,
+          plan: res.plan,
+        },
+      });
+    } catch (error) {
+      console.error("❌ Failed to initiate payment:", error);
+      alert(error?.message || "Failed to initiate payment. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   return (
@@ -128,22 +135,22 @@ const handlePlanSelection = async () => {
       </div>
 
       {/* Action Button */}
-      {shouldRenderButton && (
-        <button
-          className={`bg-btn border border-white text-white p-4 font-inter font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:text-blue transition-colors"
-            }`}
-          disabled={isComingSoon || isLoading || isButtonDisabled}
-          onClick={handlePlanSelection}
-        >
-          {isComingSoon
-            ? "Coming Soon"
-            : isLoading
-              ? "Processing..."
-              : buttonText}
-        </button>
-      )}
+     {/* // Replace button with: */}
+     {shouldRenderButton && (
+  <Link to="#pricing-cards">
+    <button
+      className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:text-blue transition-colors"
+        }`}
+      disabled={isComingSoon || isLoading || isButtonDisabled}
+      onClick={handlePlanSelection}
+    >
+      {isComingSoon ? "Coming Soon" : isLoading ? "Processing..." : buttonText}
+    </button>
+  </Link>
+)}
+
 
       {/* Features */}
       <ul className="text-sm text-start flex-1 overflow-y-auto">

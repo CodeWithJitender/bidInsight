@@ -5,9 +5,11 @@ import Faq from "../sections/pricing/Faq";
 import { useLocation } from "react-router-dom";
 
 function Pricing() {
-  const { hash } = useLocation();
 
-  useEffect(() => {
+
+  const { hash } = useLocation(); // ← NEW: URL hash detect karta hai
+
+  useEffect(() => {                 // ← NEW: Hash change pe scroll
     if (hash) {
       const id = hash.replace("#", "");
       const el = document.getElementById(id);
@@ -16,6 +18,8 @@ function Pricing() {
       }
     }
   }, [hash]);
+
+
   return (
     <div className="pricing-page">
       <PricingHero />

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+#pricing-cards {
+  scroll-margin-top: 400px; /* Adjust this value as needed */
+}
 .font-h {
   font-family: "Archivo", sans-serif;
 }
@@ -114,7 +120,7 @@ p {
   -webkit-text-fill-color: transparent;
 }
 .pricing-btn-bg {
-  background-image: url("pricing-btn-bg.png");
+  background-image: url("https://bid-insight.vercel.app/pricing-btn-bg.png");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
