@@ -28,7 +28,7 @@ function CompanyBuild() {
     return parsed
       ? {
         companyName: parsed.companyName || "",
-        companyFienOrSsn: parsed.companyFienOrSsn || "",
+        // companyFienOrSsn: parsed.companyFienOrSsn || "",
         companyWebsite: parsed.companyWebsite || "",
         yearInBusiness: parsed.yearInBusiness || "",
         numberOfEmployees: parsed.numberOfEmployees || "",
@@ -38,7 +38,7 @@ function CompanyBuild() {
       }
       : {
         companyName: "",
-        companyFienOrSsn: "",
+        // companyFienOrSsn: "",
         companyWebsite: "",
         yearInBusiness: "",
         numberOfEmployees: "",
@@ -51,7 +51,7 @@ function CompanyBuild() {
 
   const [touched, setTouched] = useState({
     companyName: false,
-    companyFienOrSsn: false,
+    // companyFienOrSsn: false,
     companyWebsite: false,
     yearInBusiness: false,
     numberOfEmployees: false,
@@ -63,7 +63,7 @@ function CompanyBuild() {
 
   const [errors, setErrors] = useState({
     companyName: "",
-    companyFienOrSsn: "",
+    // companyFienOrSsn: "",
     companyWebsite: "",
     yearInBusiness: "",
     numberOfEmployees: "",
@@ -124,18 +124,6 @@ function CompanyBuild() {
           ? "Website is valid"
           : "Enter a valid url";
         type = urlRegex.test(value) ? "success" : "error";
-      } else if (name === "companyFienOrSsn") {
-        // Updated validation for FIEN/SSN - only digits allowed, no special characters
-        if (!/^\d+$/.test(value)) {
-          msg = "Only numbers are allowed, no special characters";
-          type = "error";
-        } else if (value.length !== 9) {
-          msg = "FIEN or SSN number must be exactly 9 digits";
-          type = "error";
-        } else {
-          msg = "This field is valid";
-          type = "success";
-        }
       } else if (name === "upload") {
         if (value && value.name) {
           msg = `${value.name} is uploaded`;
@@ -251,7 +239,7 @@ function CompanyBuild() {
         email: email,
         password: password,
         company_name: fields.companyName,
-        fein_or_ssn_number: fields.companyFienOrSsn,
+        // fein_or_ssn_number: fields.companyFienOrSsn,
         company_website: fields.companyWebsite,
         year_in_business: fields.yearInBusiness,
         no_of_employees: fields.numberOfEmployees,
@@ -302,10 +290,6 @@ function CompanyBuild() {
     }
   };
 
-  
-
-
-
   const data = {
     title: "Company Snapshot",
     para: "This takes under a minute-promise! ",
@@ -332,11 +316,13 @@ function CompanyBuild() {
     },
     skip: null,
   };
+
+
   return (
     <ProcessWrapper>
       <div className="form-left">
         <div className="pe-3 flex flex-col justify-between h-full">
-          <div className="">
+          <div className="" >
             <FormHeader {...formHeader} />
 
             <HeroHeading data={data} />
@@ -360,7 +346,7 @@ function CompanyBuild() {
                 message={touched.companyName || errors.companyName ? errors.companyName : ""}
                 messageType={getMessageType("companyName")}
               />
-              <FormField
+              {/* <FormField
                 label="Company FIEN or SSN *"
                 type="text"
                 name="companyFienOrSsn"
@@ -371,7 +357,7 @@ function CompanyBuild() {
                 onBlur={handleBlur}
                 message={touched.companyFienOrSsn || errors.companyFienOrSsn ? errors.companyFienOrSsn : ""}
                 messageType={getMessageType("companyFienOrSsn")}
-              />
+              /> */}
               <FormField
                 label="Company website *"
                 type="text"

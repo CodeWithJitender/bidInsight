@@ -10,6 +10,7 @@ import { initiateBoltOrder } from "../../services/pricing.service";
 import { useNavigate } from "react-router-dom";
 
 export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
+
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
@@ -68,17 +69,30 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
 
   // Date format karna
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
+ const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Last 2 digits
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid Date';
+  }
+};
+
+
+  // Add this function after formatDate function (around line 90)
+  const getPaymentStatus = (status) => {
+    switch (status) {
+      case "succeeded":
+        return { text: "Success", color: "text-green-600" };
+      case "requires_payment_method":
+        return { text: "Failed", color: "text-red-600" };
+      default:
+        return { text: status, color: "text-gray-600" };
     }
   };
 
@@ -128,7 +142,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       setLoading(false);
     } catch (error) {
       console.error("❌ Failed to initiate payment:", error);
-      alert(error?.message || "Failed to initiate payment. Please try again.");
+      // alert(error?.message || "Failed to initiate payment. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -248,34 +262,44 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">Amount</th>
                   <th className="py-3 px-4">Plan</th>
+                  <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-center">Download</th>
                 </tr>
               </thead>
               <tbody className="font-inter font-medium">
-                {transactions.map((tx) => (
-                  <tr
-                    key={tx.id}
-                    className="border-b last:border-0 hover:bg-gray-50"
-                  >
-                    <td className="py-3 px-4">
-                      {tx.metadata.purpose === "buy_addon_state"
-                        ? `Bolt-on Purchase`
-                        : `Payment for ${getPlanName(tx.metadata)}`
-                      }
-                    </td>
-                    <td className="py-3 px-4">{tx.stripe_payment_intent_id}</td>
-                    <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
-                    <td className="py-3 px-4 font-bold">{formatAmount(tx.amount)}</td>
-                    <td className="py-3 px-4">{getPlanName(tx.metadata)}</td>
-                    <td className="py-3 px-4 flex justify-center">
-                      <FiDownload
-                        className="cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => handleDownloadClick(tx.id)}
-                        title="Download Receipt"
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {transactions.map((tx) => {
+                  const statusInfo = getPaymentStatus(tx.status);
+                  return (
+                    <tr
+                      key={tx.id}
+                      className="border-b last:border-0 hover:bg-gray-50"
+                    >
+                      <td className="py-3 px-4">
+                        {tx.metadata.purpose === "buy_addon_state"
+                          ? `Bolt-on Purchase`
+                          : `Payment for ${getPlanName(tx.metadata)}`
+                        }
+                      </td>
+                      <td className="py-3 px-4">{tx.stripe_payment_intent_id}</td>
+                      <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
+                      <td className="py-3 px-4 font-bold">{formatAmount(tx.amount)}</td>
+                      <td className="py-3 px-4">{getPlanName(tx.metadata)}</td>
+                      <td className={`py-3 px-4 font-semibold ${statusInfo.color}`}>
+                        {statusInfo.text}
+                      </td>
+                      <td className="py-3 px-4 flex justify-center">
+                        <FiDownload
+                          className={`transition-colors ${tx.status === "succeeded"
+                              ? "cursor-pointer hover:text-primary text-gray-700"
+                              : "cursor-not-allowed text-gray-300"
+                            }`}
+                          onClick={() => tx.status === "succeeded" && handleDownloadClick(tx.id)}
+                          title={tx.status === "succeeded" ? "Download Receipt" : "Receipt not available for failed payments"}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           ) : (

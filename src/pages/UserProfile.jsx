@@ -154,18 +154,18 @@ export default function UserProfile() {
   };
 
   // Date format change karna - "2025-09-07T08:40:09.756377Z" ko "07-09-2025" mein
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
-    }
-  };
+ const formatDate = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2); // Last 2 digits only
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid Date';
+  }
+};
   const handleLogout = async () => {
     try {
       console.log("Logout clicked - starting cleanup...");

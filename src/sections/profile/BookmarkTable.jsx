@@ -13,7 +13,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
   React.useEffect(() => {
     setBids(data);
   }, [data]);
- const navigate = useNavigate();
+  const navigate = useNavigate();
   // Pagination logic
   const indexOfLastBid = currentPage * rowsPerPage;
   const indexOfFirstBid = indexOfLastBid - rowsPerPage;
@@ -42,7 +42,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
         try {
           // Call parent's remove function with bidId
           const success = await onRemove(bidId);
-          
+
           if (success) {
             // Remove from local state
             setBids((prev) => {
@@ -67,6 +67,20 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
         setRemovedIds((prev) => prev.filter((id) => id !== bidId));
         delete timers.current[bidId];
       }, 3000);
+    }
+  };
+
+  // Add this function after imports
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${month}/${day}/${year}`;
+    } catch (error) {
+      return 'Invalid Date';
     }
   };
 
@@ -116,9 +130,8 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
                 return (
                   <tr
                     key={bid.bidId}
-                    className={`border-b last:border-0 transition-opacity duration-500 cursor-pointer ${
-                      isRemoved ? "opacity-50" : "opacity-100 hover:bg-gray-50"
-                    }`}
+                    className={`border-b last:border-0 transition-opacity duration-500 cursor-pointer ${isRemoved ? "opacity-50" : "opacity-100 hover:bg-gray-50"
+                      }`}
                     onClick={() => handleRowClick(bid.bidId)}
                   >
                     <td className={`py-3 px-4 ${isRemoved ? "text-gray-400" : ""}`}>
@@ -128,10 +141,10 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
                       {bid.bidName}
                     </td>
                     <td className={`py-3 px-4 ${isRemoved ? "text-gray-400" : ""}`}>
-                      {bid.openDate}
+                      {formatDate(bid.openDate)}
                     </td>
                     <td className={`py-3 px-4 ${isRemoved ? "text-gray-400" : ""}`}>
-                      {bid.closedDate}
+                      {formatDate(bid.closedDate)}
                     </td>
                     <td className={`py-3 px-4 ${isRemoved ? "text-gray-400" : ""}`}>
                       {bid.countdown}
@@ -139,20 +152,18 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
                     <td className="py-3 px-4 flex items-center justify-center gap-2 relative" onClick={(e) => e.stopPropagation()}>
                       {type === "bookmarked" ? (
                         <i
-                          className={`fa-bookmark cursor-pointer transition ${
-                            isRemoved
+                          className={`fa-bookmark cursor-pointer transition ${isRemoved
                               ? "fal text-gray-400"
                               : "fas text-primary hover:scale-110"
-                          }`}
+                            }`}
                           onClick={() => handleRemove(bid.bidId)}
                         ></i>
                       ) : (
                         <i
-                          className={`fas cursor-pointer transition ${
-                            isRemoved
+                          className={`fas cursor-pointer transition ${isRemoved
                               ? "fa-plus-circle text-gray-400"
                               : "fa-minus-circle text-primary hover:scale-110"
-                          }`}
+                            }`}
                           onClick={() => handleRemove(bid.bidId)}
                         ></i>
                       )}
@@ -201,9 +212,8 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-2 ${
-                  currentPage === i + 1 ? "font-bold underline" : ""
-                }`}
+                className={`px-2 ${currentPage === i + 1 ? "font-bold underline" : ""
+                  }`}
               >
                 {i + 1}
               </button>

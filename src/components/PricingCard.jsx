@@ -1,59 +1,54 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { postPricingPlans } from "../services/admin.service"; // Update path
-import { initiatePlanOrder } from "../services/pricing.service";
+  import React, { useState } from "react";
+  import { Link, useNavigate } from "react-router-dom";
+  import { useSelector } from "react-redux";
+  import { initiatePlanOrder } from "../services/pricing.service";
 
-function PricingCard({ title, price, features, delay, icon, isComingSoon, planID, duration }) {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  function PricingCard({ title, price, features, delay, icon, isComingSoon, planID, duration }) {
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
-  // Get subscription plan id from Redux (if logged in)
-  const subscriptionPlanId = useSelector(
-    (state) => state.profile?.profile?.subscription_plan?.plan_code || null
-  );
+    // Get subscription plan id from Redux (if logged in)
+    const subscriptionPlanId = useSelector(
+      (state) => state.profile?.profile?.subscription_plan?.plan_code || null
+    );
 
-  const numericSubPlanId = subscriptionPlanId ? parseInt(subscriptionPlanId, 10) : null;
-  const numericPlanId = parseInt(planID, 10);
+    const numericSubPlanId = subscriptionPlanId ? parseInt(subscriptionPlanId, 10) : null;
+    const numericPlanId = parseInt(planID, 10);
 
-  // Button state logic
-  let buttonText = "Upgrade";
-  let isButtonDisabled = false;
-  let shouldRenderButton = true;
+    // Button state logic
+    let buttonText = "Upgrade";
+    let isButtonDisabled = false;
+    let shouldRenderButton = true;
 
-  if (!numericSubPlanId) {
-    // 👉 Guest user
-    if (title === "Free") {
-      buttonText = "Try Now";
+    if (!numericSubPlanId) {
+      // 👉 Guest user
+      if (title === "Free") {
+        buttonText = "Try Now";
+      } else {
+        buttonText = "Buy Now";
+      }
     } else {
-      buttonText = "Buy Now";
+      // 👉 Logged in user
+      if (numericPlanId < numericSubPlanId) {
+        shouldRenderButton = false; // remove button
+      } else if (numericPlanId === numericSubPlanId) {
+        buttonText = "Selected";
+        isButtonDisabled = true;
+      }
     }
-  } else {
-    // 👉 Logged in user
-    if (numericPlanId < numericSubPlanId) {
-      shouldRenderButton = false; // remove button
-    } else if (numericPlanId === numericSubPlanId) {
-      buttonText = "Selected";
-      isButtonDisabled = true;
-    }
-  }
 
-  // Handle plan selection
-  // Handle plan selection
-  // PricingCard.jsx - Only modify the handlePlanSelection function
 
-  // Handle plan selection
-  const handlePlanSelection = async () => {
+    // Handle plan selection
+     const handlePlanSelection = async (e) => {
     if (isComingSoon || isButtonDisabled) return;
 
-    const pricingElement = document.getElementById('pricing-cards');
-    pricingElement.scrollIntoView({ 
-  behavior: 'smooth', 
-  block: 'center' // center me le jayega instead of top
-});
+     const isFreeplan = price === "0" || title === "Free";
 
+     if (isFreeplan) {
+     e.preventDefault();
+   }
 
-    // ✅ FREE PLAN LOGIC - New Addition
+    // ✅ FREE PLAN LOGIC - Direct navigation, no scrolling
     if (price === "0" || title === "Free") {
       // Check if user is logged in
       const accessToken = localStorage.getItem("access_token");
@@ -68,7 +63,13 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
       return; // Exit function, no payment flow
     }
 
-    // 🔹 EXISTING PAID PLANS LOGIC - No Changes
+    // 🔹 PAID PLANS LOGIC - Scroll to pricing section
+    const pricingElement = document.getElementById('pricing-cards');
+    pricingElement.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' // center me le jayega instead of top
+    });
+
     const accessToken = localStorage.getItem("access_token");
 
     if (!accessToken) {
@@ -104,67 +105,67 @@ function PricingCard({ title, price, features, delay, icon, isComingSoon, planID
   };
 
 
-  return (
-    <div
-      className={`bg-blue text-white md:h-[850px] w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
-        }`}
-      data-aos="fade-up"
-      data-aos-delay={delay}
-    >
-      {/* Coming Soon Overlay */}
-      {isComingSoon && (
-        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black bg-opacity-80 rounded-3xl">
-          <div className="text-center">
-            <h2 className="text-4xl font-bold text-white mb-2">Coming Soon</h2>
-            <p className="text-lg text-gray-200">Stay tuned for updates!</p>
+    return (
+      <div
+        className={`bg-blue text-white md:h-[850px] w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+          }`}
+        data-aos="fade-up"
+        data-aos-delay={delay}
+      >
+        {/* Coming Soon Overlay */}
+        {isComingSoon && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 bg-black bg-opacity-80 rounded-3xl">
+            <div className="text-center">
+              <h2 className="text-4xl font-bold text-white mb-2">Coming Soon</h2>
+              <p className="text-lg text-gray-200">Stay tuned for updates!</p>
+            </div>
+          </div>
+        )}
+
+        {/* Icon */}
+        <div className="mb-4 w-20 h-20">
+          <img src={icon} className="w-full" alt={title} />
+        </div>
+
+        {/* Title + Price */}
+        <h3 className="text-[30px] font-h font-semibold text-start">{title}</h3>
+        <div className="flex items-center gap-3">
+          <div className="text-[50px] font-bold font-h">
+            {price === "0" ? "Free" : `$${price}`}
           </div>
         </div>
-      )}
 
-      {/* Icon */}
-      <div className="mb-4 w-20 h-20">
-        <img src={icon} className="w-full" alt={title} />
+        {/* Action Button */}
+      {/* // Replace button with: */}
+      {shouldRenderButton && (
+    <Link to="#pricing-cards">
+      <button
+        className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:text-blue transition-colors"
+          }`}
+        disabled={isComingSoon || isLoading || isButtonDisabled}
+        onClick={handlePlanSelection}
+      >
+        {isComingSoon ? "Coming Soon" : isLoading ? "Processing..." : buttonText}
+      </button>
+    </Link>
+  )}
+
+
+        {/* Features */}
+        <ul className="text-sm text-start flex-1 overflow-y-auto">
+          {features?.map((f, i) => (
+            <li key={i} className="flex items-start gap-2 text-xl mb-2">
+              <span className="text-white">
+                <i className="far fa-check"></i>
+              </span>
+              {f}
+            </li>
+          ))}
+        </ul>
       </div>
+    );
+  }
 
-      {/* Title + Price */}
-      <h3 className="text-[30px] font-h font-semibold text-start">{title}</h3>
-      <div className="flex items-center gap-3">
-        <div className="text-[50px] font-bold font-h">
-          {price === "0" ? "Free" : `$${price}`}
-        </div>
-      </div>
-
-      {/* Action Button */}
-     {/* // Replace button with: */}
-     {shouldRenderButton && (
-  <Link to="#pricing-cards">
-    <button
-      className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:text-blue transition-colors"
-        }`}
-      disabled={isComingSoon || isLoading || isButtonDisabled}
-      onClick={handlePlanSelection}
-    >
-      {isComingSoon ? "Coming Soon" : isLoading ? "Processing..." : buttonText}
-    </button>
-  </Link>
-)}
-
-
-      {/* Features */}
-      <ul className="text-sm text-start flex-1 overflow-y-auto">
-        {features?.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 text-xl mb-2">
-            <span className="text-white">
-              <i className="far fa-check"></i>
-            </span>
-            {f}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default PricingCard;
+  export default PricingCard;
