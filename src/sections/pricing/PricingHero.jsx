@@ -211,27 +211,33 @@ function PricingHero() {
         data-aos="fade-up"
         data-aos-delay="100"
       >
-        <button
-          onClick={() => setBillingCycle("Monthly")}
-          className={`px-2 py-4 rounded-full transition ${billingCycle === "Monthly"
-            ? "pricing-btn-bg text-white"
-            : "text-white"
-            }`}
-        >
-          Monthly
-          <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
-            -25%
-          </span>
-        </button>
+
+
         <button
           onClick={() => setBillingCycle("Annual")}
-          className={`px-5 py-2 rounded-full transition ${billingCycle === "Annual"
+          className={`px-2 py-4 rounded-full transition ${billingCycle === "Annual"
             ? "pricing-btn-bg text-white"
             : "text-white"
             }`}
         >
           Annual
+          <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
+            -25%
+          </span>
         </button>
+
+
+        <button
+          onClick={() => setBillingCycle("Monthly")}
+          className={`px-5 py-2 rounded-full transition ${billingCycle === "Monthly"
+            ? "pricing-btn-bg text-white"
+            : "text-white"
+            }`}
+        >
+          Monthly
+        </button>
+
+
       </div>
 
       {/* Pricing Cards - Simplified Animation */}
