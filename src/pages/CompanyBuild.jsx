@@ -3,9 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
 import FormField from "../components/FormField";
-import FormPassword from "../components/FormPassword";
 import FormFooter from "../components/FormFooter";
-import { Link } from "react-router-dom";
 import FormSelect from "../components/FormSelect";
 import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
@@ -78,9 +76,7 @@ function CompanyBuild() {
   // State for API states
   const [stateOptions, setStateOptions] = useState([]);
 
-  // useEffect(() => {
-  //   checkTTLAndClear(navigate);
-  // }, []);
+ 
 
   useEffect(() => {
     sessionStorage.setItem("companyBuildFields", JSON.stringify(fields));
@@ -104,8 +100,7 @@ function CompanyBuild() {
   }, []);
 
 
-  // Validation rules
-  // Updated validateField function ka part
+  
   const validateField = (name, value) => {
     let msg = "";
     let type = "error";
@@ -118,7 +113,6 @@ function CompanyBuild() {
       }
     } else {
       if (name === "companyWebsite") {
-        // Allow http(s)://, www., or plain domain like abc.com
         const urlRegex = /^(https?:\/\/)?(www\.)?([\w-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
         msg = urlRegex.test(value)
           ? "Website is valid"

@@ -26,7 +26,7 @@ function HowItWorks() {
       title: "Profile Set-up",
       para: "Tell us about your business - industry codes, contract history, geographic focus - so we can surface the most relevant opportunities.",
       btnText: "Set Profile",
-      link: "/login",
+      link: "/user-profile",
       img: "work-img-3.jpg",
     },
     {

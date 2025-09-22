@@ -222,7 +222,7 @@ function PricingHero() {
         >
           Annual
           <span className="bg-white text-primary px-5 py-2 rounded-full transition ms-3 font-t">
-            -25%
+            -5%
           </span>
         </button>
 
