@@ -7,6 +7,7 @@ import { data } from "jquery";
 const SavedSearchPopup = ({
   isOpen,
   onClose,
+  onCloseFilterPanel,
   title = "Saved Search Limit Reached",
   message = "You've reached your saved search limit for the Starter plan. Upgrade to create unlimited saved searches.",
   upgradeButtonText = "Upgrade Plan",
@@ -27,14 +28,18 @@ const SavedSearchPopup = ({
   // Button text decide karo
   const cancelText = showBackToDashboard ? "Back to Dashboard" : cancelButtonText;
 
-  const dataPlan = useSelector((state) => state.profile?.profile); // To re-render on profile change
-  console.log(dataPlan, "🔥 Profile Data in SavedSearchPopup");
+  const dataPlan = useSelector((state) => state.profile?.profile?.subscription_plan.name); // To re-render on profile change
+  console.log(dataPlan, "🔥 Profile Data in SavedSearchPopuppppppppppppppppppppp");
 
   if (!isOpen) return null;
 
   const handleUpgrade = () => {
     navigate("/pricing");
     onClose();
+
+    if (onCloseFilterPanel) {
+      onCloseFilterPanel();
+    }
   };
 
   return (
@@ -61,7 +66,7 @@ const SavedSearchPopup = ({
         <div className="text-left space-y-3 text-lg font-inter mt-6">
           <div className="flex justify-between">
             <span className="">Plan Type</span>
-            <span className="opacity-80">Starter Plan</span>
+            <span className="opacity-80">{dataPlan} Plan</span>
           </div>
           <div className="flex justify-between">
             <span className="">Current Status</span>

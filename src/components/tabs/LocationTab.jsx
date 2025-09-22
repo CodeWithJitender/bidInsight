@@ -17,7 +17,7 @@ const LOCAL_ENTITIES = [
   { name: "Township" }
 ];
 
-const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
+const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel }) => {
   console.log("🔥 LocationTab received filters:", filters);
 
   // 🔥 FIXED: Properly initialize state from filters.location structure
@@ -713,6 +713,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         <SavedSearchPopup
           isOpen={showSavedSearchPopup}
           onClose={() => setShowSavedSearchPopup(false)}
+           onCloseFilterPanel={onCloseFilterPanel}
           title="Location Access Restricted"
           message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
           upgradeButtonText="Upgrade Plan"

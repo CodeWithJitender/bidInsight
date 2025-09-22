@@ -471,7 +471,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
       case "Keyword":
         return <KeywordTab filters={filters} setFilters={updateFilters} />;
       case "Location":
-        return <LocationTab filters={filters} setFilters={updateFilters} />;
+        return <LocationTab filters={filters} setFilters={updateFilters} onCloseFilterPanel={onClose}  />;
       case "Published Date":
         return <PublishedDateTab filters={filters} setFilters={updateFilters} />;
       case "Closing Date":

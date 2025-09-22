@@ -309,9 +309,10 @@ export default function UserProfile() {
               <span>Back to Dashboard</span>
             </button>
           ) : (
-            <h2 className="text-2xl font-semibold font-archivo text-gray-800">
-              {active}
-            </h2>
+            <button  onClick={() => navigate("/dashboard")} className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition">
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Back to Dashboard</span>
+            </button>
           )}
           <div className="flex items-center gap-4">
             {/* <div className="relative">
