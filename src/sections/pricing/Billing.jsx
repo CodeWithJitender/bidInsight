@@ -95,7 +95,7 @@ function Billing() {
           textAlign={"text-center"}
         />
       </div>
-      <div className="px-4 sm:px-6 lg:px-20 py-10 relative">
+      <div className="px-4 sm:px-6 xl:px-20 pb-10 relative">
         <div className="overflow-auto relative">
           <table className="min-w-full  border-spacing-y-6 text-sm sm:text-base relative border-collapse  ">
             <thead className="sticky top-0 ">
@@ -103,15 +103,17 @@ function Billing() {
                 <th className="text-left w-48"></th>
                 {plans.map((plan, idx) => (
                   <th key={idx} className="text-center">
-                    <div className="mb-2 font-medium font-inter text-p">
+                    <div className="flex flex-col items-center">
+                      <div className="mb-2 font-medium font-inter text-p">
                       {plan}
                     </div>
-                    <a href="#pricing-cards" className="font-normal px-4 py-1 border border-primary text-primary rounded-full hover:bg-blue-50  transition font-inter text-p">
+                    <a href="#pricing-cards" className="font-normal px-4 py-1 mx-2 border border-primary text-primary rounded-full hover:bg-blue-50 flex gap-2 items-center transition font-inter text-p">
                       Get {plan}{" "}
                       <span>
                         <i class="fal fa-long-arrow-right rotate-[-45deg]"></i>
                       </span>
                     </a>
+                    </div>
                   </th>
                 ))}
               </tr>

@@ -107,7 +107,7 @@
 
     return (
       <div
-        className={`bg-blue text-white md:h-[850px] w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+        className={`bg-blue text-white h-full  w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
           }`}
         data-aos="fade-up"
         data-aos-delay={delay}
@@ -116,7 +116,7 @@
         {isComingSoon && (
           <div className="absolute inset-0 flex items-center justify-center z-20 bg-black bg-opacity-80 rounded-3xl">
             <div className="text-center">
-              <h2 className="text-4xl font-bold text-white mb-2">Coming Soon</h2>
+              <h2 className="lg:text-3xl   xl:text-4xl font-bold text-white mb-2">Coming Soon</h2>
               <p className="text-lg text-gray-200">Stay tuned for updates!</p>
             </div>
           </div>
@@ -140,7 +140,7 @@
       {shouldRenderButton && (
     <Link to="#pricing-cards">
       <button
-        className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+        className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
           ? "opacity-50 cursor-not-allowed"
           : "hover:text-blue transition-colors"
           }`}

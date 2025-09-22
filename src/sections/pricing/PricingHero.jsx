@@ -241,7 +241,7 @@ function PricingHero() {
       </div>
 
       {/* Pricing Cards - Simplified Animation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
         {billingCycle === "Monthly"
           ? getUpdatedPlans(plans).map((plan, index) => (
             <div
@@ -278,7 +278,7 @@ function PricingHero() {
       </div>
 
 
-      <p className="text-white text-lg w-[63%] mx-auto mt-14"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
+      <p className="text-white text-lg max-w-[800px] mx-auto mt-14 px-5"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
 
       <style jsx>{`
         @keyframes fadeInUp {
