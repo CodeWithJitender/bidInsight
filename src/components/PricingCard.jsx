@@ -39,70 +39,142 @@
 
 
     // Handle plan selection
-     const handlePlanSelection = async (e) => {
-    if (isComingSoon || isButtonDisabled) return;
+  //    const handlePlanSelection = async (e) => {
+  //   if (isComingSoon || isButtonDisabled) return;
 
-     const isFreeplan = price === "0" || title === "Free";
+  //    const isFreeplan = price === "0" || title === "Free";
 
-     if (isFreeplan) {
-     e.preventDefault();
-   }
+  //    if (isFreeplan) {
+  //    e.preventDefault();
+  //  }
 
-    // ✅ FREE PLAN LOGIC - Direct navigation, no scrolling
-    if (price === "0" || title === "Free") {
-      // Check if user is logged in
-      const accessToken = localStorage.getItem("access_token");
+  //   // ✅ FREE PLAN LOGIC - Direct navigation, no scrolling
+  //   if (price === "0" || title === "Free") {
+  //     // Check if user is logged in
+  //     const accessToken = localStorage.getItem("access_token");
 
-      if (accessToken) {
-        // User logged in → go to dashboard
-        navigate("/dashboard");
-      } else {
-        // User not logged in → go to login
-        navigate("/login");
-      }
-      return; // Exit function, no payment flow
-    }
+  //     if (accessToken) {
+  //       // User logged in → go to dashboard
+  //       navigate("/dashboard");
+  //     } else {
+  //       // User not logged in → go to login
+  //       navigate("/login");
+  //     }
+  //     return; // Exit function, no payment flow
+  //   }
 
-    // 🔹 PAID PLANS LOGIC - Scroll to pricing section
-    const pricingElement = document.getElementById('pricing-cards');
-    pricingElement.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'center' // center me le jayega instead of top
-    });
+  //   // 🔹 PAID PLANS LOGIC - Scroll to pricing section
+  //   const pricingElement = document.getElementById('pricing-cards');
+  //   pricingElement.scrollIntoView({ 
+  //     behavior: 'smooth', 
+  //     block: 'center' // center me le jayega instead of top
+  //   });
 
+  //   const accessToken = localStorage.getItem("access_token");
+
+  //   if (!accessToken) {
+  //     navigate("/login");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   try {
+  //     console.log(duration, "Selected billing cycle");
+
+  //     const res = await initiatePlanOrder(numericPlanId, price, duration);
+
+  //     if (!res?.clientSecret || !res?.publishableKey) {
+  //       throw new Error("Invalid response from payment API");
+  //     }
+
+  //     console.log("💳 Payment details:", res);
+
+  //     navigate("/payment", {
+  //       state: {
+  //         clientSecret: res.clientSecret,
+  //         publishableKey: res.publishableKey,
+  //         plan: res.plan,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("❌ Failed to initiate payment:", error);
+  //     alert(error?.message || "Failed to initiate payment. Please try again.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // Handle plan selection
+const handlePlanSelection = async (e) => {
+  if (isComingSoon || isButtonDisabled) return;
+
+  const isFreeplan = price === "0" || title === "Free";
+
+  if (isFreeplan) {
+    e.preventDefault();
+  }
+
+  // ✅ FREE PLAN LOGIC - Direct navigation, no scrolling
+  if (price === "0" || title === "Free") {
+    // Check if user is logged in
     const accessToken = localStorage.getItem("access_token");
 
-    if (!accessToken) {
+    if (accessToken) {
+      // User logged in → go to dashboard
+      navigate("/dashboard");
+    } else {
+      // User not logged in → go to login
       navigate("/login");
-      return;
+    }
+    return; // Exit function, no payment flow
+  }
+
+  // 🔹 NEW LOGIC: For Starter & Essentials - redirect logout users to /login
+  const accessToken = localStorage.getItem("access_token");
+  
+  if (!accessToken && (title === "Starter" || title === "Essentials")) {
+    navigate("/login");
+    return;
+  }
+
+  // 🔹 PAID PLANS LOGIC - Scroll to pricing section (for logged in users only)
+  const pricingElement = document.getElementById('pricing-cards');
+  pricingElement.scrollIntoView({ 
+    behavior: 'smooth', 
+    block: 'center' // center me le jayega instead of top
+  });
+
+  if (!accessToken) {
+    navigate("/login");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    console.log(duration, "Selected billing cycle");
+
+    const res = await initiatePlanOrder(numericPlanId, price, duration);
+
+    if (!res?.clientSecret || !res?.publishableKey) {
+      throw new Error("Invalid response from payment API");
     }
 
-    setIsLoading(true);
-    try {
-      console.log(duration, "Selected billing cycle");
+    console.log("💳 Payment details:", res);
 
-      const res = await initiatePlanOrder(numericPlanId, price, duration);
-
-      if (!res?.clientSecret || !res?.publishableKey) {
-        throw new Error("Invalid response from payment API");
-      }
-
-      console.log("💳 Payment details:", res);
-
-      navigate("/payment", {
-        state: {
-          clientSecret: res.clientSecret,
-          publishableKey: res.publishableKey,
-          plan: res.plan,
-        },
-      });
-    } catch (error) {
-      console.error("❌ Failed to initiate payment:", error);
-      alert(error?.message || "Failed to initiate payment. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    navigate("/payment", {
+      state: {
+        clientSecret: res.clientSecret,
+        publishableKey: res.publishableKey,
+        plan: res.plan,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Failed to initiate payment:", error);
+    alert(error?.message || "Failed to initiate payment. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
     return (
@@ -138,7 +210,7 @@
         {/* Action Button */}
       {/* // Replace button with: */}
       {shouldRenderButton && (
-    <Link to="#pricing-cards">
+    // <Link to="#pricing-cards">
       <button
         className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
           ? "opacity-50 cursor-not-allowed"
@@ -149,7 +221,7 @@
       >
         {isComingSoon ? "Coming Soon" : isLoading ? "Processing..." : buttonText}
       </button>
-    </Link>
+    // </Link>
   )}
 
 

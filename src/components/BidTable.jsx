@@ -284,7 +284,7 @@ const getEntityTypes = () => {
 
                 {/* Only show dropdown if not restricted */}
                 {dropdownOpen && !restrictions.entityDropdown && (
-                  <div className="absolute mt-2 w-40 rounded-md bg-white text-black font-medium z-10">
+                  <div className="absolute  mt-2 w-40 rounded-md bg-white text-black font-medium z-10">
                     {getEntityTypes().map((type) => (
                       <div
                         key={type}
