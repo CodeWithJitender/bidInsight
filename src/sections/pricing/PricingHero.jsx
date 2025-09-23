@@ -28,7 +28,7 @@ function PricingHero() {
         "3 Visible Bids Only",
         "Basic Access"
       ],
-      icon: "/price-1.png",
+      icon: "/price-1.svg",
       delay: "200",
       planID: "001"
     },
@@ -42,7 +42,7 @@ function PricingHero() {
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "https://bid-insight.vercel.app/price-2.png",
+      icon: "/price-2.svg",
       delay: "200",
       planID: "002"
     },
@@ -60,7 +60,7 @@ function PricingHero() {
         "Cities & Counties (Coming Soon)",
         "RFP Compatibility Summary (Coming Soon)"
       ],
-      icon: "/price-3.png",
+      icon: "/price-3.svg",
       delay: "300",
       planID: "003"
     },
@@ -95,7 +95,7 @@ function PricingHero() {
         "3 Visible Bids Only",
         "Basic Access"
       ],
-      icon: "/price-1.png",
+      icon: "/price-1.svg",
       delay: "200",
       planID: "001"
     },
@@ -109,7 +109,7 @@ function PricingHero() {
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "https://bid-insight.vercel.app/price-2.png",
+      icon: "/price-2.svg",
       delay: "200",
       planID: "002"
     },
@@ -127,7 +127,7 @@ function PricingHero() {
         `Cities & Counties  (Coming Soon)`,
         "RFP Compatibility Summary (Coming Soon)"
       ],
-      icon: "/price-3.png",
+      icon: "/price-3.svg",
       delay: "300",
       planID: "003"
     },
