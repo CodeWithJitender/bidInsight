@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Trash2, Search, ChevronDown, ChevronUp } from "lucide-react";
 // 👇 Import the real API function
 import { getAllStates } from "../../services/user.service";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import FeatureRestrictionPopup from "../FeatureRestrictionPopup"; // adjust path if needed
 import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
 
@@ -284,7 +284,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const clearLocal = useCallback(() => {
     const newLocationState = {
       ...locationState,
-      local: []
+      local: []  
     };
 
     console.log("🔥 Clearing all local entities");

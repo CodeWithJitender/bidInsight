@@ -208,7 +208,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Next Charge:
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.plan_starts_at)}
+                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.next_payment_date)}
               </div>
             </p>
             <p className="mt-5 ">

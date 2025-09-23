@@ -29,7 +29,6 @@ const SavedSearchPopup = ({
   const cancelText = showBackToDashboard ? "Back to Dashboard" : cancelButtonText;
 
   const dataPlan = useSelector((state) => state.profile?.profile?.subscription_plan.name); // To re-render on profile change
-  console.log(dataPlan, "🔥 Profile Data in SavedSearchPopuppppppppppppppppppppp");
 
   if (!isOpen) return null;
 
