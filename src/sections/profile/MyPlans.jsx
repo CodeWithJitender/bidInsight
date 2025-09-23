@@ -313,11 +313,15 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       {/* State Selection Popup with FormSelect */}
       {showStatePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Select States</h3>
+          <div className="bg-blue rounded-xl p-6 max-w-md w-full mx-4">
+            {/* <h3 className="text-lg font-semibold mb-4">Select States</h3> */}
             {loading ? (
-              <div className="text-center p-4">Loading states...</div>
+              <div className="text-center p-4 ">Loading states...</div>
             ) : (
+
+              <>
+
+
               <FormSelect
                 dark={false}
                 label="Select State"
@@ -326,26 +330,34 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                   value: state.id.toString(),
                   label: state.name
                 }))}
+                className="text-white"
                 placeholder="Choose a state"
                 required={false}
                 onChange={(e) => handleStateSelect(e.target.value)}
               />
+              </>
+
+
+              
             )}
-            <div className="flex justify-between mt-6 gap-4 w-full">
+            <div className="flex justify-between mt-6 gap-4 w-full pb-4">
               <button
                 onClick={() => setShowStatePopup(false)}
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                className=" px-4 py-2 text-white border-white border-[1px] rounded-xl  transition-colors"
               >
                 Close
               </button>
               <button
                 disabled={!selectedState}
                 onClick={() => handlePlanSelection(selectedState.id)}
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                className=" px-4  border-white border-[1px] rounded-xl text-white transition-colors"
               >
                 {isLoading ? "Loading..." : "Proceed"}
               </button>
             </div>
+
+                            <p className="text-sm text-white w-96 pb-5">NOTE: This fee is recurring with the validity & cadence as per your master plan.</p>
+
           </div>
         </div>
       )}

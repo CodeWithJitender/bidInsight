@@ -212,7 +212,7 @@ const handlePlanSelection = async (e) => {
       {shouldRenderButton && (
     // <Link to="#pricing-cards">
       <button
-        className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+        className={`bg-btn border text-h border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
           ? "opacity-50 cursor-not-allowed"
           : "hover:text-blue transition-colors"
           }`}

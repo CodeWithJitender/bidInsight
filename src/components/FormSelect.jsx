@@ -177,9 +177,10 @@ function FormSelect({
 
       {/* Custom Dropdown */}
       <div
-        className={`relative font-t p-3 py-5 rounded-[20px] border border-gray-300 ${dark ? "text-white" : "text-black"} cursor-pointer`}
+        className={`relative font-t p-3 py-5 rounded-[20px] border border-gray-300 text-white ${dark ? "text-white" : "text-black"} cursor-pointer`}
         onClick={handleDropdownToggle}
-      >
+      > 
+      
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FontAwesomeIcon
