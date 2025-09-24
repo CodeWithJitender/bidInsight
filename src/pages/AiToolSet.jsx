@@ -1,5 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Button } from "@headlessui/react";
+import NormalBtn from "../components/NormalBtn";
 
 const AiToolSet = () => {
   return (
@@ -31,7 +33,7 @@ const AiToolSet = () => {
         </motion.div>
 
         {/* Heading */}
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl font-extrabold font-archivo mb-6 leading-tight">
           A.I. Toolset{" "}
           <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
             Coming Soon
@@ -41,10 +43,11 @@ const AiToolSet = () => {
         </h1>
 
         {/* Subtext */}
-        <p className="text-gray-300 max-w-xl mx-auto text-lg md:text-xl leading-relaxed">
+        <p className="text-white max-w-xl mx-auto text-lg md:text-xl leading-relaxed">
           Revolutionizing productivity with next-gen AI tools. Stay tuned for
-          something <span className="text-blue-400 font-semibold">powerful</span>.
+          something powerful.
         </p>
+        <NormalBtn text="Get Notified" btnFun={true} />
       </motion.div>
     </div>
   );

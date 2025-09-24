@@ -98,7 +98,7 @@ const App = () => {
           <Route path="/help" element={<HelpCenter />} />
           {/* <Route path="/paymentpopup" element={<PaymentPopup />} /> */}
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
-          <Route path="/ai-toolset" element={<ProtectedRoute> <AiToolSet /> </ProtectedRoute>} />
+          <Route path="/ai-toolset" element={<AiToolSet />} />
           <Route path="/plan" element={<Plan />} />
           <Route path="/geographic-coverage" element={<ProtectedRoute> <GeographicCoverage /> </ProtectedRoute>} />
           <Route path="/industry-categories" element={<ProtectedRoute> <IndustryCategories /> </ProtectedRoute>} />
