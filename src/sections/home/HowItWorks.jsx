@@ -86,7 +86,7 @@ function HowItWorks() {
         {data.map((item, index) => (
           <motion.div
             key={index}
-            className="work-item bg-blue py-16"
+            className="work-item bg-blue lg:py-16"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}

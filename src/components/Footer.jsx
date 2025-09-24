@@ -36,7 +36,7 @@ const Footer = () => {
                 links: [
                   { name: "Pricing", url: "/pricing" },
                   { name: "Features", url: "/pricing#features" },
-                  { name: "FAQs", url: "/faqs" }
+                  // { name: "FAQs", url: "/faqs" }
                 ], 
                 delay:"400" 
               },
