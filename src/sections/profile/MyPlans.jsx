@@ -200,7 +200,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 {isFreeplan ? "N/A" : (
                   profileData?.subscription_plan?.recurring_interval?.charAt(0).toUpperCase() +
                   profileData?.subscription_plan?.recurring_interval?.slice(1) || 'N/A'
-                )}
+                )}      
               </div>
             </p>
             <p className="mt-5 ">

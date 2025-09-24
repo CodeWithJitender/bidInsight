@@ -5,6 +5,10 @@ import { getAllStates } from "../../services/user.service";
 import { useSelector } from "react-redux";
 import FeatureRestrictionPopup from "../FeatureRestrictionPopup"; // adjust path if needed
 import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
+// Top mein add karo
+import { initiateBoltOrder } from "../../services/pricing.service";
+import FormSelect from "../FormSelect";
+import { useNavigate } from "react-router-dom";
 
 // Mock local entities data
 const LOCAL_ENTITIES = [
@@ -71,10 +75,18 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const [states, setStates] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Existing states ke saath add karo
+  const [showBoltOnPopup, setShowBoltOnPopup] = useState(false);
+  const [boltOnStates, setBoltOnStates] = useState([]);
+  const [selectedBoltOnState, setSelectedBoltOnState] = useState(null);
+  const [boltOnLoading, setBoltOnLoading] = useState(false);
+  const navigate = useNavigate();
+
   // Plan and profile data from Redux
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
   const activeAddonState = useSelector(state => state.profile?.profile?.subscription_plan?.active_addon?.state);
-
+  // Existing Redux selectors ke saath add karo
+  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
   const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
   console.log(activeAddonState)
   const isEssentialPlan = planCode === "003";
@@ -84,7 +96,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
     console.log("🔥 Syncing LocationTab state with filters:", filters.location);
     const newLocationState = initializeLocationState(filters.location);
     setLocationState(newLocationState);
-  }, [filters.location]);
+  }, []);
 
   // Fetch states from API
   useEffect(() => {
@@ -106,6 +118,53 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
     fetchStates();
   }, []);
 
+  // Ye function names change karo
+  const handleBoltOnClick = async () => {
+    setBoltOnLoading(true);
+    try {
+      const states = await getAllStates();
+      const filteredStates = states.filter(
+        state => !userStates.some(userState => userState.id === state.id)
+      );
+      setBoltOnStates(filteredStates);
+      setShowBoltOnPopup(true);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    } finally {
+      setBoltOnLoading(false);
+    }
+  };
+
+  const handleBoltOnStateSelect = (selectedStateId) => {
+    const selectedState = boltOnStates.find(state => state.id.toString() === selectedStateId);
+    setSelectedBoltOnState(selectedState);
+  };
+
+  const handleBoltOnProceed = async () => {
+  setBoltOnLoading(true);
+  try {
+    const res = await initiateBoltOrder(selectedBoltOnState.id);
+    if (!res) {
+      throw new Error("Failed to initiate payment");
+    }
+
+     setShowBoltOnPopup(false);
+    onCloseFilterPanel(); // Filter panel close kar do
+
+    navigate("/payment", {
+      state: {
+        clientSecret: res.clientSecret,
+        publishableKey: res.publishableKey,
+        plan: res.plan,
+      },
+    });
+    setShowBoltOnPopup(false);
+  } catch (error) {
+    console.error("Failed to initiate payment:", error);
+  } finally {
+    setBoltOnLoading(false);
+  }
+};
   // Filtered data
   const filteredStates = useMemo(() => {
     return states.filter((state) =>
@@ -181,6 +240,10 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
     console.log("Complete URL params:", params.toString());
     return params.toString();
   };
+
+  const activeAddon = useSelector((state) => 
+  state.profile?.profile?.subscription_plan?.active_addon || null
+);
 
   // Federal handlers
   const toggleFederal = useCallback(() => {
@@ -284,7 +347,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const clearLocal = useCallback(() => {
     const newLocationState = {
       ...locationState,
-      local: []  
+      local: []
     };
 
     console.log("🔥 Clearing all local entities");
@@ -353,7 +416,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
       return;
     }
     // ...baaki normal logic...
-  };
+  }; 
 
   const handleLocalClick = () => {
     setShowSavedSearchPopup(true);
@@ -481,7 +544,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
                     setShowSavedSearchPopup(true);
                     return;
                   }
-                  toggleAllStates();
+                  toggleState(name); 
                 }}
                 ref={(el) => {
                   if (el) {
@@ -554,7 +617,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
                             // Starter plan: only allow profileStates[0].name
                             if (
                               planCode === "002" &&
-                              profileStates.length > 0 &&
+                              profileStates.length >= 1 &&
                               name !== profileStates[0].name
                             ) {
                               setShowSavedSearchPopup(true);
@@ -713,13 +776,61 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
         <SavedSearchPopup
           isOpen={showSavedSearchPopup}
           onClose={() => setShowSavedSearchPopup(false)}
-           onCloseFilterPanel={onCloseFilterPanel}
+          onCloseFilterPanel={onCloseFilterPanel}
+          showBoltOnButton={planCode === "002" && !activeAddon}
+          onBoltOnClick={() => {
+            setShowSavedSearchPopup(false);
+            handleBoltOnClick();
+          }}
           title="Location Access Restricted"
           message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
           upgradeButtonText="Upgrade Plan"
           cancelButtonText="Got It"
         />
       )}
+
+      {/* Bolt-on popup - MyPlans wala copy karo */}
+{showBoltOnPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-blue rounded-xl p-6 max-w-md w-full mx-4">
+      {boltOnLoading ? (
+        <div className="text-center p-4">Loading states...</div>
+      ) : (
+        <>
+          <FormSelect
+            dark={false}
+            label="Select State"
+            name="selectedBoltOnState"
+            options={boltOnStates.map(state => ({
+              value: state.id.toString(),
+              label: state.name
+            }))}
+            className="text-white"
+            placeholder="Choose a state"
+            required={false}
+            onChange={(e) => handleBoltOnStateSelect(e.target.value)}
+          />
+        </>
+      )}
+      <div className="flex justify-between mt-6 gap-4 w-full pb-4">
+        <button
+          onClick={() => setShowBoltOnPopup(false)}
+          className="px-4 py-2 text-white border-white border-[1px] rounded-xl transition-colors"
+        >
+          Close
+        </button>
+        <button
+          disabled={!selectedBoltOnState}
+          onClick={handleBoltOnProceed}
+          className="px-4 border-white border-[1px] rounded-xl text-white transition-colors"
+        >
+          {boltOnLoading ? "Loading..." : "Proceed"}
+        </button>
+      </div>
+      <p className="text-sm text-white w-96 pb-5">NOTE: This fee is recurring with the validity & cadence as per your master plan.</p>
+    </div>
+  </div>
+)}
     </div>
   );
 };

@@ -11,6 +11,8 @@ const SavedSearchPopup = ({
   title = "Saved Search Limit Reached",
   message = "You've reached your saved search limit for the Starter plan. Upgrade to create unlimited saved searches.",
   upgradeButtonText = "Upgrade Plan",
+  showBoltOnButton = false,
+  onBoltOnClick,
   cancelButtonText = "Cancel",
   showBackToDashboard = false,
   onBackToDashboard,
@@ -24,6 +26,13 @@ const SavedSearchPopup = ({
       onClose(); // Normal close
     }
   };
+
+  const activeAddon = useSelector((state) =>
+    state.profile?.profile?.subscription_plan?.active_addon || null
+  );
+
+  console.log(activeAddon, "activeAddon in saved search popup");
+  const hasActiveAddon = Boolean(activeAddon);
 
   // Button text decide karo
   const cancelText = showBackToDashboard ? "Back to Dashboard" : cancelButtonText;
@@ -41,11 +50,14 @@ const SavedSearchPopup = ({
     }
   };
 
+
+  const shouldShowUpgrade = !showBoltOnButton || hasActiveAddon;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
       {/* Card - Using PaymentPopup styling */}
       <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
-        
+
         {/* Icon / Image - Using AlertTriangle from original */}
         <div className="flex justify-center mb-6">
           <div className="w-[80px] h-[80px] bg-white/10 rounded-full flex items-center justify-center">
@@ -85,14 +97,23 @@ const SavedSearchPopup = ({
           >
             {cancelText}
           </button>
-          
-          <button
-            onClick={handleUpgrade}
-            className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
-          >
-            <Crown size={20} />
-            {upgradeButtonText}
-          </button>
+
+          {showBoltOnButton ? (
+            <button
+              onClick={handleUpgrade}
+              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 transition text-white font-semibold"
+            >
+               <Crown size={20} />
+          {upgradeButtonText}
+            </button>
+          ) : (
+            <button
+              onClick={onBoltOnClick}
+              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
+            >
+                 Bolt On
+            </button>
+          )}
         </div>
 
         {/* Note - Adding upgrade benefits */}
