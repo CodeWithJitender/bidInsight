@@ -319,7 +319,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
   // ✅ Updated clearAllFilters with date filters
   const clearAllFilters = () => {
     const clearedFilters = {
-      status: "",
+      status: "Active",
       keyword: {
         include: [],
         exclude: [],
@@ -366,11 +366,10 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     params.append('pageSize', '500');
 
     params.append('ordering', 'closing_date');
+    params.append('bid_type', filters.status || 'Active');
 
     // Convert status (Active/Inactive)
-    if (filters.status) {
-      params.append('bid_type', filters.status);
-    }
+    
 
     // Convert location array to comma-separated state values
     // if (filters.location && filters.location.length > 0) {

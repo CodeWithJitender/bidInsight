@@ -53,11 +53,11 @@ At BidInsight, we believe that every business, whether you’re a nimble startup
 
           </div>
           {/* Paragraph */}
-          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+          {/* <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
             
 At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
 
-          </div>
+          </div>  */}
           
         </motion.div>
 
