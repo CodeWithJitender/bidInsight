@@ -13,7 +13,7 @@ export default function SummaryContent({ bidData = {} }) {
   const data = {
     head: "Unlock the Bids to View Compatibility Metrics",
     p: "To view source links, save opportunities, and track bid deadlines, you need to upgrade your plan.",
-    container: "p-4",
+    container: "p-4 flex-col md:flex-row ",
     link: "/pricing",
   };
 
@@ -21,7 +21,7 @@ export default function SummaryContent({ bidData = {} }) {
     <div className="mt-5">
       <div className="container-fixed">
         <div className="summary">
-          <h4 className="font-archivo font-semibold text-p xl:text-[30px]">
+          <h4 className="font-archivo font-semibold text-xl md:text-p xl:text-[30px]">
             Summary
           </h4>
           <p

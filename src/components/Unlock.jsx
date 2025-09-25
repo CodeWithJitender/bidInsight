@@ -7,16 +7,16 @@ function Unlock({data}) {
   console.log(data)
   const { head, p, container, imgSize = "w-10", link } = data;
   return (
-    <div className={`unlock-box flex  items-center gap-4 ${container}`}>
+    <div className={`unlock-box flex  items-center gap-4 text-center md:text-start ${container}`}>
       <div className="img">
         <img src={lock} className={imgSize} alt="" />
       </div>
       <div className="text">
-        <h1 className="font-archivo text-white text-p">{head}</h1>
-        <p className="font-inter text-white text-lg mt-2">{p}</p>
+        <h1 className="font-archivo text-white text-lg md:text-p">{head}</h1>
+        <p className="font-inter text-white text-base md:text-lg mt-2">{p}</p>
       </div>
-      <div className="bg-btn-diagonal border border-1 border-white text-white rounded-2xl px-4 py-3">
-        <Link to="/pricing">Upgrade Now</Link>
+      <div className="bg-btn-diagonal border border-1 border-white text-white rounded-2xl px-4 py-3 text-center bg-primary">
+        <Link to="/pricing" className="">Buy plan to use</Link>
       </div>
     </div>
   );

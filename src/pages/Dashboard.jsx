@@ -770,8 +770,6 @@ const handleFollowedCardClick = async () => {
                   )}
                 </div>
               </div>
-
-
               <div className="dashboard-middle">
                 {loading ? (
                   <StatShimmer />
@@ -789,8 +787,6 @@ const handleFollowedCardClick = async () => {
                   />
                 )}
               </div>
-
-
               <div className="feature-right">
                 <div className="flex gap-4 items-center">
                   {/* Export Button (already has restrictions) */}

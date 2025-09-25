@@ -13,7 +13,7 @@ const Footer = () => {
           <div>
             <div className="" data-aos="fade-right" >
               <Link to="/" className="">
-                <img src="logo.png" className="max-w-xs w-full" />
+                <img src="/logo.png" className="max-w-xs w-full" />
               </Link>
             </div>
           </div>

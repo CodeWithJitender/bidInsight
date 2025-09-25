@@ -137,7 +137,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className={`flex items-center space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] group ${getContentClasses(true)}`}
+            className={` flex items-center order-3 md:order-1 space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] group ${getContentClasses(true)}`}
           >
             <img
               src="/icon.png"
@@ -150,7 +150,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <ul className={`hidden md:flex items-center gap-3 xl:gap-6 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] ${getContentClasses()}`}>
+          <ul className={`hidden md:flex items-center md:order-2 gap-3 xl:gap-6 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] ${getContentClasses()}`}>
             {navItems.map((item) => (
               <li key={item.path}>
                 <Link
@@ -164,19 +164,34 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* Right Buttons (Desktop) */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Hamburger (Mobile) */}
+          <div className="md:hidden order-1 md:order-2">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 group"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+            >
+              <FontAwesomeIcon
+                icon={menuOpen ? faXmark : faBars}
+                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
+              />
+            </button>
+          </div>
+           {/* Right Buttons (Desktop) */}
+          <div className="flex items-center md:space-x-3 order-3">
             {isAuthenticated ? (
               <Link
                 to="/user-profile"
-                className={`flex items-center space-x-2 p-3 lg:p-4 xl:p-5 rounded-2xl lg:rounded-3xl xl:rounded-[30px] hover:bg-white/20 font-semibold group relative overflow-hidden ${getContentClasses()}`}
+                className={`flex items-center`}
               >
-                <FontAwesomeIcon
+                <i class="fas fa-user-circle text-xl md:text-2xl lg:text-3xl"></i>
+                {/* <FontAwesomeIcon
                   icon={faUser}
                   className="transition-transform duration-300 group-hover:scale-110"
-                />
+                /> */}
                 {/* <span className="font-h text-base xl:text-lg">Profile</span> */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" /> */}
               </Link>
             ) : (
               <Link
@@ -189,21 +204,6 @@ const Navbar = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               </Link>
             )}
-          </div>
-
-          {/* Hamburger (Mobile) */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-all duration-300 group"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen}
-            >
-              <FontAwesomeIcon
-                icon={menuOpen ? faXmark : faBars}
-                className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
-              />
-            </button>
           </div>
         </div>
 
