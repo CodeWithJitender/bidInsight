@@ -7,17 +7,15 @@ function AiToolset() {
   const [submissionStatus, setSubmissionStatus] = useState("idle");
 
   useEffect(() => {
-    // Check if user already submitted
+    // Check if user already submitted using sessionStorage
     const checkSubmissionStatus = () => {
-      const keys = Object.keys(localStorage);
-      const submissionKey = keys.find(key => key.startsWith('bidinsight_coming_soon_'));
-      if (submissionKey) {
+      const submissionData = sessionStorage.getItem('bidinsight_coming_soon_submitted');
+      if (submissionData) {
         setSubmissionStatus("already_submitted");
       }
     };
     checkSubmissionStatus();
   }, []);
-
 
   return (
     <div className="h-full w-full flex justify-center items-center">
@@ -28,7 +26,6 @@ function AiToolset() {
         alt=""
       />
 
-      {/* // In AiToolset.js */}
       <SignupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -40,8 +37,8 @@ function AiToolset() {
               name: formData.fullName
             });
 
-            // Save to localStorage
-            localStorage.setItem(`bidinsight_coming_soon_${formData.email}`, JSON.stringify({
+            // Save to sessionStorage instead of localStorage
+            sessionStorage.setItem('bidinsight_coming_soon_submitted', JSON.stringify({
               submitted: true,
               timestamp: Date.now(),
               name: formData.fullName,
@@ -55,10 +52,9 @@ function AiToolset() {
             setSubmissionStatus("idle");
           }
         }}
-        submissionStatus={submissionStatus} // NEW PROP
-  resetStatus={() => setSubmissionStatus("idle")} // NEW PROP
+        submissionStatus={submissionStatus}
+        resetStatus={() => setSubmissionStatus("idle")}
       />
-
     </div>
   );
 }
