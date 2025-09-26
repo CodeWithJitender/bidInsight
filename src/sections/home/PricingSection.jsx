@@ -31,7 +31,8 @@ function PricingSection() {
         "All Federal Bids",
         "Unlimited Visible Bids",
         "1 Saved Search",
-        "5 Bookmarks"
+        "5 Bookmarks",
+        "One additional state as a bolt-on ($9/month)"
       ],
       icon: "https://bid-insight.vercel.app/price-2.png",
       delay: "200",

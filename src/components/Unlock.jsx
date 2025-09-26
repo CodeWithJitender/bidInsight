@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import lock from "../../public/lock.png";
+import NormalBtn from "./NormalBtn";
 
 
 function Unlock({data}) {
@@ -15,8 +16,8 @@ function Unlock({data}) {
         <h1 className="font-archivo text-white text-p">{head}</h1>
         <p className="font-inter text-white text-lg mt-2">{p}</p>
       </div>
-      <div className="bg-btn-diagonal border border-1 border-white text-white rounded-2xl px-4 py-3">
-        <Link to="/pricing">Upgrade Now</Link>
+      <div className="bg-btn-diagonal border-white text-white rounded-2xl px-4 py-3">
+        <NormalBtn text="Get Notified" btnFun={true} />
       </div>
     </div>
   );

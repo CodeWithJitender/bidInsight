@@ -4,6 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useSelector } from "react-redux"; // Add this import
 import { confirmPlanOrder } from "../services/pricing.service";
 import PaymentPopup from "../components/PaymentPopup";
+import { userPaymentTable } from "../services/user.service";
 
 function PaymentStatusInner({ clientSecret, planPrice }) {
     const stripe = useStripe();
@@ -13,37 +14,54 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
 
     const [open, setOpen] = useState(false);
     const [paymentResult, setPaymentResult] = useState(null); // 'success' or 'failed'
-    
+    const [paymentData, setPaymentData] = useState(null); // API data storage
     // Redux store se profile check karo
     const profileData = useSelector(state => state.profile?.profile);
-    
+
     // Check if profile exists function
-   const checkProfileExists = () => {
-    if (!profileData) return false;
-    
-    // Data already object format mein hai
-    const profileObject = profileData?.profile;
-    
-    if (!profileObject || profileObject === null) {
-        return false; // Go to onboarding
-    }
-    
-    return true; // Go to dashboard
-};
+    const checkProfileExists = () => {
+        if (!profileData) return false;
+
+        // Data already object format mein hai
+        const profileObject = profileData?.profile;
+
+        if (!profileObject || profileObject === null) {
+            return false; // Go to onboarding
+        }
+
+        return true; // Go to dashboard
+    };
+
+
+    // Fetch payment data from API
+    const fetchPaymentData = async () => {
+        try {
+            const response = await userPaymentTable();
+            console.log("Payment API Response:", response);
+
+            // Latest successful payment find karo
+            if (response && response.length > 0) {
+                const latestSuccessfulPayment = response.find(payment => payment.status === "succeeded") || response[0];
+                setPaymentData(latestSuccessfulPayment);
+            }
+        } catch (error) {
+            console.error("Error fetching payment data:", error);
+        }
+    };
+
 
     const processData = [
         {
             image: "/payment-successfull.png",
             title: "Your Payment is Successful",
             details: [
-                { label: "Invoice Number", value: "absk-23094-jlaksjd-3993" },
-                { label: "Transaction Date", value: "12/09/2025" },
-                { label: "Subtotal", value: `$${planPrice}` },
+                { label: "Transaction Date", value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : "Loading..." },
+                { label: "Subtotal", value: paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}` },
             ],
             buttons: [], // Will be set dynamically based on profile status
         },
         {
-            image: "/payment-successfull.png",
+            image: "/payment-ussuccessfull.png",
             title: "Your Payment was Unsuccessful",
             description:
                 "We're sorry, your payment could not be completed due to a gateway error.",
@@ -82,6 +100,7 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
                     switch (paymentIntent.status) {
                         case "succeeded":
                             setStatus("💳 Payment succeeded! Activating plan...");
+                            await fetchPaymentData();
                             return paymentIntent.id; // exit loop and start backend polling
                         case "processing":
                             setStatus("⏳ Payment is processing...");
@@ -165,12 +184,12 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
     const getPopupContent = () => {
         if (paymentResult === 'success') {
             const hasProfile = checkProfileExists();
-            
+
             // Dynamic button based on profile status
-            const successButtons = hasProfile 
+            const successButtons = hasProfile
                 ? [{ type: "link", text: "Go to Dashboard", url: "/dashboard" }]
                 : [{ type: "link", text: "Complete your onboarding", url: "/geographic-coverage" }];
-            
+
             return {
                 ...processData[0],
                 buttons: successButtons
@@ -186,9 +205,9 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
             <h2 className="text-2xl font-bold mb-4">Payment Status</h2>
             <p className="text-lg">{status}</p>
             {open && paymentResult && (
-                <PaymentPopup 
-                    content={getPopupContent()} 
-                    onClose={() => setOpen(false)} 
+                <PaymentPopup
+                    content={getPopupContent()}
+                    onClose={() => setOpen(false)}
                 />
             )}
         </div>

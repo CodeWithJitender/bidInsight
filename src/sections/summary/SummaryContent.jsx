@@ -11,7 +11,7 @@ export default function SummaryContent({ bidData = {} }) {
   );
 
   const data = {
-    head: "Unlock the Bids to View Compatibility Metrics",
+    head: "Coming Soon, Sign up for Updates",
     p: "To view source links, save opportunities, and track bid deadlines, you need to upgrade your plan.",
     container: "p-4",
     link: "/pricing",

@@ -354,7 +354,7 @@ const getEntityTypes = () => {
               const isLoading = safeFollowLoading.has(bid.id);
 
 
-              if (index < 5) { // Only log first 5 for debugging
+         if (index < 5) { // Only log first 5 for debugging
                 console.log(`Bid ${index}: shouldBlurThisBid=${shouldBlurThisBid}, blurConfig=`, blurConfig);
               }
 

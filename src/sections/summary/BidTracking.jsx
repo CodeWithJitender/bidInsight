@@ -3,7 +3,7 @@ import Unlock from "../../components/Unlock";
 
 function BidTracking() {
   const data = {
-    head: "Unlock the Bid Tracking",
+    head: "Coming Soon, Sign up for Updates",
     p: "To view source links, save opportunities, and track bid deadlines, you need to upgrade your plan.",
     container: "flex-col justify-center max-w-[500px] mx-auto text-center p-4",
     imgSize: "w-20",

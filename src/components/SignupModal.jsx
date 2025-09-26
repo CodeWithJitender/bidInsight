@@ -83,8 +83,8 @@ export default function SignupModal({ isOpen, onClose, onSubmit, submissionStatu
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50  z-50 p-4 backdrop-blur-sm">
-      <div className="relative bg-[url('/signupModal.jpg')] bg-cover bg-center text-white py-8 px-6  rounded-xl shadow-lg w-[100%] max-w-xl border border-gray-400">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="relative bg-[url('/signupModal.jpg')]  bg-cover bg-center text-white py-6 px-6  rounded-xl shadow-lg w-[100%] max-w-xl border border-gray-400">
         {/* Close button */}
         <button
           onClick={handleClose}
@@ -101,7 +101,7 @@ export default function SignupModal({ isOpen, onClose, onSubmit, submissionStatu
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8 md:max-w-[90%] mx-auto">
           {/* Email */}
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="block text-p font-archivo my-2">Enter your Email Id:</label>
             <input
               type="email"

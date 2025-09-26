@@ -40,7 +40,8 @@ function PricingHero() {
         "All Federal Bids",
         "Unlimited Visible Bids",
         "1 Saved Search",
-        "5 Bookmarks"
+        "5 Bookmarks",
+        "One additional state as a bolt-on ($9/month)"
       ],
       icon: "/price-2.svg",
       delay: "200",

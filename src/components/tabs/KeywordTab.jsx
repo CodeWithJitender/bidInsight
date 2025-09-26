@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import TagInput from './TagInput';
 
-function KeywordTab({filters = {}, setFilters = () => {}}) {
+function KeywordTab({ filters = {}, setFilters = () => { } }) {
 
   const [includeKeywords, setIncludeKeywords] = useState([]);
   const [excludeKeywords, setExcludeKeywords] = useState([]);
@@ -19,7 +19,7 @@ function KeywordTab({filters = {}, setFilters = () => {}}) {
 
   const handleExcludeChange = useCallback((tags) => {
     setExcludeKeywords(tags);
-    setFilters(prevFilters => ({  
+    setFilters(prevFilters => ({
       ...prevFilters,
       keyword: {
         ...prevFilters.keyword,
@@ -49,6 +49,9 @@ function KeywordTab({filters = {}, setFilters = () => {}}) {
             // exampleTags={includeReferenceTags}
             onTagsChange={handleIncludeChange}
           />
+          <p className="text-sm text-gray-500 mt-1">
+            Type a keyword and press <span className="font-medium">Enter</span> to add before clicking Search.
+          </p>
         </div>
 
         {/* Exclude */}
@@ -60,10 +63,13 @@ function KeywordTab({filters = {}, setFilters = () => {}}) {
             // exampleTags={excludeReferenceTags}
             onTagsChange={handleExcludeChange}
           />
+          <p className="text-sm text-gray-500 mt-1">
+            Type a keyword and press <span className="font-medium">Enter</span> to add before clicking Search.
+          </p>
         </div>
       </div>
 
-    
+
     </div>
   );
 }
