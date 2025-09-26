@@ -82,6 +82,8 @@ export const resendOtp = async (payload) => {
 export const getAllStates = async () => {
   try {
     const response = await API.get("/auth/states/");
+
+    // console.log(response.data, "🔥 ..............States fetched");
     return response.data;
   } catch (error) {
     console.error("Error fetching states:", error);

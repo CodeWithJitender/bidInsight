@@ -98,20 +98,22 @@ const SavedSearchPopup = ({
             {cancelText}
           </button>
 
-          {showBoltOnButton ? (
-            <button
-              onClick={handleUpgrade}
-              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 transition text-white font-semibold"
-            >
-               <Crown size={20} />
-          {upgradeButtonText}
-            </button>
-          ) : (
+          {showBoltOnButton && !hasActiveAddon ? (
+            // Bolton Button - when no addon exists
             <button
               onClick={onBoltOnClick}
               className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
             >
-                 Bolt On
+              Bolt On
+            </button>
+          ) : (
+            // Upgrade Button - when addon already exists
+            <button
+              onClick={handleUpgrade}
+              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 transition text-white font-semibold flex items-center justify-center gap-2"
+            >
+              <Crown size={20} />
+              {upgradeButtonText}
             </button>
           )}
         </div>
