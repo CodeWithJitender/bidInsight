@@ -10,6 +10,39 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
   console.log(fullName, lastLogin);
 
 
+  const data = [
+  {
+    icon: "/icons/id-card.svg",
+    title: "Verify Identity",
+    pera: "Upload your government issued ID to verify your account.",
+    btn: "Verify Now",
+    btnLink: "/verify-identity",
+  },
+  {
+    icon: "/icons/email.svg",
+    title: "Verify Email",
+    pera: "Confirm your email to secure your account.",
+    btn: "Verify Email",
+    btnLink: "/verify-email",
+  },
+  {
+    icon: "/icons/phone.svg",
+    title: "Verify Phone",
+    pera: "Add and verify your phone number.",
+    btn: "Verify Phone",
+    btnLink: "/verify-phone",
+  },
+   {
+    icon: "/icons/email.svg",
+    title: "Verify Email",
+    pera: "Confirm your email to secure your account.",
+    btn: "Verify Email",
+    btnLink: "/verify-email",
+  },
+];
+
+
+
   if (loading) {
     return (
       <div className="p-4 xl:p-8">
@@ -50,7 +83,7 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
         </div>
       </div>
       {/* Complete verification process */}
-      {/* <div className="border-2 border-primary p-4 rounded-[20px]">
+      <div className="border-2 border-primary p-4 rounded-[20px]">
         Progress
         <div className="flex justify-between gap-4 flex-wrap">
           <div className="title font-inter font-medium text-2xl ">
@@ -71,26 +104,12 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
             <div className="font-inter font-medium text-sm text-primary">
               70% Completed
             </div>
+
+            <button className="text-white border-2 px-4 py-2 rounded-3xl bg-primary">Complete Form</button>
           </div>
         </div>
-        Progress cards
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-6">
-            {data.map((item, index)=>(
-                <div className="card bg-primary p-4 rounded-xl flex flex-col gap-2 items-start" key={index}>
-                    <div className="top flex gap-1 items-center">
-                        <div className="icon"><img src={item.icon} className="max-w-6" alt="" /></div>
-                        <div className="title text-lg font-medium text-white font-inter">{item.title}</div>
-                    </div>
-                    <div className="font-inter text-white text-sm">
-                        {item.pera}
-                    </div>
-                    <Link to={item.btnLink} className=" bg-btn py-2 px-4 rounded-[50px] text-white mt-2">
-                    {item.btn}
-                    </Link>
-                </div>
-            ))}
-        </div>
-      </div> */}
+     
+      </div>
 
       <PersonalDetail
         profileData={profileData}
