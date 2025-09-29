@@ -16,7 +16,7 @@ import { persistor } from '../redux/store'; // Update path as needed
 
 const navItems = [
   { label: "Home", path: "/" },
-  { label: "AI Toolset", path: "/ai-toolset" },
+  { label: "A.I. Toolset", path: "/ai-toolset" },
   { label: "Bids", path: "/dashboard" },
   { label: "Plans & Pricing", path: "/pricing" },
   { label: "About Us", path: "/about" },
