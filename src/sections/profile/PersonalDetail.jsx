@@ -192,7 +192,7 @@ const handleUpdateProfile = async () => {
 
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              No. of Employees *
+              No. of Employees 
             </label>
             <select
               name="employees"
@@ -212,7 +212,7 @@ const handleUpdateProfile = async () => {
           {/* Year in business */}
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              Year in Business *
+              Year in Business 
             </label>
             <select
               name="yearInBusiness"
@@ -238,7 +238,7 @@ const handleUpdateProfile = async () => {
           {/* Target contract size */}
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              Target Contract Size *
+              Target Contract Size 
             </label>
             <select
               name="contractSize"
@@ -256,7 +256,7 @@ const handleUpdateProfile = async () => {
           </div>
 
             <div>
-            <label className="block text-sm text-[#999999] font-inter font-medium mb-2" >State *</label>
+            <label className="block text-sm text-[#999999] font-inter font-medium mb-2" >State </label>
             <select
               name="state"
               value={formData.state}
@@ -277,7 +277,7 @@ const handleUpdateProfile = async () => {
           {/* Target contract size */}
           <div>
             <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-              Target contract size *
+              Target contract size 
             </label>
             <select
               name="contractSize"

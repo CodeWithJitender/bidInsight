@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +16,9 @@ import {
   emailAlert,
   EmailAlertUpdate,
   getApiEmailAlert,
-  deactivateAccount
+  deactivateAccount,
+  deleteRequest,
+  confirmDelete
 } from "../../services/user.service";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
@@ -38,11 +37,17 @@ export default function AccountSetting({ fullName, lastLogin }) {
   // States for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // States for confirmation popup
+  // States for confirmation popup (for disable action)
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [confirmAction, setConfirmAction] = useState("");
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [confirmError, setConfirmError] = useState("");
+
+  // NEW: States for DELETE with OTP popup
+  const [showDeleteOtpPopup, setShowDeleteOtpPopup] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState("");
+  const [deleteOtpLoading, setDeleteOtpLoading] = useState(false);
+  const [deleteOtpError, setDeleteOtpError] = useState("");
 
   // States for password change enhancement
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -54,10 +59,11 @@ export default function AccountSetting({ fullName, lastLogin }) {
   const [emailAlertLoading, setEmailAlertLoading] = useState(false);
   const [currentEmailAlert, setCurrentEmailAlert] = useState("");
 
-  // NEW: States for existing email alert settings
+  // States for existing email alert settings
   const [existingEmailSettings, setExistingEmailSettings] = useState(null);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const dispatch = useDispatch();
+  
   // Get email from Redux store
   const reduxProfileData = useSelector((state) => {
     return state.profile.profile ? state.profile.profile.email : '';
@@ -66,7 +72,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
   console.log(reduxProfileData, "🔥 Profile Data from Redux");
   const userEmail = reduxProfileData || '';
 
-  // NEW: Fetch existing email alert settings on component mount
+  // Fetch existing email alert settings on component mount
   useEffect(() => {
     const fetchEmailAlertSettings = async () => {
       if (!userEmail) return;
@@ -79,10 +85,9 @@ export default function AccountSetting({ fullName, lastLogin }) {
         console.log("📧 Email Alert Settings Response:", response);
 
         if (response && response.length > 0) {
-          const emailSetting = response[0]; // Assuming first item contains email settings
+          const emailSetting = response[0];
           setExistingEmailSettings(emailSetting);
 
-          // Set current email alert display
           if (emailSetting.email_alerts) {
             const alertType = emailSetting.email_alerts;
             const displayLabel = alertType.charAt(0).toUpperCase() + alertType.slice(1);
@@ -160,7 +165,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
     { label: "Disabled", value: "disabled" }
   ];
 
-  // Updated handleConfirmAction function
+  // Handle DISABLE action (existing functionality)
   const handleConfirmAction = async () => {
     try {
       setConfirmLoading(true);
@@ -172,10 +177,10 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
       // Clear localStorage and sessionStorage
       dispatch(clearProfile());
-      dispatch(logoutUser());           // authSlice
-      dispatch(clearLoginData());       // loginSlice  
-      dispatch(clearOnboardingData());  // onboardingSlice ✅
-      dispatch(clearSavedSearches());   // savedSearchesSlice (new action)
+      dispatch(logoutUser());
+      dispatch(clearLoginData());
+      dispatch(clearOnboardingData());
+      dispatch(clearSavedSearches());
 
       await persistor.purge();
 
@@ -192,7 +197,6 @@ export default function AccountSetting({ fullName, lastLogin }) {
     } catch (error) {
       console.error(`Error ${confirmAction}ing account:`, error);
 
-      // Set error message to display in popup
       let errorMessage = "An unexpected error occurred. Please try again.";
 
       if (error.response?.data?.message) {
@@ -210,7 +214,91 @@ export default function AccountSetting({ fullName, lastLogin }) {
     }
   };
 
-  // UPDATED: Handle email alert selection with POST/PUT logic
+  // NEW: Handle DELETE REQUEST (First API call - sends OTP)
+  const handleDeleteRequest = async () => {
+    try {
+      console.log("🗑️ Initiating delete request...");
+      
+      const response = await deleteRequest();
+      console.log("✅ Delete request successful, OTP sent:", response);
+
+      // Show OTP popup
+      setShowDeleteOtpPopup(true);
+      setDeleteOtp("");
+      setDeleteOtpError("");
+
+    } catch (error) {
+      console.error("💥 Error in delete request:", error);
+      
+      let errorMessage = "Failed to send OTP. Please try again.";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    }
+  };
+
+  // NEW: Handle CONFIRM DELETE (Second API call with OTP)
+  const handleConfirmDelete = async () => {
+    if (!deleteOtp || deleteOtp.trim().length === 0) {
+      setDeleteOtpError("Please enter OTP");
+      return;
+    }
+
+    try {
+      setDeleteOtpLoading(true);
+      setDeleteOtpError("");
+
+      console.log("🔐 Confirming delete with OTP:", deleteOtp);
+
+      const payload = { otp: deleteOtp };
+      const response = await confirmDelete(payload);
+
+      console.log("✅ Account deletion confirmed:", response);
+
+      // Clear all data and logout
+      dispatch(clearProfile());
+      dispatch(logoutUser());
+      dispatch(clearLoginData());
+      dispatch(clearOnboardingData());
+      dispatch(clearSavedSearches());
+
+      await persistor.purge();
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Close popup
+      setShowDeleteOtpPopup(false);
+
+      // Redirect to login
+      navigate('/login');
+
+    } catch (error) {
+      console.error("💥 Error confirming delete:", error);
+
+      let errorMessage = "Invalid OTP. Please try again.";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setDeleteOtpError(errorMessage);
+
+    } finally {
+      setDeleteOtpLoading(false);
+    }
+  };
+
+  // Handle email alert selection with POST/PUT logic
   const handleEmailAlertSelect = async (option) => {
     try {
       setEmailAlertLoading(true);
@@ -218,7 +306,6 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
       const payload = {
         email_alerts: option.value,
-        // email: userEmail  // Add email to payload for PUT request
       };
 
       console.log("📧 Email Alert Payload:", payload);
@@ -227,23 +314,18 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
       let response;
 
-      // Check if settings already exist
       if (existingEmailSettings && existingEmailSettings.id) {
-        // UPDATE existing settings using PUT
         console.log("🔄 Updating existing email alert settings with ID:", existingEmailSettings.id);
         response = await EmailAlertUpdate(payload, existingEmailSettings.id);
         console.log("✅ Email Alert Updated Successfully:", response);
       } else {
-        // CREATE new settings using POST
         console.log("➕ Creating new email alert settings");
         response = await emailAlert(payload);
         console.log("✅ Email Alert Created Successfully:", response);
 
-        // Update local state with new settings
         setExistingEmailSettings(response);
       }
 
-      // Update current display
       setCurrentEmailAlert(option.label);
 
       console.log("🎉 Email Alert Successfully Set to:", option.label);
@@ -287,10 +369,14 @@ export default function AccountSetting({ fullName, lastLogin }) {
       }
     } else if (action === "email") {
       setShowEmailDropdown(!showEmailDropdown);
-    } else if (action === "disable" || action === "delete") {
+    } else if (action === "disable") {
+      // Show confirmation popup for DISABLE
       setConfirmAction(action);
       setConfirmError("");
       setShowConfirmPopup(true);
+    } else if (action === "delete") {
+      // Call delete request API (sends OTP)
+      handleDeleteRequest();
     }
   };
 
@@ -338,11 +424,6 @@ export default function AccountSetting({ fullName, lastLogin }) {
                     Current: {currentEmailAlert}
                   </span>
                 )}
-                {/* {item.action === "email" && existingEmailSettings && (
-                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                    ✓ Settings Found
-                  </span>
-                )} */}
               </div>
 
               <div className="flex items-center gap-2">
@@ -409,7 +490,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
         userEmail={userEmail}
       />
 
-      {/* Confirmation Modal Component with error support */}
+      {/* Confirmation Modal Component for DISABLE (existing functionality) */}
       <ConfirmationModal
         isOpen={showConfirmPopup}
         onClose={() => {
@@ -422,6 +503,77 @@ export default function AccountSetting({ fullName, lastLogin }) {
         loading={confirmLoading}
         error={confirmError}
       />
+
+      {/* NEW: OTP Popup for DELETE */}
+      {showDeleteOtpPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
+          <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
+            
+            {/* Title */}
+            <div className="max-w-2xl mx-auto text-center mb-6">
+              <h1 className="h3 font-bold font-archivo text-g mb-3">
+                Confirm Account Deletion
+              </h1>
+              <p className="text-lg font-inter mb-2">
+                Enter the OTP sent to your email
+              </p>
+              <p className="text-base font-inter opacity-80">
+                This action is irreversible. All your data will be permanently deleted.
+              </p>
+            </div>
+
+            {/* OTP Input */}
+            <div className="mb-6">
+              <input
+                type="text"
+                value={deleteOtp}
+                onChange={(e) => setDeleteOtp(e.target.value)}
+                placeholder="Enter OTP"
+                maxLength={6}
+                className="w-full px-4 py-3 rounded-lg text-black text-center text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-white"
+              />
+              {deleteOtpError && (
+                <p className="text-red-300 text-sm mt-2 text-center">{deleteOtpError}</p>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="grid sm:grid-cols-2 justify-center gap-6">
+              <button
+                onClick={() => {
+                  setShowDeleteOtpPopup(false);
+                  setDeleteOtp("");
+                  setDeleteOtpError("");
+                }}
+                disabled={deleteOtpLoading}
+                className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleConfirmDelete}
+                disabled={deleteOtpLoading}
+                className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl transition text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 bg-red-900 hover:bg-red-800"
+              >
+                {deleteOtpLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Account"
+                )}
+              </button>
+            </div>
+
+            {/* Warning */}
+            <div className="text-xs font-inter mt-4 w-full text-center leading-tight">
+              <b className="text-red-300">⚠️ WARNING:</b> This action cannot be undone!
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Backdrop to close dropdown when clicked outside */}
       {showEmailDropdown && (

@@ -272,7 +272,7 @@ export default function UserProfile() {
               { title: "Profile", icon: faUser },
               { title: "My Plans", icon: faClipboardList },
               { title: "Bids", icon: faChartLine },
-              { title: "AI Toolset", icon: faRobot },
+              { title: "A.I. Toolset", icon: faRobot },
               { title: "Account Settings", icon: faCog },
             ].map((item, i) => (
               <div
