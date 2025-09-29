@@ -47,7 +47,7 @@ function OurStory() {
   };
 
   return (
-    <div className='our-story bg-[url("https://bid-insight.vercel.app/our-story.jpg")] bg-image h-[100vh]'>
+    <div className='our-story bg-[url("https://bid-insight.vercel.app/our-story.jpg")] bg-image md:h-[100vh]'>
       <div className="container-p flex flex-col justify-between h-full">
         <h1
           className="text-topH font-archivo font-bold text-g mb-4"
@@ -136,7 +136,7 @@ function OurStory() {
           </Slider>
         </div>
         <div
-          className="slider-container py-20 xl:hidden block"
+          className="slider-container pt-5 md:py-20 xl:hidden block"
           style={{ cursor: "none" }}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => setHovered(true)}

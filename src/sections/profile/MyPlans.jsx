@@ -149,7 +149,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
 
   return (
-    <div className="p-6 font-inter">
+    <div className="bookmark-table p-4 md:p-6 font-inter">
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Subscription Card */}
@@ -250,7 +250,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
 
       {/* Transactions Table - Only show for non-free plans */}
       {subscriptionPlanId !== "001" && (
-        <div className="border-2 border-primary rounded-xl overflow-hidden shadow-sm">
+        <div className=" border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
           {paymentLoading ? (
             <div className="p-6 text-center">Loading payments...</div>
           ) : transactions.length > 0 ? (

@@ -326,7 +326,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
             </div>
             <div
               onClick={() => handleSettingClick(item.action)}
-              className={`flex items-center justify-between border rounded-lg p-4 bg-white shadow-sm transition ${item.action === "password" && isPasswordDisabled
+              className={`flex items-center justify-between border rounded-lg p-2 md:p-4 bg-white shadow-sm f transition ${item.action === "password" && isPasswordDisabled
                   ? 'cursor-not-allowed opacity-60'
                   : 'hover:shadow-md cursor-pointer'
                 }`}

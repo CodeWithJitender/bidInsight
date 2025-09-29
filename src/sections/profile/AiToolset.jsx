@@ -20,11 +20,11 @@ function AiToolset() {
 
 
   return (
-    <div className="h-full w-full flex justify-center items-center">
+    <div className="h-[calc(100vh-76px)] w-full flex justify-center items-center p-2">
       <img
         src="/coming-soon.jpg"
         onClick={() => setIsModalOpen(true)}
-        className="rounded-lg max-w-[40%] cursor-pointer"
+        className="rounded-lg w-[300px] md:max-w-[40%] cursor-pointer"
         alt=""
       />
 

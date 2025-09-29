@@ -471,3 +471,16 @@ p {
     scrollbar-width: none; /* Firefox */
   }
 }
+
+.bookmark-table *::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bookmark-table *::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.bookmark-table *::-webkit-scrollbar-thumb {
+  background-color: rebeccapurple;
+  border-radius: 9999px;
+}

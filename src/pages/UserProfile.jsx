@@ -255,19 +255,22 @@ export default function UserProfile() {
         return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
     }
   };
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className="sticky top-0 text-white w-64 pe-6 py-6 flex flex-col justify-between h-screen bg-blue">
+      <aside className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between h-screen fixed md:static top-0 left-0 z-20 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
         <div>
-          <h1 className="text-2xl font-bold mb-10 ps-4">
+          <h1 className="text-2xl font-bold mb-10 ps-4 flex items-center justify-between">
             <Link to="/">
               <img src="logo.png" alt="" />
             </Link>
+          <div className="block md:hidden">
+              <i class="far fa-times text-xl w-8 h-full flex justify-center items-center text-white  rounded-full bg-primary " onClick={() => setSidebarOpen(!sidebarOpen)}></i>
+          </div>
           </h1>
 
-          <nav className="flex flex-col gap-6">
+          <nav className="flex flex-col gap-6 relative md:translate-x-0 transition-all duration-300">
             {[
               { title: "Profile", icon: faUser },
               { title: "My Plans", icon: faClipboardList },
@@ -277,7 +280,10 @@ export default function UserProfile() {
             ].map((item, i) => (
               <div
                 key={i}
-                onClick={() => setActive(item.title)}
+                onClick={() => {
+                  setActive(item.title)
+                  setSidebarOpen(false); // Close sidebar on item click (for mobile)
+                }}
                 className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${active === item.title
                   ? "bg-white/50 text-white"
                   : "hover:text-blue-300"
@@ -298,8 +304,9 @@ export default function UserProfile() {
       {/* Main Content */}
       <main className="flex-1  overflow-x-hidden relative h-screen">
         {/* Top Nav */}
-        <div className="flex flex-wrap justify-between py-4 px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
-          {active === "Profile" ? (
+        <div className="flex flex-wrap justify-between py-4 px-4 md:px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
+          <div className="hidden md:block">
+            {active === "Profile" ? (
             <button
               className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
               onClick={() => navigate("/dashboard")}
@@ -309,10 +316,16 @@ export default function UserProfile() {
               <span>Back to Dashboard</span>
             </button>
           ) : (
-            <h2 className="text-2xl font-semibold font-archivo text-gray-800">
-              {active}
+            <h2 className="text-2xl font-semibold font-archivo text-gray-800 flex items-center gap-2">
+           {active}
             </h2>
           )}
+          </div>
+          <div className="block md:hidden">
+             <h2 className="md:text-2xl font-semibold font-archivo text-gray-800 flex items-center gap-2">
+             <i class="far fa-bars w-8 h-8 flex justify-center items-center text-white text-sm rounded-full bg-primary " onClick={() => setSidebarOpen(!sidebarOpen)}></i> {active}
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
             {/* <div className="relative">
               <FontAwesomeIcon
