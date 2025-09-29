@@ -151,10 +151,14 @@ p {
     font-size: clamp(14px, 5vw, 16px) !important;
     line-height: 110%;
   }
+  .featue-1, .featue-4, .featue-5 {
+   display: none;
+  }
 }
 
 /* Apply CSS For Mobile View and Less */
 @media screen and (max-width: 576px) {
+
 }
 
 /* Home Page Start =================== */
