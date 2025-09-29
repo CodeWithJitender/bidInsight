@@ -1,6 +1,11 @@
-import React from 'react';
+import React from "react";
 
-const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageChange }) => {
+const Pagination = ({
+  totalResults = 24797,
+  perPage = 25,
+  currentPage,
+  onPageChange,
+}) => {
   console.log(currentPage, totalResults, perPage);
 
   const totalPages = Math.ceil(totalResults / perPage);
@@ -29,21 +34,13 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
   };
 
   return (
-    <div className="flex items-center justify-between mt-6 px-3 pt-8">
-
-      <div className="text-sm">
-        <span className="font-inter text-white font-medium text-sm">
-          {totalResults === 0 ? 0 : ((currentPage - 1) * perPage + 1)}
-          - {Math.min(currentPage * perPage, totalResults)} of {totalResults} results found
-        </span>
-      </div>
-
-      <div className="flex items-center space-x-1 text-sm font-semibold">
+    <div className="flex flex-wrap items-center justify-center gap-5 md:justify-between mt-6 px-3 pt-8">
+      <div className="flex items-center justify-center space-x-1 text-sm font-semibold md:order-2">
         {/* First Page */}
         <button
           onClick={() => goToPage(1)}
           disabled={currentPage === 1}
-          className="px-2 text-3xl text-white disabled:opacity-30"
+          className="px-1 md:px-2 text-xl md:text-3xl text-white disabled:opacity-30"
         >
           «
         </button>
@@ -52,7 +49,7 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
         <button
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-2 text-white text-3xl disabled:opacity-30"
+          className="px-1 md:px-2 text-xl md:text-3xl text-white  disabled:opacity-30"
         >
           ‹
         </button>
@@ -62,10 +59,11 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
           <button
             key={page}
             onClick={() => goToPage(page)}
-            className={`px-2 py-1 text-lg rounded ${page === currentPage
-                ? 'text-white font-bold underline'
-                : 'text-gray-300 hover:text-white'
-              }`}
+            className={`px-1 md:px-2 text-xl md:text-3xl py-1 rounded ${
+              page === currentPage
+                ? "text-white font-bold underline"
+                : "text-gray-300 hover:text-white"
+            }`}
           >
             {page}
           </button>
@@ -75,7 +73,7 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-2 text-3xl text-white disabled:opacity-30"
+          className="px-1 md:px-2 text-xl md:text-3xl text-white disabled:opacity-30"
         >
           ›
         </button>
@@ -84,19 +82,25 @@ const Pagination = ({ totalResults = 24797, perPage = 25, currentPage, onPageCha
         <button
           onClick={() => goToPage(totalPages)}
           disabled={currentPage === totalPages}
-          className="px-2 text-3xl text-white disabled:opacity-30"
+          className="px-1 md:px-2 text-xl md:text-3xl text-white disabled:opacity-30"
         >
           »
         </button>
       </div>
 
-
-      <div className="text-sm flex items-center gap-2">
-        <span className='font-inter font-medium text-white text-sm'>Results per page:</span>
+      <div className="text-sm md:order-1">
+        <span className="font-inter text-white font-medium text-sm">
+          {totalResults === 0 ? 0 : (currentPage - 1) * perPage + 1}-{" "}
+          {Math.min(currentPage * perPage, totalResults)} of {totalResults}{" "}
+          results found
+        </span>
+      </div>
+      <div className="text-sm flex items-center gap-2 md:order-3">
+        <span className="font-inter font-medium text-white text-sm">
+          Results per page:
+        </span>
         <span className="px-2 py-1 rounded bg-btn text-white">{perPage}</span>
       </div>
-
-
     </div>
   );
 };
