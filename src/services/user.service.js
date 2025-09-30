@@ -356,3 +356,29 @@ export const confirmDelete = async (payload) => {
     throw error;
   } 
 };
+
+
+export const updateUserProfile = async (profileData) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    throw new Error("No access token found");
+  }
+  
+  try {
+    const response = await API.put(
+      `/auth/profile/`, 
+      profileData,  // Body as 2nd parameter
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      }  // Headers as 3rd parameter
+    );
+    console.log("✅ Profile updated:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    throw error;
+  }
+};

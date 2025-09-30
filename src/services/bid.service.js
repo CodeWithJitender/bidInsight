@@ -59,6 +59,7 @@ export const getUserProfile = async (profileId) => {
     }
 
     const response = await API.get(`/auth/profile/`, { headers });
+    console.log(response.data, "🔥 User profile fetchedddddddddddddddddddddddddddd");
     return response.data;
   } catch (error) {
     console.error("Error fetching user profile:", error);

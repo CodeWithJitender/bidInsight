@@ -10,6 +10,8 @@ import ProcessWrapper from "../components/ProcessWrapper";
 import SubmissionModal from "../components/SubmissionModal";
 import api from "../utils/axios";
 import { clearInsuranceData, clearOnboardingData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice";
+import { updateUserProfile } from "../services/user.service";
+
 
 function ExtraData() {
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ function ExtraData() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
+  const profileData = useSelector((state) => state.profile.profile);
+  console.log(profileData, "🔥 Loaded profileData from Redux");
 
   // Field mapping with proper labels
   const insuranceFields = {
@@ -175,7 +179,7 @@ function ExtraData() {
 
   const submitProfile = async () => {
 
-    console.log("🔥 Full onboardingDataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", onboardingData);
+    console.log("🔥 Full onboardingDataaa:", onboardingData);
     console.log("🔥 geographicCoverage:", onboardingData.geographicCoverage);
     console.log("🔥 industryCategory:", onboardingData.industryCategory);
 
@@ -198,13 +202,26 @@ function ExtraData() {
     };
 
 
-    const payload = {
-      region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
-        industry: Array.isArray(onboardingData.industryCategory)
-    ? onboardingData.industryCategory[0] || null
-    : onboardingData.industryCategory,
-      states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
-    };
+    // const payload = {
+    //   region: onboardingData.geographicCoverage.region
+    //     ? { id: onboardingData.geographicCoverage.region }
+    //     : null,
+    //   industry: Array.isArray(onboardingData.industryCategory)
+    //     ? { id: onboardingData.industryCategory[0] }
+    //     : { id: onboardingData.industryCategory },
+    //   states: (onboardingData.geographicCoverage.states || []).map(id => ({ id })),
+    //   // baaki insurance fields as is
+    // };
+
+
+      const payload = {
+  region: onboardingData.geographicCoverage.region || null,   // direct ID ya null
+  industry: Array.isArray(onboardingData.industryCategory)
+    ? onboardingData.industryCategory[0]  // first id
+    : onboardingData.industryCategory,    // single id
+  states: (onboardingData.geographicCoverage.states || []),   // sirf IDs ka array
+};
+
 
     // ✅ Handle different modes
     if (isSkipMode || showAllNoModal) {
@@ -220,20 +237,35 @@ function ExtraData() {
 
       // Only add amounts for enabled fields with values
       Object.entries(fields).forEach(([key, val]) => {
-        if (val && enabledFields.includes(key) && parseFloat(val) > 0) {
-          payload[insuranceMap[key]] = parseFloat(val);
-        }
-      });
+  if (enabledFields.includes(key)) {
+    payload[insuranceMap[key]] =
+      val && parseFloat(val) > 0 ? parseFloat(val) : null;
+  }
+});
     }
 
     console.log(payload, "🚀 Submitting profile payload");
-     console.log("Payload as JSON:", JSON.stringify(payload, null, 2));
+    console.log("Payload as JSON:", JSON.stringify(payload, null, 2));
     console.log("Content-Type:", typeof payload);
 
     try {
-      const res = await api.post("/auth/profile/", payload);
-      console.log("✅ Profile submitted:", res.data);
 
+      const isUpdate = profileData?.profile?.id;
+      console.log(isUpdate ? "🔄 Updating existing profile..." : "🆕 Creating new profile...");
+
+
+      let res;
+      if (isUpdate) {
+        console.log("🔄 Detected existing profile, updating...");
+        await updateUserProfile(payload);
+        console.log("✅ Profile updated successfully");
+          navigate("/user-profile");
+      } else {
+        console.log("🆕 No existing profile, creating new...")
+        const res = await api.post("/auth/profile/", payload);
+        console.log("✅ Profile submitted:", res.data);
+        navigate("/dashboard");
+      }
       // Clear session data
       sessionStorage.removeItem("onboardingForm");
       sessionStorage.removeItem("ttlStartTime");
