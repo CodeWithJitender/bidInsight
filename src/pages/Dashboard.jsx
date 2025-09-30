@@ -101,6 +101,7 @@ function Dashboard() {
   const [bidCount, setBidCount] = useState({ count: 0, new_bids: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const abortControllerRef = useRef(null);
 
 
   const [isBookmarkView, setIsBookmarkView] = useState(false);
@@ -223,26 +224,26 @@ function Dashboard() {
 
 
 
-const handleFollowedCardClick = async () => {
-  if (restrictions?.follow) {
-    showFeatureRestriction(
-      " Follow Feature Locked",
-      "Upgrade your plan to follow important bids and get instant notifications.",
-      "Follow Feature",
-      true
-    );
-    return;
-  }
+  const handleFollowedCardClick = async () => {
+    if (restrictions?.follow) {
+      showFeatureRestriction(
+        " Follow Feature Locked",
+        "Upgrade your plan to follow important bids and get instant notifications.",
+        "Follow Feature",
+        true
+      );
+      return;
+    }
 
-  // Real-time data refresh before navigation
-  await refreshFollowedData(); // Ye line add karo
+    // Real-time data refresh before navigation
+    await refreshFollowedData(); // Ye line add karo
 
-  setIsFollowView(true);
-  setIsBookmarkView(false);
-  setIsRestrictedFollowView(false);
+    setIsFollowView(true);
+    setIsBookmarkView(false);
+    setIsRestrictedFollowView(false);
 
-  navigate("/dashboard/followedBids", { replace: false });
-};
+    navigate("/dashboard/followedBids", { replace: false });
+  };
 
 
   useEffect(() => {
@@ -297,49 +298,60 @@ const handleFollowedCardClick = async () => {
 
   // 🔥 FIX 2: Prevent auto-redirect on bookmark route refreshpaginat
   useEffect(() => {
-  const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
-  const isFollowRoute = location.pathname === '/dashboard/followedBids';
+    const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
+    const isFollowRoute = location.pathname === '/dashboard/followedBids';
 
-  setIsBookmarkView(isBookmarkRoute);
-  setIsFollowView(isFollowRoute);
+    setIsBookmarkView(isBookmarkRoute);
+    setIsFollowView(isFollowRoute);
 
-  if (isFollowRoute && restrictions?.follow) {
-    setIsRestrictedFollowView(true);
-    setLoading(false);
-    return;
-  } else {
-    setIsRestrictedFollowView(false);
-  }
-
-  if (isBookmarkRoute || isFollowRoute) {
-    setLoading(false);
-    return;
-  } else {
-    const searchParams = new URLSearchParams(location.search);
-    
-    // console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
-    // console.log("🔥 new_bids param:", searchParams.get('new_bids'));
-
-    // YAH FIX KARO - URL se filters decode karo
-    if (searchParams.toString() !== '') {
-      const decodedFilters = decodeUrlToFilters(searchParams);
-      if (!decodedFilters.ordering) {
-        decodedFilters.ordering = "closing_date";
-      }
-      // console.log("🔥 Decoded filters:", decodedFilters);
-      setFilters(decodedFilters);
-      setAppliedFilters(decodedFilters);
+    if (isFollowRoute && restrictions?.follow) {
+      setIsRestrictedFollowView(true);
+      setLoading(false);
+      return;
     } else {
-      const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
-      setFilters(defaultFilters);
-      setAppliedFilters(defaultFilters);
+      setIsRestrictedFollowView(false);
     }
-  }
-}, [location.pathname, location.search, restrictions?.follow]);
+
+    if (isBookmarkRoute || isFollowRoute) {
+      setLoading(false);
+      return;
+    } else {
+      const searchParams = new URLSearchParams(location.search);
+
+      // console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
+      // console.log("🔥 new_bids param:", searchParams.get('new_bids'));
+
+      // YAH FIX KARO - URL se filters decode karo
+      if (searchParams.toString() !== '') {
+        const decodedFilters = decodeUrlToFilters(searchParams);
+        if (!decodedFilters.ordering) {
+          decodedFilters.ordering = "closing_date";
+        }
+        // console.log("🔥 Decoded filters:", decodedFilters);
+        setFilters(decodedFilters);
+        setAppliedFilters(decodedFilters);
+      } else {
+        const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
+        setFilters(defaultFilters);
+        setAppliedFilters(defaultFilters);
+      }
+    }
+  }, [location.pathname, location.search, restrictions?.follow]);
 
 
 
   const fetchBids = useCallback(async () => {
+
+
+    if (abortControllerRef.current) {
+    console.log("🚫 Cancelling previous API call");
+    abortControllerRef.current.abort();
+  }
+
+  // 🔥 STEP 2: Create new AbortController
+  abortControllerRef.current = new AbortController();
+  const signal = abortControllerRef.current.signal;
+
     setLoading(true);
     setError("");
     const token = localStorage.getItem("access_token");
@@ -383,15 +395,34 @@ const handleFollowedCardClick = async () => {
 
       // console.log("🔥 Fetching bids with query:", queryString);
 
-      const res = await getBids(`?${queryString}`, searchTermFromUrl);
+      const res = await getBids(`?${queryString}`, searchTermFromUrl, signal);
+      console.log("🔥 API Response Data:", res);
+      // console.log("🔥 Total Count:", response.data.count);
+      console.log("🔥 URL Params:", window.location.search);
 
-      // console.log(res, "🔥 Fetched bids data");
+      console.log("🔥 Bids Count in Response:", res?.count);
+      console.log("🔥 New Bids in URL:", searchParams.get('new_bids'));
+
+     if (!signal.aborted) {
       dispatch(setBids(res));
+      console.log("✅ Redux Updated Successfully");
+    } else {
+      console.log("⚠️ Request was cancelled, skipping Redux update");
+    }
+
+
     } catch (err) {
-      console.error("Failed to fetch bids:", err);
-      setError("Failed to fetch bids");
+      if (err.name === 'AbortError' || err.message === 'canceled') {
+      console.log("🚫 Request cancelled");
+      return; // Don't show error for cancelled requests
+    }
+    
+    console.error("❌ Failed to fetch bids:", err);
+    setError("Failed to fetch bids");
     } finally {
+       if (!abortControllerRef.current?.signal.aborted) {
       setLoading(false);
+    }
     }
   }, [currentPage, navigate, perPage, appliedFilters, dispatch, location.search]);
 
@@ -682,7 +713,11 @@ const handleFollowedCardClick = async () => {
   };
 
 
+  // console.log("🔥 Passing bids to BidTable:::::::::::::::::::::::::::::", bids);
+  console.log("🔥 Current URL::::::::::::::::::::::::::::::::", window.location.search);
 
+  console.log("🔥 Passing bids to BidTable:", isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []));
+  console.log("🔥 bidsInfo state:", bidsInfo);
 
   return (
     <>

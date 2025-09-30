@@ -233,16 +233,16 @@ const getEntityTypes = () => {
     );
   };
 
-  return (
-    <div className="bid-table rounded-2xl bg-btn text-white my-[50px] shadow-xl overflow-x-auto border-white border-2 border-solid relative max-h-screen overflow-y-auto">
 
 
-
+ return (
+  <>
+    {/* ========== DESKTOP/TABLET TABLE - EXISTING CODE ========== */}
+    <div className="hidden lg:block bid-table rounded-2xl bg-btn text-white my-[50px] shadow-xl overflow-x-auto border-white border-2 border-solid relative max-h-screen overflow-y-auto">
       <table className="min-w-full table-auto text-sm text-center">
         <thead className="sticky z-10 top-0 bg-white/5 backdrop-blur-sm">
           <tr className="text-white/80 text-xs border-b border-white/20">
-
-            {/* 🔥 FIXED: Entity Type Dropdown with Restriction */}
+            {/* Entity Type Dropdown */}
             <th className="px-4 py-4 font-inter text-lg relative">
               <div ref={dropdownRef} className="inline-block text-left">
                 <button
@@ -258,11 +258,9 @@ const getEntityTypes = () => {
                       setDropdownOpen(!dropdownOpen);
                     }
                   }}
-                  className={`flex items-center gap-2 px-3 py-1 rounded-full relative ${restrictions.entityDropdown ? 'opacity-60' : ''
-                    }`}
+                  className={`flex items-center gap-2 px-3 py-1 rounded-full relative ${restrictions.entityDropdown ? 'opacity-60' : ''}`}
                   title={restrictions.entityDropdown ? "Upgrade to filter by entity type" : "Filter by entity type"}
                 >
-                  {/* 🔥 BLUR Entity Dropdown for FREE users */}
                   {restrictions.entityDropdown ? (
                     <BlurWrapper shouldBlur={true} className="flex items-center gap-2">
                       <span>Entity Type</span>
@@ -273,24 +271,16 @@ const getEntityTypes = () => {
                       {selectedEntity} <i className="fas fa-caret-down text-sm"></i>
                     </>
                   )}
-
-                  {/* Lock icon for restricted users */}
-                  {restrictions.entityDropdown && (
-                    <div className="">
-                      {/* <i className="fas fa-lock text-xs text-black"></i> */}
-                    </div>
-                  )}
+                  {restrictions.entityDropdown && <div className=""></div>}
                 </button>
 
-                {/* Only show dropdown if not restricted */}
                 {dropdownOpen && !restrictions.entityDropdown && (
-                  <div className="absolute  mt-2 w-40 rounded-md bg-white text-black font-medium z-10">
+                  <div className="absolute mt-2 w-40 rounded-md bg-white text-black font-medium z-10">
                     {getEntityTypes().map((type) => (
                       <div
                         key={type}
                         onClick={() => handleEntityTypeClick(type)}
-                        className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${selectedEntity === type ? 'bg-gray-100 font-semibold' : ''
-                          }`}
+                        className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${selectedEntity === type ? 'bg-gray-100 font-semibold' : ''}`}
                       >
                         {type}
                       </div>
@@ -302,23 +292,19 @@ const getEntityTypes = () => {
 
             <th className="px-4 py-4 font-inter text-lg">Bid Name</th>
 
-            {/* 🔥 FIXED: Sortable headers with proper restriction checks */}
-            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? ' opacity-60' : 'cursor-pointer'
-              }`}
+            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? ' opacity-60' : 'cursor-pointer'}`}
               onClick={(e) => handleHeaderClick("open_date", e)}
               title={planInfo?.isFree && restrictions?.sorting ? "Upgrade to sort by open date" : "Click to sort by open date"}>
               Open Date {getSortIcon("open_date")}
             </th>
 
-            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-              }`}
+            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
               onClick={(e) => handleHeaderClick("closing_date", e)}
               title={planInfo?.isFree && restrictions?.sorting ? "Upgrade to sort by closing date" : "Click to sort by closing date"}>
               Closed Date {getSortIcon("closing_date")}
             </th>
 
-            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-              }`}
+            <th className={`px-4 py-4 font-inter text-lg ${planInfo?.isFree && restrictions?.sorting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
               onClick={(e) => handleHeaderClick("closing_date", e)}
               title={planInfo?.isFree && restrictions?.sorting ? "Upgrade to sort by countdown" : "Sort by countdown (closing date)"}>
               Countdown {getSortIcon("closing_date")}
@@ -353,13 +339,10 @@ const getEntityTypes = () => {
               const isFollowed = safeFollowedBids.has(bid.id);
               const isLoading = safeFollowLoading.has(bid.id);
 
+              // if (index < 5) {
+              //   console.log(`Bid ${index}: shouldBlurThisBid=${shouldBlurThisBid}, blurConfig=`, blurConfig);
+              // }
 
-         if (index < 5) { // Only log first 5 for debugging
-                console.log(`Bid ${index}: shouldBlurThisBid=${shouldBlurThisBid}, blurConfig=`, blurConfig);
-              }
-
-
-              // Calculate countdown display (existing logic)
               let countdownDisplay = countdownRaw;
               const closingDateObj = new Date(bid.closing_date);
               const today = new Date();
@@ -392,119 +375,64 @@ const getEntityTypes = () => {
               return (
                 <tr
                   key={bid.id}
-                  className={`border-b border-white/10 hover:bg-white/5 transition cursor-pointer ${shouldBlurThisBid ? 'opacity-75' : ''
-                    }`}
+                  className={`border-b border-white/10 hover:bg-white/5 transition cursor-pointer ${shouldBlurThisBid ? 'opacity-75' : ''}`}
                   onClick={() => handleRowClick(bid.id, index)}
                 >
-                  {/* Entity Type - No blur */}
-                  <td className="px-4 py-4 font-semibold font-inter">
-                    {truncate(bid.entity_type)}
-                  </td>
-
-                  {/* Bid Name - Blur if needed */}
+                  <td className="px-4 py-4 font-semibold font-inter">{truncate(bid.entity_type)}</td>
                   <td className="px-4 py-4 font-medium font-inter">
-                    <BlurWrapper shouldBlur={shouldBlurColumn('bid_name', index)}>
-                      {truncate(bid.bid_name)}
-                    </BlurWrapper>
+                    <BlurWrapper shouldBlur={shouldBlurColumn('bid_name', index)}>{truncate(bid.bid_name)}</BlurWrapper>
                   </td>
-
-                  {/* Open Date - Blur if needed */}
                   <td className="px-4 py-4 font-medium font-inter">
-                    <BlurWrapper shouldBlur={shouldBlurColumn('open_date', index)}>
-                      {formatDate(bid.open_date)}
-                    </BlurWrapper>
+                    <BlurWrapper shouldBlur={shouldBlurColumn('open_date', index)}>{formatDate(bid.open_date)}</BlurWrapper>
                   </td>
-
-                  {/* Closing Date - Blur if needed */}
                   <td className="px-4 py-4 font-medium font-inter">
-                    <BlurWrapper shouldBlur={shouldBlurColumn('closing_date', index)}>
-                      {formatDate(bid.closing_date)}
-                    </BlurWrapper>
+                    <BlurWrapper shouldBlur={shouldBlurColumn('closing_date', index)}>{formatDate(bid.closing_date)}</BlurWrapper>
                   </td>
-
-                  {/* Countdown - Blur if needed */}
                   <td className="px-4 py-4 font-medium font-inter" title={countdownRaw}>
                     <BlurWrapper shouldBlur={shouldBlurColumn('countdown', index)}>
                       <span className="text-white">{countdownDisplay}</span>
                     </BlurWrapper>
                   </td>
-
-                  {/* Status - No blur */}
                   <td className="px-4 py-4 font-medium font-inter">{statusLabel}</td>
-
-                    
-                  {/* Share - With restriction */}
-                  <td className="px-4  py-4 text-center flex justify-center items-center">
+                  <td className="px-4 py-4 text-center flex justify-center items-center">
                     {restrictions?.share ? (
                       <div
                         className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center opacity-50 relative"
                         title="Upgrade to share bids"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onFeatureRestriction(
-                            " Share Feature Locked",
-                            "Upgrade your plan to share bids with your team and colleagues.",
-                            "Share Feature",
-                            true
-                          );
+                          onFeatureRestriction(" Share Feature Locked", "Upgrade your plan to share bids with your team and colleagues.", "Share Feature", true);
                         }}
                       >
                         <i className="fas fa-lock text-sm text-white/60"></i>
                       </div>
                     ) : (
-                      <BlogShareButton
-                        url={`${window.location.origin}/summary/${bid.id}`}
-                        onShare={() => console.log(`Shared bid: ${bid.bid_name}`)}
-                      />
+                      <BlogShareButton url={`${window.location.origin}/summary/${bid.id}`} onShare={() => console.log(`Shared bid: ${bid.bid_name}`)} />
                     )}
                   </td>
-
-                  {/* Follow - With restriction */}
                   <td className="px-4 py-4 text-center pl-10">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         if (restrictions?.follow) {
-                          onFeatureRestriction(
-                            " Follow Feature Locked",
-                            "Upgrade your plan to follow important bids and get notifications.",
-                            "Follow Feature",
-                            true
-                          );
+                          onFeatureRestriction(" Follow Feature Locked", "Upgrade your plan to follow important bids and get notifications.", "Follow Feature", true);
                         } else {
                           handleFollowClick(e, bid.id);
                         }
                       }}
                       disabled={isLoading}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 relative ${restrictions?.follow
-                          ? 'opacity-50 bg-white/10'
-                          : isLoading
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:scale-110 cursor-pointer'
-                        }`}
-                      title={
-                        restrictions?.follow
-                          ? "Upgrade to follow bids"
-                          : isFollowed
-                            ? "Unfollow this bid"
-                            : "Follow this bid"
-                      }
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 relative ${restrictions?.follow ? 'opacity-50 bg-white/10' : isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 cursor-pointer'}`}
+                      title={restrictions?.follow ? "Upgrade to follow bids" : isFollowed ? "Unfollow this bid" : "Follow this bid"}
                     >
                       {restrictions?.follow ? (
                         <i className="fas fa-lock text-sm text-white/60"></i>
                       ) : isLoading ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       ) : (
-                        <i
-                          className={`fas text-lg transition-colors ${isFollowed
-                              ? "fa-minus-circle text-white-400 hover:text-white-300"
-                              : "fa-plus-circle text-white-400 hover:text-white-300"
-                            }`}
-                        />
+                        <i className={`fas text-lg transition-colors ${isFollowed ? "fa-minus-circle text-white-400 hover:text-white-300" : "fa-plus-circle text-white-400 hover:text-white-300"}`} />
                       )}
                     </button>
                   </td>
-
                 </tr>
               );
             })
@@ -512,7 +440,114 @@ const getEntityTypes = () => {
         </tbody>
       </table>
     </div>
-  );
+
+    {/* ========== MOBILE CARDS - NEW CODE ========== */}
+    <div className="block lg:hidden space-y-3 my-[50px] px-2">
+      {data.length === 0 ? (
+        <div className="text-center py-12 text-white/60">
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="fas fa-inbox text-2xl"></i>
+          </div>
+          <p className="font-medium">No bids found</p>
+          <p className="text-sm text-white/40 mt-1">Try adjusting your filters</p>
+        </div>
+      ) : (
+        data.map((bid, index) => {
+          const statusLabel = bid.bid_type || "Unknown";
+          const countdownRaw = getCountdown(bid.closing_date);
+          const shouldBlurThisBid = shouldBlurBid(index);
+
+          let countdownDisplay = countdownRaw;
+          const closingDateObj = new Date(bid.closing_date);
+          const today = new Date();
+          const isClosingToday = closingDateObj.toDateString() === today.toDateString();
+
+          if (statusLabel.toLowerCase() === 'inactive' || bid.status === false || statusLabel.toLowerCase() === 'closed') {
+            countdownDisplay = "Closed";
+          } else if (isClosingToday) {
+            countdownDisplay = "Today";
+          } else if (!["-", "Closed"].includes(countdownRaw)) {
+            const days = parseInt(countdownRaw.match(/\d+/)?.[0] || "0", 10);
+            if (days <= 0) countdownDisplay = "Closed";
+            else if (days < 30) countdownDisplay = `${days} days`;
+            else if (days < 365) {
+              const months = Math.floor(days / 30);
+              const remainingDays = days % 30;
+              countdownDisplay = remainingDays === 0 ? `${months}m` : `${months}mo ${remainingDays}d`;
+            } else {
+              const years = Math.floor(days / 365);
+              const months = Math.floor((days % 365) / 30);
+              const remainingDays = (days % 365) % 30;
+              const parts = [];
+              if (years > 0) parts.push(`${years}y`);
+              if (months > 0) parts.push(`${months}m`);
+              if (years === 0 && remainingDays > 0) parts.push(`${remainingDays}d`);
+              countdownDisplay = parts.join(" ");
+            }
+          }
+
+          return (
+            <div
+              key={bid.id}
+              onClick={() => handleRowClick(bid.id, index)}
+              className={`bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 p-4 cursor-pointer hover:bg-white/10 transition ${shouldBlurThisBid ? 'opacity-75' : ''}`}
+            >
+              {/* Header: Bid Name + Share */}
+              <div className="flex justify-between items-start gap-3 mb-3">
+                <BlurWrapper shouldBlur={shouldBlurColumn('bid_name', index)}>
+                  <h3 className="text-white font-medium text-sm leading-tight flex-1">
+                    {bid.bid_name || "-"}
+                  </h3>
+                </BlurWrapper>
+                
+                {/* Share Button */}
+                <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                  {restrictions?.share ? (
+                    <div
+                      className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center opacity-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFeatureRestriction(" Share Feature Locked", "Upgrade your plan to share bids with your team and colleagues.", "Share Feature", true);
+                      }}
+                    >
+                      <i className="fas fa-lock text-xs text-white/60"></i>
+                    </div>
+                  ) : (
+                    <BlogShareButton url={`${window.location.origin}/summary/${bid.id}`} onShare={() => console.log(`Shared bid: ${bid.bid_name}`)} />
+                  )}
+                </div>
+              </div>
+
+              {/* Footer: Status + Date + Countdown */}
+              <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs text-white/70">
+                {/* Status */}
+                <span className="text-white font-medium">{statusLabel}</span>
+
+                {/* Open Date */}
+                <BlurWrapper shouldBlur={shouldBlurColumn('open_date', index)}>
+                  <span className="flex items-center gap-1">
+                    <i className="far fa-calendar text-xs"></i>
+                    {formatDate(bid.open_date)}
+                  </span>
+                </BlurWrapper>
+
+                {/* Countdown */}
+                <BlurWrapper shouldBlur={shouldBlurColumn('countdown', index)}>
+                  <span className="flex items-center gap-1">
+                    <i className="far fa-clock text-xs"></i>
+                    {countdownDisplay}
+                  </span>
+                </BlurWrapper>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  </>
+);
+
+
 });
 
 // Helper functions

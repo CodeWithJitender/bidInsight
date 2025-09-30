@@ -21,6 +21,8 @@ export const getBids = async (queryOrId, searchTerm = "") => {
     }
 
     const response = await API.get(`/bids/${query}`, { headers });
+    console.log(response.data, "🔥 Bids fetched with query:vvvvvvvvvvvvvvvvvvvvvvvvvv", query);
+    console.log(response.data.results, "🔥 Bids fetched with query:vvvvvvvvvvvvvvvvvvvvvvvvvv");
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching bids:", error);
