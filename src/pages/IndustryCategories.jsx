@@ -10,6 +10,8 @@ import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
 import { checkTTLAndClear } from "../utils/ttlCheck";
 import { fetchIndustryCategories } from "../services/user.service";
+import { useSelector } from "react-redux"; // Already hai, check karo
+import { updateProfileData } from "../redux/reducer/profileSlice"; // if needed
 
 // Static fallback data as array of objects
 const fallbackIndustries = [
@@ -70,6 +72,10 @@ function IndustryCategories() {
       link: "/help-our-ai",
     },
   };
+
+  const profileData = useSelector((state) => state.profile.profile);
+  const reduxIndustryCategory = useSelector((state) => state.onboarding.industryCategory);
+console.log(profileData, "🔥 Profile data in IndustryCategories");
 
   // State management
   const [allIndustries, setAllIndustries] = useState([]);
@@ -183,6 +189,10 @@ function IndustryCategories() {
   const handleSkip = () => {
     setSkipClicked(true);
 
+      setSelectedIndustry(null);
+
+      dispatch(saveIndustryCategory(null));
+
     try {
       const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
       delete prev.industry; // Remove just this step's data
@@ -194,6 +204,54 @@ function IndustryCategories() {
     navigate("/help-our-ai");
   };
 
+  // ⭐ NEW: Prefill from Redux profile data
+// ⭐ FIXED: Prefill from Redux profile data
+useEffect(() => {
+  // Skip mode check
+  if (skipClicked) {
+    console.log("⏭️ Skip mode - not prefilling industry");
+    return;
+  }
+
+  // ✅ FIX: Check profileData first, not reduxIndustryCategory
+  // Profile data is the source of truth for prefilling
+  if (profileData?.profile?.industry && allIndustries.length > 0) {
+    console.log("📝 Prefilling IndustryCategories from Profile Data");
+    
+    const apiIndustry = profileData.profile.industry;
+    
+    // If industry is object with id
+    if (typeof apiIndustry === 'object' && apiIndustry.id) {
+      const foundIndustry = allIndustries.find(ind => ind.id === apiIndustry.id);
+      if (foundIndustry) {
+        setSelectedIndustry(foundIndustry);
+        console.log("✅ Industry prefilled:", foundIndustry.name);
+      }
+    } 
+    // If industry is just ID
+    else if (typeof apiIndustry === 'number') {
+      const foundIndustry = allIndustries.find(ind => ind.id === apiIndustry);
+      if (foundIndustry) {
+        setSelectedIndustry(foundIndustry);
+        console.log("✅ Industry prefilled:", foundIndustry.name);
+      }
+    }
+  } else if (reduxIndustryCategory && reduxIndustryCategory.length > 0) {
+    // ✅ Fallback: If no profile data, use Redux onboarding data
+    console.log("📝 Prefilling from Redux onboarding state");
+    const industryId = Array.isArray(reduxIndustryCategory) 
+      ? reduxIndustryCategory[0] 
+      : reduxIndustryCategory;
+    
+    const foundIndustry = allIndustries.find(ind => ind.id === industryId);
+    if (foundIndustry) {
+      setSelectedIndustry(foundIndustry);
+      console.log("✅ Industry prefilled from Redux:", foundIndustry.name);
+    }
+  } else {
+    console.log("ℹ️ No industry data to prefill");
+  }
+}, [profileData, allIndustries, skipClicked, reduxIndustryCategory]);
   // Loading state
   if (isLoading) {
     return (

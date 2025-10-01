@@ -10,6 +10,9 @@ import ProcessWrapper from "../components/ProcessWrapper";
 import SubmissionModal from "../components/SubmissionModal";
 import api from "../utils/axios";
 import { clearInsuranceData, clearOnboardingData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice";
+import { updateUserProfile } from "../services/user.service";
+import { updateProfileData } from "../redux/reducer/profileSlice"; 
+
 
 function ExtraData() {
   const navigate = useNavigate();
@@ -26,6 +29,8 @@ function ExtraData() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
+  const profileData = useSelector((state) => state.profile.profile);
+  console.log(profileData, "🔥 Loaded profileData from Redux");
 
   // Field mapping with proper labels
   const insuranceFields = {
@@ -127,6 +132,28 @@ function ExtraData() {
     }
   }, [skippedInsurance, allNoInsurance, dispatch]);
 
+  // ⭐ NEW: Prefill form fields from Redux profile data
+useEffect(() => {
+  if (profileData?.profile) {
+    console.log("📝 Prefilling form from Redux profile data");
+    
+    const apiProfile = profileData.profile;
+    
+    // Map API field names to form field names
+    const prefilledFields = {
+      workersCompensationAmount: apiProfile.workers_compensation_amount?.toString() || "",
+      generalLiabilityAmount: apiProfile.general_liability_insurance_amount?.toString() || "",
+      autoLiabilityAmount: apiProfile.auto_mobile_liability_insurance_amount?.toString() || "",
+      medicalProfessionalAmount: apiProfile.medical_professional_eso_insurance_amount?.toString() || "",
+      environmentAmount: apiProfile.enviormental_insurance_amount?.toString() || "",
+      cybersecurityAmount: apiProfile.cyber_security_insurance_amount?.toString() || "",
+    };
+    
+    setFields(prefilledFields);
+    console.log("✅ Form prefilled with:", prefilledFields);
+  }
+}, [profileData]);
+
   const validateField = (name, value) => {
     if (!value || value.trim() === "") {
       return { msg: "This field is required", type: "error" };
@@ -175,7 +202,7 @@ function ExtraData() {
 
   const submitProfile = async () => {
 
-    console.log("🔥 Full onboardingDataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", onboardingData);
+    console.log("🔥 Full onboardingDataaa:", onboardingData);
     console.log("🔥 geographicCoverage:", onboardingData.geographicCoverage);
     console.log("🔥 industryCategory:", onboardingData.industryCategory);
 
@@ -199,14 +226,12 @@ function ExtraData() {
 
 
     const payload = {
-  nation_wide: onboardingData.geographicCoverage.nation_wide || false,
-  region: onboardingData.geographicCoverage.region || [],
-  states: onboardingData.geographicCoverage.states || [],
-  industry: Array.isArray(onboardingData.industryCategory)
+      region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
+        industry: Array.isArray(onboardingData.industryCategory)
     ? onboardingData.industryCategory[0] || null
-    : onboardingData.industryCategory
-};
-
+    : onboardingData.industryCategory,
+      states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
+    };
 
     // ✅ Handle different modes
     if (isSkipMode || showAllNoModal) {
@@ -222,33 +247,54 @@ function ExtraData() {
 
       // Only add amounts for enabled fields with values
       Object.entries(fields).forEach(([key, val]) => {
-        if (val && enabledFields.includes(key) && parseFloat(val) > 0) {
-          payload[insuranceMap[key]] = parseFloat(val);
-        }
-      });
+  if (enabledFields.includes(key)) {
+    payload[insuranceMap[key]] =
+      val && parseFloat(val) > 0 ? parseFloat(val) : null;
+  }
+});
     }
 
     console.log(payload, "🚀 Submitting profile payload");
-     console.log("Payload as JSON:", JSON.stringify(payload, null, 2));
+    console.log("Payload as JSON:", JSON.stringify(payload, null, 2));
     console.log("Content-Type:", typeof payload);
 
     try {
-      const res = await api.post("/auth/profile/", payload);
-      console.log("✅ Profile submitted:", res.data);
+  const isUpdate = profileData?.profile?.id;
+  console.log(isUpdate ? "🔄 Updating existing profile..." : "🆕 Creating new profile...");
 
-      // Clear session data
-      sessionStorage.removeItem("onboardingForm");
-      sessionStorage.removeItem("ttlStartTime");
-      dispatch(setSkippedInsurance(false));
-      dispatch(setAllNoInsurance(false));
-      dispatch(clearOnboardingData());
+  let response;
+  if (isUpdate) {
+    console.log("🔄 Detected existing profile, updating...");
+    response = await updateUserProfile(payload);
+    console.log("✅ Profile updated successfully:", response.data);
+    
+    // ⭐ NEW: Update Redux with fresh data
+   dispatch(updateProfileData(response.data)); 
+    
+  } else {
+    console.log("🆕 No existing profile, creating new...");
+    response = await api.post("/auth/profile/", payload);  // ⭐ CHANGED: capture response
+    console.log("✅ Profile submitted:", response.data);
+    
+    // ⭐ NEW: Update Redux with fresh data
+    dispatch(updateProfileData(response.data));
+  }
+  
+  // Clear session data
+  sessionStorage.removeItem("onboardingForm");
+  sessionStorage.removeItem("ttlStartTime");
+  dispatch(setSkippedInsurance(false));
+  dispatch(setAllNoInsurance(false));
+  dispatch(clearOnboardingData());
 
-      navigate("/dashboard");
-    } catch (err) {
-      const message = err.response ? JSON.stringify(err.response.data) : err.message;
-      console.error("API Error:", message);
-      alert("Submission failed: " + message);
-    }
+  // ⭐ CHANGED: Single navigation logic
+  navigate(isUpdate ? "/user-profile" : "/dashboard");
+  
+} catch (err) {
+  const message = err.response ? JSON.stringify(err.response.data) : err.message;
+  console.error("API Error:", message);
+  alert("Submission failed: " + message);
+}
   };
 
   const handleSubmit = (e) => {
