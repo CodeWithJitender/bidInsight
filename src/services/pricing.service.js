@@ -47,3 +47,15 @@ export const confirmPlanOrder = async (paymentIntentId) => {
     throw error;
   }
 };
+
+export const paymentSessionDetail = async (sessionId) => {
+  try {
+    const res = await API.post("/payments/checkout/session/details/", {
+      session_id: sessionId,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching payment session details:", error);
+    throw error;
+  }
+};
