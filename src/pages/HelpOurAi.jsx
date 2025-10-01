@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { saveInsuranceData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice"; 
+import { saveInsuranceData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice";
 import FormHeader from "../components/FormHeader";
 import HeroHeading from "../components/HeroHeading";
 import FormFooter from "../components/FormFooter";
@@ -9,6 +9,8 @@ import FormSelect from "../components/FormSelect";
 import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
 import { checkTTLAndClear } from "../utils/ttlCheck";
+import { updateProfileData } from "../redux/reducer/profileSlice"; // NEW - add this
+
 
 function HelpOurAi() {
   const navigate = useNavigate();
@@ -65,11 +67,13 @@ function HelpOurAi() {
     });
     return initialTouched;
   });
-  
+
   const [showValidation, setShowValidation] = useState(false);
   const [allDisabled, setAllDisabled] = useState(false);
   const [skipClicked, setSkipClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const profileData = useSelector((state) => state.profile.profile);
+  console.log(profileData, "🔥 Profile data in HelpOurAi");
 
   // Enhanced session storage loading with proper state management
   useEffect(() => {
@@ -77,25 +81,25 @@ function HelpOurAi() {
       try {
         console.log("🔄 Loading data from sessionStorage...");
         const saved = sessionStorage.getItem("onboardingForm");
-        
+
         if (saved) {
           const parsed = JSON.parse(saved);
           const insurance = parsed.insuranceData || {};
-          
+
           console.log("📦 Retrieved insurance data:", insurance);
           console.log("📊 Insurance data keys:", Object.keys(insurance));
-          
+
           // Create complete form object with all fields
           const completeFormValues = {};
           fields.forEach(field => {
             completeFormValues[field.name] = insurance[field.name] || "";
           });
-          
+
           console.log("✅ Complete form values to set:", completeFormValues);
-          
+
           // Set form values and then mark as loaded
           setFormValues(completeFormValues);
-          
+
           // Small delay to ensure state is set before rendering
           setTimeout(() => {
             setIsLoading(false);
@@ -124,13 +128,35 @@ function HelpOurAi() {
         ...prev,
         insuranceData: formValues,
       };
-      
+
       console.log("💾 Saving to sessionStorage:", updated.insuranceData);
       sessionStorage.setItem("onboardingForm", JSON.stringify(updated));
     } catch (error) {
       console.error("❌ Error saving to sessionStorage:", error);
     }
   }, [formValues, skipClicked, isLoading]);
+
+  // ⭐ NEW: Prefill from Redux profile data
+useEffect(() => {
+  if (profileData?.profile && !isLoading) {
+    console.log("📝 Prefilling HelpOurAi from Redux");
+    
+    const apiProfile = profileData.profile;
+    
+    // Map API boolean fields to form yes/no values
+    const prefilledValues = {
+      workersCompensation: apiProfile.workers_compensation ? "yes" : apiProfile.workers_compensation === false ? "no" : "",
+      generalLiability: apiProfile.general_liability_insurance ? "yes" : apiProfile.general_liability_insurance === false ? "no" : "",
+      autoLiability: apiProfile.auto_mobile_liability_insurance ? "yes" : apiProfile.auto_mobile_liability_insurance === false ? "no" : "",
+      cyberInsurance: apiProfile.cyber_security_insurance ? "yes" : apiProfile.cyber_security_insurance === false ? "no" : "",
+      environmentalInsurance: apiProfile.enviormental_insurance ? "yes" : apiProfile.enviormental_insurance === false ? "no" : "",
+      medicalProfessional: apiProfile.medical_professional_eso_insurance ? "yes" : apiProfile.medical_professional_eso_insurance === false ? "no" : "",
+    };
+    
+    setFormValues(prefilledValues);
+    console.log("✅ HelpOurAi prefilled with:", prefilledValues);
+  }
+}, [profileData, isLoading]);
 
   // 🔥 UPDATED: Handle change with touched state
   const handleChange = (name, value) => {
@@ -185,20 +211,20 @@ function HelpOurAi() {
   const handleNextClick = (e) => {
     e.preventDefault();
     setShowValidation(true);
-    
+
     // 🔥 NEW: Mark all fields as touched on submit
     const allTouched = {};
     fields.forEach(field => {
       allTouched[field.name] = true;
     });
     setTouched(allTouched);
-    
+
     // Check if all fields are filled
     const allFilled = fields.every((field) => formValues[field.name]);
-    
+
     if (allFilled) {
       dispatch(saveInsuranceData(formValues));
-      
+
       // Check if all fields are "No"
       if (checkAllNo(formValues)) {
         // All "No" case - treat as skip mode
@@ -209,7 +235,7 @@ function HelpOurAi() {
         dispatch(setAllNoInsurance(false));
         dispatch(setSkippedInsurance(false));
       }
-      
+
       navigate("/extra-data");
     }
   };
@@ -268,7 +294,7 @@ function HelpOurAi() {
             <FormHeader {...formHeader} />
             <HeroHeading data={data} />
           </div>
-        
+
           <form className="form-container flex flex-col h-full justify-between">
             <div className="flex flex-col gap-4">
               {[0, 1, 2].map((row) => (
@@ -281,7 +307,7 @@ function HelpOurAi() {
                         name={field.name}
                         options={yesNoOptions}
                         onChange={
-                          allDisabled ? () => {} : (e) => handleChange(field.name, e.target.value)
+                          allDisabled ? () => { } : (e) => handleChange(field.name, e.target.value)
                         }
                         onBlur={(e) => handleBlur(field.name, e.target.value)} // 🔥 NEW: Add onBlur
                         value={formValues[field.name] || ""}
@@ -298,11 +324,11 @@ function HelpOurAi() {
                 </div>
               ))}
             </div>
-            
+
             <div>
-              <FormFooter 
-                data={formFooter} 
-                onNextClick={handleNextClick} 
+              <FormFooter
+                data={formFooter}
+                onNextClick={handleNextClick}
                 onSkipClick={skipHandle}
               />
             </div>

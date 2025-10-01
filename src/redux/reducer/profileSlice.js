@@ -20,10 +20,10 @@ const checkPageCompletion = (profileData) => {
   return {
     // Page 1: Check if states array exists and has items
     geographicCoverage: !!(profile.states && profile.states.length > 0),
-    
+
     // Page 2: Check if industry is filled
     industryCategories: !!profile.industry,
-    
+
     // Page 3: Check if ANY insurance boolean is true
     helpOurAi: !!(
       profile.workers_compensation ||
@@ -33,7 +33,7 @@ const checkPageCompletion = (profileData) => {
       profile.enviormental_insurance ||
       profile.cyber_security_insurance
     ),
-    
+
     // Page 4: Check if ANY insurance amount exists
     extraData: !!(
       profile.workers_compensation_amount ||
@@ -49,13 +49,13 @@ const checkPageCompletion = (profileData) => {
 // ⭐ HELPER FUNCTION - Calculate percentage based on completion
 const calculatePercentage = (pages) => {
   let percentage = 40; // Base profile
-  
+
   Object.values(pages).forEach((page) => {
     if (page.completed || page.skipped) {
       percentage += 15;
     }
   });
-  
+
   return percentage;
 };
 
@@ -67,7 +67,7 @@ export const fetchUserProfile = createAsyncThunk(
       if (data && typeof data === "object") {
         const { fein_or_ssn_number, ...rest } = data;
         return rest;
-      } 
+      }
       return data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Error fetching profile");
@@ -81,7 +81,7 @@ const profileSlice = createSlice({
     profile: null,
     loading: false,
     error: null,
-    
+
     // ⭐ NEW: Profile Completion State
     profileCompletion: {
       percentage: 40, // Base profile = 40%
@@ -101,13 +101,13 @@ const profileSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
-    
+
     // ✅ Existing: Reset loading state
     resetProfileState: (state) => {
       state.loading = false;
       state.error = null;
     },
-    
+
     // ✅ Existing: Complete profile reset to initial state
     resetProfileToInitial: () => {
       return {
@@ -213,9 +213,29 @@ const profileSlice = createSlice({
           extraData: { completed: false, skipped: false }
         }
       };
-    }
-  },
+    },
+
+
+    updateProfileData: (state, action) => {
+  // Update profile with API response
+  state.profile = action.payload;
   
+  // Auto-update completion status based on new data
+  const completionStatus = checkPageCompletion(action.payload);
+  
+  Object.keys(completionStatus).forEach((pageName) => {
+    if (state.profileCompletion.pages[pageName]) {
+      state.profileCompletion.pages[pageName].completed = completionStatus[pageName];
+    }
+  });
+  
+  state.profileCompletion.percentage = calculatePercentage(state.profileCompletion.pages);
+  state.profileCompletion.isComplete = state.profileCompletion.percentage === 100;
+},
+
+
+  },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchUserProfile.pending, (state) => {
@@ -225,11 +245,11 @@ const profileSlice = createSlice({
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.profile = action.payload;
-        
+
         // ⭐ AUTO-INITIALIZE COMPLETION AFTER PROFILE LOADS
         // This automatically checks which pages are filled
         const completionStatus = checkPageCompletion(action.payload);
-        
+
         Object.keys(completionStatus).forEach((pageName) => {
           if (state.profileCompletion.pages[pageName]) {
             state.profileCompletion.pages[pageName].completed = completionStatus[pageName];
@@ -247,24 +267,25 @@ const profileSlice = createSlice({
 });
 
 // ⭐ EXPORT ACTIONS
-export const { 
-  clearProfile, 
-  resetProfileState, 
+export const {
+  clearProfile,
+  resetProfileState,
   resetProfileToInitial,
   initializeCompletionFromProfile,
   updatePageCompletion,
   skipHelpOurAi,
-  resetCompletionStatus
+  resetCompletionStatus,
+  updateProfileData  
 } = profileSlice.actions;
 
 // ⭐ EXPORT SELECTORS (use these in components)
-export const selectCompletionPercentage = (state) => 
+export const selectCompletionPercentage = (state) =>
   state.profile?.profileCompletion?.percentage || 40;
 
-export const selectIsProfileComplete = (state) => 
+export const selectIsProfileComplete = (state) =>
   state.profile?.profileCompletion?.isComplete || false;
 
-export const selectPageCompletion = (state) => 
+export const selectPageCompletion = (state) =>
   state.profile?.profileCompletion?.pages || {};
 
 export const selectProfileData = (state) => state.profile?.profile || null;

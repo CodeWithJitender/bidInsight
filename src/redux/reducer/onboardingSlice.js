@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   geographicCoverage: {
-    region: "",
+    nation_wide: false,    // ⭐ ADD THIS
+    region: [],            // ⭐ CHANGE to array
     states: [],
   },
   industryCategory: [], // changed from string to array
@@ -31,16 +32,28 @@ const onboardingSlice = createSlice({
   reducers: {
     saveGeographicCoverage: (state, action) => {
   state.geographicCoverage = {
-    region: action.payload.region || "",
-    // Extract only IDs if objects are passed
-    states: action.payload.states?.map(stateItem => 
-      typeof stateItem === 'object' && stateItem.value ? stateItem.value : stateItem
-    ) || [],
+    nation_wide: Boolean(action.payload.nation_wide),
+    region: Array.isArray(action.payload.region) 
+      ? action.payload.region 
+      : (action.payload.region ? [action.payload.region] : []),
+    states: Array.isArray(action.payload.states)
+      ? action.payload.states.map(stateItem => 
+          typeof stateItem === 'object' && stateItem.value ? stateItem.value : stateItem
+        )
+      : [],
   };
+  console.log("✅ Redux saved:", state.geographicCoverage);
 },
+
     saveIndustryCategory: (state, action) => {
-      // Expects array of selected industries from MultiSelect
-      state.industryCategory = action.payload || [];
+      // Handle null/undefined for skip
+      if (!action.payload) {
+        state.industryCategory = []; // Clear on skip
+      } else if (Array.isArray(action.payload)) {
+        state.industryCategory = action.payload; // Array of IDs
+      } else {
+        state.industryCategory = [action.payload]; // Single ID -> convert to array
+      }
     },
     saveInsuranceData: (state, action) => {
       state.insuranceData = { ...action.payload };

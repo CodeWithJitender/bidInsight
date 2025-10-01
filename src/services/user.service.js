@@ -131,6 +131,7 @@ export const getSolicitationTypes = async () => {
   }
 };
 
+
 export const getNAICSCodes = async () => {
   try {
     const response = await API.get("/bids/naics-codes/");
@@ -181,6 +182,7 @@ export const forgotPasswordRequest = async (email) => {
   }
 };
 
+
 export const forgotPasswordVerify = async (payload) => {
   try {
     const response = await API.post("/auth/forgot-password/reset/", payload);
@@ -189,6 +191,7 @@ export const forgotPasswordVerify = async (payload) => {
     throw error;
   } 
 };
+
 
 export const updateProfile = async (payload) => {
   console.log(payload, "Payload in servicewwwwwwwwwwwwwwwwwwwwwwww");
@@ -210,7 +213,6 @@ export const updateProfile = async (payload) => {
 };
 
 
-
 export const emailAlert = async (payload) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
@@ -227,6 +229,7 @@ export const emailAlert = async (payload) => {
     throw error;
   }
 };
+
 
 export const EmailAlertUpdate = async (payload, id) => {
   const token = localStorage.getItem("access_token");
@@ -245,6 +248,7 @@ export const EmailAlertUpdate = async (payload, id) => {
   }
 };
 
+
 export const getApiEmailAlert = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
@@ -258,11 +262,6 @@ export const getApiEmailAlert = async () => {
     throw error;
   }
 };
-
-
-
-
-
 
 
 export const userPaymentTable = async () => {
@@ -281,8 +280,6 @@ export const userPaymentTable = async () => {
 };
 
 
-
-
 export const paymentRecipt = async (id) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found"); 
@@ -298,8 +295,6 @@ export const paymentRecipt = async (id) => {
     throw error;
   }
 };
-
-
 
          
 export const deactivateAccount = async () => {
@@ -339,7 +334,6 @@ export const deleteRequest = async () => {
 };
 
 
-// confirmDelete needs payload parameter:
 export const confirmDelete = async (payload) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found"); 
@@ -367,18 +361,19 @@ export const updateUserProfile = async (profileData) => {
   try {
     const response = await API.put(
       `/auth/profile/`, 
-      profileData,  // Body as 2nd parameter
+      profileData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         }
-      }  // Headers as 3rd parameter
+      }
     );
     console.log("✅ Profile updated:", response.data);
-    return response.data;
+    return response;  // ⭐ CHANGED: Full response return karo
   } catch (error) {
     console.error("❌ Error updating profile:", error);
     throw error;
   }
 };
+
