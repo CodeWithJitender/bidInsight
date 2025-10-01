@@ -307,3 +307,16 @@ export const deleteFollowedBid = async (followId) => {
     throw err;
   }
 };
+
+
+
+export const region = async () => {
+  try {
+    const res = await API.get("/auth/regions/");
+    console.log(res.data, "🔥 Regions fetched")
+    return res.data
+  } catch (err) {
+    console.error("Error fetching regions:", err)
+    throw err
+  }
+}

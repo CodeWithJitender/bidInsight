@@ -6,7 +6,7 @@ import { useState } from "react";
 import { getAllStates } from "../../services/user.service"; // adjust path
 // Add this import at top
 import FormSelect from "../../components/FormSelect"; // adjust path
-import { initiateBoltOrder } from "../../services/pricing.service";
+import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import { useNavigate } from "react-router-dom";
 
 export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
@@ -120,25 +120,26 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
     }
   };
 
-  const handlePlanSelection = async () => {
+  const handlePlanSelection = async (id) => {
 
     setLoading(true);
     try {
 
-      const res = await initiateBoltOrder(selectedState.id);
+      console.log(id.toString());
+      const res = await checkOutSessionBoltOn(id.toString());
       if (!res) {
         throw new Error("Failed to initiate payment");
       }
 
       console.log("💳 Payment details:", res);
 
-      navigate("/payment", {
-        state: {
-          clientSecret: res.clientSecret,
-          publishableKey: res.publishableKey,
-          plan: res.plan,
-        },
-      });
+      // navigate("/payment", {
+      //   state: {
+      //     clientSecret: res.clientSecret,
+      //     publishableKey: res.publishableKey,
+      //     plan: res.plan,
+      //   },
+      // });
       setLoading(false);
     } catch (error) {
       console.error("❌ Failed to initiate payment:", error);

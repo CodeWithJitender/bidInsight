@@ -1,21 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Elements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { useSelector } from "react-redux"; // Add this import
-import { confirmPlanOrder } from "../services/pricing.service";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import PaymentPopup from "../components/PaymentPopup";
-import { userPaymentTable } from "../services/user.service";
 
-function PaymentStatusInner({ clientSecret, planPrice }) {
-    const stripe = useStripe();
-    const [status, setStatus] = useState("Checking payment...");
-    const POLL_INTERVAL = 1000; // 1 second
-    const MAX_DURATION = 30000; // 30 seconds
-
+function PaymentStatusInner({ planPrice, status, transactionData }) {
     const [open, setOpen] = useState(false);
-    const [paymentResult, setPaymentResult] = useState(null); // 'success' or 'failed'
-    const [paymentData, setPaymentData] = useState(null); // API data storage
-    // Redux store se profile check karo
+    const [paymentResult, setPaymentResult] = useState(status || 'success');
+    const [paymentData, setPaymentData] = useState(transactionData);
+    
     const profileData = useSelector(state => state.profile?.profile);
 
     // Check if profile exists function
@@ -33,38 +24,62 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
     };
 
 
-    // Fetch payment data from API
-    const fetchPaymentData = async () => {
-        try {
-            const response = await userPaymentTable();
-            console.log("Payment API Response:", response);
-
-            // Latest successful payment find karo
-            if (response && response.length > 0) {
-                const latestSuccessfulPayment = response.find(payment => payment.status === "succeeded") || response[0];
-                setPaymentData(latestSuccessfulPayment);
-            }
-        } catch (error) {
-            console.error("Error fetching payment data:", error);
-        }
-    };
-
-
-    const processData = [
-        {
+    // Generate dynamic process data based on payment data
+    const getProcessData = () => {
+        const successData = {
             image: "/payment-successfull.png",
             title: "Your Payment is Successful",
             details: [
-                { label: "Transaction Date", value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : "Loading..." },
-                { label: "Subtotal", value: paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}` },
+                { 
+                    label: "Transaction ID", 
+                    value: paymentData?.transaction_id || "N/A"
+                },
+                { 
+                    label: "Transaction Date", 
+                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')
+                },
+                { 
+                    label: "Amount", 
+                    value: paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}`
+                },
+                {
+                    label: "Payment Method",
+                    value: paymentData?.payment_method ? paymentData.payment_method.toUpperCase() : "CARD"
+                },
+                {
+                    label: "Status",
+                    value: "COMPLETED"
+                }
             ],
             buttons: [], // Will be set dynamically based on profile status
-        },
-        {
+        };
+
+        const failedData = {
             image: "/payment-ussuccessfull.png",
             title: "Your Payment was Unsuccessful",
-            description:
-                "We're sorry, your payment could not be completed due to a gateway error.",
+            description: paymentData?.error_message || "We're sorry, your payment could not be completed due to a gateway error.",
+            details: [
+                { 
+                    label: "Transaction ID", 
+                    value: paymentData?.transaction_id || "N/A"
+                },
+                { 
+                    label: "Attempted Date", 
+                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')
+                },
+                { 
+                    label: "Amount", 
+                    value: paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}`
+                },
+                {
+                    label: "Error Code",
+                    value: paymentData?.error_code || "PAYMENT_FAILED"
+                },
+                {
+                    label: "Status",
+                    value: "FAILED"
+                }
+            ],
             buttons: [
                 { type: "link", text: "Try Again", url: "/" },
             ],
@@ -72,116 +87,20 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
                 text: "If the issue continues, contact our support team at",
                 email: "support@bidinsight.com",
             },
-        },
-    ];
-
-    useEffect(() => {
-        if (!stripe || !clientSecret) return;
-
-        let isMounted = true;
-
-        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-        // Poll Stripe until payment succeeds or timeout
-        const pollStripePayment = async () => {
-            const startTime = Date.now();
-            let paymentIntent;
-
-            while (Date.now() - startTime < MAX_DURATION && isMounted) {
-                try {
-                    const res = await stripe.retrievePaymentIntent(clientSecret);
-                    paymentIntent = res.paymentIntent;
-
-                    if (!paymentIntent) {
-                        setStatus("❌ Unable to retrieve payment info.");
-                        return;
-                    }
-
-                    switch (paymentIntent.status) {
-                        case "succeeded":
-                            setStatus("💳 Payment succeeded! Activating plan...");
-                            await fetchPaymentData();
-                            return paymentIntent.id; // exit loop and start backend polling
-                        case "processing":
-                            setStatus("⏳ Payment is processing...");
-                            break;
-                        case "requires_payment_method":
-                            setStatus("❌ Payment failed, please try again.");
-                            setPaymentResult('failed');
-                            setOpen(true);
-                            return null;
-                        default:
-                            setStatus("❓ Something went wrong.");
-                            setPaymentResult('failed');
-                            setOpen(true);
-                            return null;
-                    }
-                } catch (err) {
-                    console.error("Error retrieving payment:", err);
-                    setStatus("❌ Error checking payment status.");
-                    setPaymentResult('failed');
-                    setOpen(true);
-                    return null;
-                }
-
-                await sleep(POLL_INTERVAL);
-            }
-
-            if (isMounted && paymentIntent?.status !== "succeeded") {
-                setStatus("❌ Payment did not succeed within 30 seconds.");
-                setPaymentResult('failed');
-                setOpen(true);
-                return null;
-            }
         };
 
-        // Poll backend to confirm plan activation
-        const pollPlanActivation = async (paymentIntentId) => {
-            const startTime = Date.now();
+        return [successData, failedData];
+    };
 
-            while (Date.now() - startTime < MAX_DURATION && isMounted) {
-                try {
-                    const res = await confirmPlanOrder(paymentIntentId);
-                    console.log(res, "Plan activation response");
-
-                    if (res.status === "succeeded") {
-                        setStatus("✅ Payment succeeded and plan activated!");
-                        setPaymentResult('success');
-                        setOpen(true);
-                        return;
-                    } else {
-                        setStatus("⏳ Payment succeeded, activating plan...");
-                    }
-                } catch (err) {
-                    console.error("Error confirming plan:", err);
-                }
-
-                await sleep(POLL_INTERVAL);
-            }
-
-            if (isMounted) {
-                setStatus("❌ Payment succeeded but plan activation failed. Contact support.");
-                setPaymentResult('failed');
-                setOpen(true);
-            }
-        };
-
-        const runFlow = async () => {
-            const paymentIntentId = await pollStripePayment();
-            if (paymentIntentId) {
-                await pollPlanActivation(paymentIntentId);
-            }
-        };
-
-        runFlow();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [stripe, clientSecret]);
+    // Show payment popup on component mount
+    React.useEffect(() => {
+        setOpen(true);
+    }, []);
 
     // Get the appropriate content based on payment result
     const getPopupContent = () => {
+        const processData = getProcessData();
+        
         if (paymentResult === 'success') {
             const hasProfile = checkProfileExists();
 
@@ -202,8 +121,6 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
 
     return (
         <div className="p-6 max-w-md mx-auto text-center min-h-screen flex flex-col justify-center">
-            <h2 className="text-2xl font-bold mb-4">Payment Status</h2>
-            <p className="text-lg">{status}</p>
             {open && paymentResult && (
                 <PaymentPopup
                     content={getPopupContent()}
@@ -216,17 +133,50 @@ function PaymentStatusInner({ clientSecret, planPrice }) {
 
 export default function PaymentStatus() {
     const params = new URLSearchParams(window.location.search);
-    const publishableKey = params.get("publishableKey");
-    const clientSecret = params.get("payment_intent_client_secret");
-    const planPrice = params.get("plan_price");
+    
+    // Extract route parameters
+    const status = params.get("status") || "success"; // success or failed
+    const planPrice = params.get("plan_price") || "29.99";
+    const transactionId = params.get("transaction_id");
+    const transactionDate = params.get("transaction_date");
+    const amount = params.get("amount");
+    
+    // Create dummy data structure
+    const getDummyData = (paymentStatus) => {
+        const baseData = {
+            created_at: transactionDate || new Date().toISOString(),
+            amount: amount ? parseFloat(amount) * 100 : parseFloat(planPrice) * 100,
+            transaction_id: transactionId || `TXN_${Date.now()}`,
+        };
+        
+        if (paymentStatus === 'success') {
+            return {
+                ...baseData,
+                status: "succeeded",
+                payment_method: "card",
+                currency: "usd"
+            };
+        } else {
+            return {
+                ...baseData,
+                status: "failed",
+                error_code: "card_declined",
+                error_message: "Your card was declined."
+            };
+        }
+    };
+    
+    // Use dynamic data or fallback to dummy data
+    const transactionData = {
+        created_at: transactionDate || new Date().toISOString(),
+        amount: amount ? parseFloat(amount) * 100 : parseFloat(planPrice) * 100,
+        transaction_id: transactionId || `TXN_${Date.now()}`,
+        ...getDummyData(status)
+    };
 
-    if (!publishableKey || !clientSecret) return <p>❌ Missing required Stripe parameters</p>;
-
-    const stripePromise = loadStripe(publishableKey);
-
-    return (
-        <Elements stripe={stripePromise}>
-            <PaymentStatusInner clientSecret={clientSecret} planPrice={planPrice} />
-        </Elements>
-    );
+    return <PaymentStatusInner 
+        planPrice={planPrice} 
+        status={status}
+        transactionData={transactionData}
+    />;
 }

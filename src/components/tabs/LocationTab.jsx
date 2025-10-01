@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import FeatureRestrictionPopup from "../FeatureRestrictionPopup"; // adjust path if needed
 import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
 // Top mein add karo
-import { initiateBoltOrder } from "../../services/pricing.service";
+import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import FormSelect from "../FormSelect";
 import { useNavigate } from "react-router-dom";
 
@@ -197,7 +197,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const handleBoltOnProceed = async () => {
     setBoltOnLoading(true);
     try {
-      const res = await initiateBoltOrder(selectedBoltOnState.id);
+      const res = await checkOutSessionBoltOn(selectedBoltOnState.id);
       if (!res) {
         throw new Error("Failed to initiate payment");
       }

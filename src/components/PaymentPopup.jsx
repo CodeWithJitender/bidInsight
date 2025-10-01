@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const PaymentPopup = ({ content, onClose }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue backdrop-blur-sm p-4">
       {/* Card */}
       <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
         {/* Close Button */}

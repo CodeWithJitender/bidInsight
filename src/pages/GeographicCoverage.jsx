@@ -14,6 +14,7 @@ import { getAllStates } from "../services/user.service";
 import { usePlan } from "../hooks/usePlan";
 import FeatureRestrictionPopup from "../components/FeatureRestrictionPopup";
 import SavedSearchPopup from "../components/SavedSearchPopup"; // Add this if not already
+import { region } from "../services/bid.service";
 
 function GeographicCoverage({ onFeatureRestriction = () => { } }) {
 
@@ -35,14 +36,6 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     activeStep: 2,
   };
 
-  const regions = [
-    "Northeast",
-    "Northwest",
-    "South",
-    "Southeast",
-    "Midwest",
-    "West",
-  ];
 
 
 
@@ -57,7 +50,8 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   const [selectionSuccess, setSelectionSuccess] = useState("");
   const [touched, setTouched] = useState(false);
   const [stateOptions, setStateOptions] = useState([]);
-
+  const [regionOptions, setRegionOptions] = useState([]);
+const [regionMapping, setRegionMapping] = useState({}); // 🆕 ADD THIS
   const [skipClicked, setSkipClicked] = useState(false); // 🆕 Skip flag
 
 
@@ -111,6 +105,35 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     return () => window.removeEventListener("popstate", handleBack);
   }, []);
 
+
+  // 🌐 Fetch regions from API
+// 🌐 Fetch regions from API
+useEffect(() => {
+  async function fetchRegions() {
+    try {
+      const data = await region();
+      console.log("🔥 Regions API response:", data);
+      if (Array.isArray(data)) {
+        // Store names for UI
+        setRegionOptions(data.map((item) => item.name));
+        
+        // 🆕 Create name->id mapping
+        const mapping = {};
+        data.forEach((item) => {
+          mapping[item.name] = item.id;
+        });
+        setRegionMapping(mapping);
+        console.log("📍 Region mapping created:", mapping);
+      }
+    } catch (err) {
+      console.error("Error loading regions:", err);
+      setRegionOptions([]);
+      setRegionMapping({});
+    }
+  }
+
+  fetchRegions();
+}, []);
 
   // 🔁 Load sessionStorage on first mount
   useEffect(() => {
@@ -232,30 +255,37 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
     }
 
     // ✅ FIX: Proper region ID mapping
-    let regionId;
+    let nation_wide = false;
+    let regionIds = [];
     let statesArray = [];
 
     if (nationwideSelected) {
-      regionId = 1; // Nationwide
-      statesArray = [];
-    } else if (selectedRegions.length > 0) {
-      regionId = 2; // Region
-      statesArray = []; // or region IDs if needed
-    } else if (selectedStates.length > 0) {
-      regionId = 3; // State
-      // ✅ Ensure state IDs are numbers
-      statesArray = selectedStates.map(state => {
-        if (typeof state === 'object') {
-          return parseInt(state.value || state.id);
-        }
-        return parseInt(state);
-      });
+  nation_wide = true;
+  regionIds = [];
+  statesArray = [];
+} else if (selectedRegions.length > 0) {
+  nation_wide = false;
+  // Convert region names to IDs
+  regionIds = selectedRegions
+    .map(regionName => regionMapping[regionName])
+    .filter(Boolean);
+  statesArray = [];
+} else if (selectedStates.length > 0) {
+  nation_wide = false;
+  regionIds = [];
+  statesArray = selectedStates.map(state => {
+    if (typeof state === 'object') {
+      return parseInt(state.value || state.id);
     }
+    return parseInt(state);
+  });
+}
 
     const geoData = {
-      region: regionId,
-      states: statesArray
-    };
+  nation_wide: nation_wide,
+  region: regionIds,
+  states: statesArray
+};
 
     dispatch(saveGeographicCoverage(geoData));
     navigate("/industry-categories");
@@ -318,7 +348,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
 
               <div className="form-label font-t my-5">Select region</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                {regions.map((reg, i) => (
+                {regionOptions.map((reg, i) => (
                   <FormRadio
                     key={i}
                     type="checkbox"

@@ -11,12 +11,11 @@ export const getPricingPlans = async () => {
   }
 };
 
-export const initiatePlanOrder = async (planId, amount, billingCycle) => {
+export const CheckOutSession = async (planId, billingCycle) => {
   try {
-    const res = await API.post("/auth/plans/buy-plan/", {
+    const res = await API.post("/payments/checkout-session/", {
       plan_id: planId,
-      amount: amount,
-      duration: billingCycle,
+      interval: billingCycle,
     });
     return res.data;
   } catch (error) {
@@ -25,12 +24,12 @@ export const initiatePlanOrder = async (planId, amount, billingCycle) => {
   }
 };
 
-export const initiateBoltOrder = async (stateId) => {
+export const checkOutSessionBoltOn = async (stateId) => {
   try {
-    const res = await API.post("/auth/plans/buy-bolt/", {
-      addOn: { state_id: stateId },
+    const res = await API.post("/payments/add-on-checkout-session/", {
+      state_id: stateId,
     });
-    return res.data;
+    return res;
   } catch (error) {
     console.error("Error initiating bolt order:", error);
     throw error;

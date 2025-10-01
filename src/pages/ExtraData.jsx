@@ -199,12 +199,14 @@ function ExtraData() {
 
 
     const payload = {
-      region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
-        industry: Array.isArray(onboardingData.industryCategory)
+  nation_wide: onboardingData.geographicCoverage.nation_wide || false,
+  region: onboardingData.geographicCoverage.region || [],
+  states: onboardingData.geographicCoverage.states || [],
+  industry: Array.isArray(onboardingData.industryCategory)
     ? onboardingData.industryCategory[0] || null
-    : onboardingData.industryCategory,
-      states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
-    };
+    : onboardingData.industryCategory
+};
+
 
     // ✅ Handle different modes
     if (isSkipMode || showAllNoModal) {
