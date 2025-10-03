@@ -208,7 +208,7 @@ export default function PaymentStatus() {
     const transactionId = params.get("transaction_id");
     const transactionDate = params.get("transaction_date");
     const amount = params.get("amount");
-    const sessionId = params.get("status").split("=")[1];
+    const sessionId = params.get("session_id");
     
     // Debug logging
     console.log("PaymentStatus Debug:", {
