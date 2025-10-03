@@ -9,14 +9,18 @@ import FormSelect from "../../components/FormSelect"; // adjust path
 import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import { useNavigate } from "react-router-dom";
 
-export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
-
+export default function MyPlans({
+  paymentData,
+  paymentLoading,
+  onReceiptDownload,
+  profileData,
+}) {
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
 
-  const transactions = paymentData || [];
 
+  const transactions = paymentData || [];
 
   const [showStatePopup, setShowStatePopup] = useState(false);
   const [allStates, setAllStates] = useState([]);
@@ -25,10 +29,11 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-
-  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
-  const activeAddon = useSelector((state) =>
-    state.profile?.profile?.subscription_plan?.active_addon || null
+  const userStates = useSelector(
+    (state) => state.profile?.profile?.profile?.states || []
+  );
+  const activeAddon = useSelector(
+    (state) => state.profile?.profile?.subscription_plan?.active_addon || null
   );
 
   console.log("Active addon:", activeAddon);
@@ -43,7 +48,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       const states = await getAllStates();
       // Filter out states that user already has
       const filteredStates = states.filter(
-        state => !userStates.some(userState => userState.id === state.id)
+        (state) => !userStates.some((userState) => userState.id === state.id)
       );
 
       setAllStates(filteredStates);
@@ -56,7 +61,9 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
   // Add after handleBoltOnClick
   const handleStateSelect = (selectedStateId) => {
-    const selectedState = allStates.find(state => state.id.toString() === selectedStateId);
+    const selectedState = allStates.find(
+      (state) => state.id.toString() === selectedStateId
+    );
     setSelectedState(selectedState);
   };
 
@@ -69,20 +76,19 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
 
   // Date format karna
- const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  try {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2); // Last 2 digits
-    return `${month}/${day}/${year}`;
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Invalid Date';
-  }
-};
-
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2); // Last 2 digits
+      return `${month}/${day}/${year}`;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
+    }
+  };
 
   // Add this function after formatDate function (around line 90)
   const getPaymentStatus = (status) => {
@@ -107,24 +113,15 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       }
 
       // Regular plan purchase
-      return detail.plan?.name || 'N/A';
+      return detail.plan?.name || "N/A";
     } catch {
-      return 'N/A';
-    }
-  };
-
-  // Receipt download handler
-  const handleDownloadClick = (paymentId) => {
-    if (onReceiptDownload) {
-      onReceiptDownload(paymentId);
+      return "N/A";
     }
   };
 
   const handlePlanSelection = async (id) => {
-
     setLoading(true);
     try {
-
       console.log(id.toString());
       const res = await checkOutSessionBoltOn(id.toString());
       if (!res) {
@@ -132,6 +129,10 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       }
 
       console.log("💳 Payment details:", res);
+      if (!res.invoice_url) {
+        throw new Error("No URL found in payment response");
+      }
+      window.location.href = res.invoice_url;
 
       // navigate("/payment", {
       //   state: {
@@ -161,13 +162,25 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 <div className="">
                   {/* Replace this with conditional images */}
                   {subscriptionPlanId === "001" && (
-                    <img src="/price-1.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Free Plan" />
+                    <img
+                      src="/price-1.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Free Plan"
+                    />
                   )}
                   {subscriptionPlanId === "002" && (
-                    <img src="/price-2.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Pro Plan" />
+                    <img
+                      src="/price-2.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Pro Plan"
+                    />
                   )}
                   {subscriptionPlanId === "003" && (
-                    <img src="/price-3.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Enterprise Plan" />
+                    <img
+                      src="/price-3.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Enterprise Plan"
+                    />
                   )}
                 </div>
                 <div className="h-20 flex flex-col justify-between ps-4">
@@ -175,22 +188,23 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                     Subscription Plan
                   </div>
                   <h2 className="text-xl font-inter font-medium">
-                    {isFreeplan ? "Free" : (profileData?.subscription_plan?.name || "N/A")}
+                    {isFreeplan
+                      ? "Free"
+                      : profileData?.subscription_plan?.name || "N/A"}
                   </h2>
                 </div>
               </div>
             </div>
 
-
             <div className="text-right">
               <p className="text-sm text-gray-500">Last Payment</p>
               <p className="font-medium">
-                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.plan_starts_at)}
+                {isFreeplan
+                  ? "N/A"
+                  : formatDate(profileData?.subscription_plan?.plan_starts_at)}
               </p>
             </div>
           </div>
-
-
 
           <div className="flex justify-between w-full">
             <p className="mt-5 ">
@@ -198,10 +212,14 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Frequency:
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : (
-                  profileData?.subscription_plan?.recurring_interval?.charAt(0).toUpperCase() +
-                  profileData?.subscription_plan?.recurring_interval?.slice(1) || 'N/A'
-                )}      
+                {isFreeplan
+                  ? "N/A"
+                  : profileData?.subscription_plan?.recurring_interval
+                      ?.charAt(0)
+                      .toUpperCase() +
+                      profileData?.subscription_plan?.recurring_interval?.slice(
+                        1
+                      ) || "N/A"}
               </div>
             </p>
             <p className="mt-5 ">
@@ -209,28 +227,40 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Next Charge:
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.next_payment_date)}
+                {isFreeplan
+                  ? "N/A"
+                  : formatDate(
+                      profileData?.subscription_plan?.next_payment_date
+                    )}
               </div>
             </p>
             <p className="mt-5 ">
               <div className="text-lg font-inter font-medium text-[#999999]">
                 <div className="flex items-center gap-2">
                   Bolt-On
-                  {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") && !hasActiveAddon && (
-                    <FiExternalLink
-                      className="text-purple-500 cursor-pointer"
-                      onClick={handleBoltOnClick}
-                    />
-                  )}
-
+                  {(subscriptionPlanId === "002" ||
+                    subscriptionPlanId === "starter") &&
+                    !hasActiveAddon && (
+                      <FiExternalLink
+                        className="text-purple-500 cursor-pointer"
+                        onClick={handleBoltOnClick}
+                      />
+                    )}
                 </div>
               </div>
               <div className="font-inter text-lg font-medium">
-                {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") ? "State" : "N/A"}
+                {subscriptionPlanId === "002" ||
+                subscriptionPlanId === "starter"
+                  ? "State"
+                  : "N/A"}
 
                 {hasActiveAddon && (
                   <span className="text-[#999999] text-sm">
-                    ({activeAddon?.name || activeAddon?.state?.name || "Unknown State"})
+                    (
+                    {activeAddon?.name ||
+                      activeAddon?.state?.name ||
+                      "Unknown State"}
+                    )
                   </span>
                 )}
               </div>
@@ -278,25 +308,37 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                       <td className="py-3 px-4">
                         {tx.metadata.purpose === "buy_addon_state"
                           ? `Bolt-on Purchase`
-                          : `Payment for ${getPlanName(tx.metadata)}`
-                        }
+                          : `Payment for ${getPlanName(tx.metadata)}`}
                       </td>
-                      <td className="py-3 px-4">{tx.stripe_payment_intent_id}</td>
+                      <td className="py-3 px-4">
+                        {tx.stripe_payment_intent_id}
+                      </td>
                       <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
-                      <td className="py-3 px-4 font-bold">{formatAmount(tx.amount)}</td>
+                      <td className="py-3 px-4 font-bold">
+                        {formatAmount(tx.amount)}
+                      </td>
                       <td className="py-3 px-4">{getPlanName(tx.metadata)}</td>
-                      <td className={`py-3 px-4 font-semibold ${statusInfo.color}`}>
+                      <td
+                        className={`py-3 px-4 font-semibold ${statusInfo.color}`}
+                      >
                         {statusInfo.text}
                       </td>
                       <td className="py-3 px-4 flex justify-center">
-                        <FiDownload
-                          className={`transition-colors ${tx.status === "succeeded"
-                              ? "cursor-pointer hover:text-primary text-gray-700"
-                              : "cursor-not-allowed text-gray-300"
+                        <a href={tx.invoice_url} target="_blank">
+                          <FiDownload
+                            className={`transition-colors ${
+                              tx.status === "succeeded"
+                                ? "cursor-pointer hover:text-primary text-gray-700"
+                                : "cursor-not-allowed text-gray-300"
                             }`}
-                          onClick={() => tx.status === "succeeded" && handleDownloadClick(tx.id)}
-                          title={tx.status === "succeeded" ? "Download Receipt" : "Receipt not available for failed payments"}
-                        />
+                            onClick={() => tx.status === "succeeded"}
+                            title={
+                              tx.status === "succeeded"
+                                ? "Download Receipt"
+                                : "Receipt not available for failed payments"
+                            }
+                          />
+                        </a>
                       </td>
                     </tr>
                   );
@@ -304,11 +346,12 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               </tbody>
             </table>
           ) : (
-            <div className="p-6 text-center text-gray-500">No payment history found</div>
+            <div className="p-6 text-center text-gray-500">
+              No payment history found
+            </div>
           )}
         </div>
       )}
-
 
       {/* State Selection Popup - ADD HERE */}
       {/* State Selection Popup with FormSelect */}
@@ -319,27 +362,21 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
             {loading ? (
               <div className="text-center p-4 ">Loading states...</div>
             ) : (
-
               <>
-
-
-              <FormSelect
-                dark={false}
-                label="Select State"
-                name="selectedState"
-                options={allStates.map(state => ({
-                  value: state.id.toString(),
-                  label: state.name
-                }))}
-                className="text-white"
-                placeholder="Choose a state"
-                required={false}
-                onChange={(e) => handleStateSelect(e.target.value)}
-              />
+                <FormSelect
+                  dark={false}
+                  label="Select State"
+                  name="selectedState"
+                  options={allStates.map((state) => ({
+                    value: state.id.toString(),
+                    label: state.name,
+                  }))}
+                  className="text-white"
+                  placeholder="Choose a state"
+                  required={false}
+                  onChange={(e) => handleStateSelect(e.target.value)}
+                />
               </>
-
-
-              
             )}
             <div className="flex justify-between mt-6 gap-4 w-full pb-4">
               <button
@@ -357,12 +394,13 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               </button>
             </div>
 
-                            <p className="text-sm text-white w-96 pb-5">NOTE: This fee is recurring with the validity & cadence as per your master plan.</p>
-
+            <p className="text-sm text-white w-96 pb-5">
+              NOTE: This fee is recurring with the validity & cadence as per
+              your master plan.
+            </p>
           </div>
         </div>
       )}
-
     </div>
   );
 }

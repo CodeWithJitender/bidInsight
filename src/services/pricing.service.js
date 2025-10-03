@@ -29,7 +29,7 @@ export const checkOutSessionBoltOn = async (stateId) => {
     const res = await API.post("/payments/add-on-checkout-session/", {
       state_id: stateId,
     });
-    return res;
+    return res.data;
   } catch (error) {
     console.error("Error initiating bolt order:", error);
     throw error;

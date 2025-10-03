@@ -271,7 +271,6 @@ export const userPaymentTable = async () => {
     const response = await API.get("/payments/my-payments/", {
       headers: {  Authorization: `Bearer ${token}` },
     });
-    console.log(response.data, "🔥 Payment data fetcheddddddddddddddddddddddddddddddddddddddddddddddd");
     return response.data;
   } catch (error) {
     console.error("Error fetching payment data:", error);
@@ -284,8 +283,11 @@ export const paymentRecipt = async (id) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found"); 
   try {
+
+    console.log("first")
     const response = await API.get(`/payments/receipt/${id}/`, {
       headers: {  Authorization: `Bearer ${token}` },
+      data:{stripe_payment_intent_id: id} // ⭐ Note: Axios GET with body requires 'data' key
     });
     console.log(response.data, "🔥 Payment data fetcheddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     return response.data;
