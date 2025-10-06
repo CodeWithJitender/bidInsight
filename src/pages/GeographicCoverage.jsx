@@ -58,7 +58,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   const [skipClicked, setSkipClicked] = useState(false); // 🆕 Skip flag
   // After line 64 (after const [stateOptions, setStateOptions] = useState([]);)
   const profileData = useSelector((state) => state.profile.profile);
-  console.log(profileData.profile.states, "🔥 Profile data in GeographicCoverage");
+  console.log(profileData?.profile?.states, "🔥 Profile data in GeographicCoverage");
 
   const [popupState, setPopupState] = useState({
     isOpen: false,
