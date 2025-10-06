@@ -226,6 +226,7 @@ useEffect(() => {
 
 
     const payload = {
+      nation_wide: onboardingData.geographicCoverage.nation_wide || false,
       region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
         industry: Array.isArray(onboardingData.industryCategory)
     ? onboardingData.industryCategory[0] || null
@@ -282,7 +283,7 @@ useEffect(() => {
   
   // Clear session data
   sessionStorage.removeItem("onboardingForm");
-  sessionStorage.removeItem("ttlStartTime");
+  // sessionStorage.removeItem("ttlStartTime");
   dispatch(setSkippedInsurance(false));
   dispatch(setAllNoInsurance(false));
   dispatch(clearOnboardingData());
