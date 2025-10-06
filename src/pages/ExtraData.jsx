@@ -225,28 +225,14 @@ useEffect(() => {
     };
 
 
-//       const payload = {
-//   region: onboardingData.geographicCoverage.region || null,   // direct ID ya null
-//   industry: Array.isArray(onboardingData.industryCategory)
-//     ? onboardingData.industryCategory[0]  // first id
-//     : onboardingData.industryCategory,    // single id
-//   states: (onboardingData.geographicCoverage.states || []),   // sirf IDs ka array
-// };
-const payload = {
-  nation_wide: Boolean(onboardingData.geographicCoverage?.nation_wide),
-  region: Array.isArray(onboardingData.geographicCoverage?.region) 
-    ? onboardingData.geographicCoverage.region 
-    : [],
-  states: Array.isArray(onboardingData.geographicCoverage?.states)
-    ? onboardingData.geographicCoverage.states 
-    : [],
-  industry: Array.isArray(onboardingData.industryCategory)
+    const payload = {
+      nation_wide: onboardingData.geographicCoverage.nation_wide || false,
+      region: onboardingData.geographicCoverage.region,  // ✅ Direct number access
+        industry: Array.isArray(onboardingData.industryCategory)
     ? onboardingData.industryCategory[0] || null
-    : onboardingData.industryCategory || null
-};
-
-console.log("🔍 Geographic from Redux:", onboardingData.geographicCoverage);
-console.log("🚀 Final Payload:", payload); 
+    : onboardingData.industryCategory,
+      states: onboardingData.geographicCoverage.states || []  // ✅ Already correct
+    };
 
     // ✅ Handle different modes
     if (isSkipMode || showAllNoModal) {
@@ -297,7 +283,7 @@ console.log("🚀 Final Payload:", payload);
   
   // Clear session data
   sessionStorage.removeItem("onboardingForm");
-  sessionStorage.removeItem("ttlStartTime");
+  // sessionStorage.removeItem("ttlStartTime");
   dispatch(setSkippedInsurance(false));
   dispatch(setAllNoInsurance(false));
   dispatch(clearOnboardingData());

@@ -16,13 +16,20 @@ const checkPageCompletion = (profileData) => {
   }
 
   const profile = profileData.profile;
-
+  console.log(profile)
   return {
     // Page 1: Check if states array exists and has items
-    geographicCoverage: !!(profile.states && profile.states.length > 0),
+    geographicCoverage: !!(
+      profile.nation_wide === true ||
+      (Array.isArray(profile.region) && profile.region.length > 0) ||
+      (Array.isArray(profile.states) && profile.states.length > 0)
+    ),
 
     // Page 2: Check if industry is filled
-    industryCategories: !!profile.industry,
+    industryCategories: Array.isArray(profile.industry) 
+  ? profile.industry.length > 0 
+  : !!profile.industry,
+
 
     // Page 3: Check if ANY insurance boolean is true
     helpOurAi: !!(

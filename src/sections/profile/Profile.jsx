@@ -94,18 +94,11 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
   };
 
   // ⭐ Handle Complete Form button
-  const handleCompleteForm = () => {
-    if (isComplete) {
-      // Profile complete hai - edit ke liye first page pe bhejo
-      navigate('/geographic-coverage');
-    } else {
-      // Profile incomplete - next incomplete page pe bhejo
-      const nextRoute = getNextIncompletePage();
-      if (nextRoute) {
-        navigate(nextRoute);
-      }
-    }
-  };
+  // ⭐ Handle Complete Form button
+const handleCompleteForm = () => {
+  // Always redirect to first page
+  navigate('/geographic-coverage');
+};
 
   // ⭐ Debug logs (optional - remove in production)
   // ⭐ Debug logs (optional - remove in production)
