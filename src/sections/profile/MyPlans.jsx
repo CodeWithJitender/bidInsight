@@ -8,6 +8,7 @@ import { getAllStates } from "../../services/user.service"; // adjust path
 import FormSelect from "../../components/FormSelect"; // adjust path
 import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import { useNavigate } from "react-router-dom";
+import AddPaymentMethod from "../../pages/AddPaymentMethod";
 
 export default function MyPlans({
   paymentData,
@@ -18,7 +19,6 @@ export default function MyPlans({
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
-
 
   const transactions = paymentData || [];
 
@@ -35,6 +35,9 @@ export default function MyPlans({
   const activeAddon = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.active_addon || null
   );
+
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [clientSecret, setClientSecret] = useState(null);
 
   console.log("Active addon:", activeAddon);
 
@@ -119,6 +122,8 @@ export default function MyPlans({
     }
   };
 
+  console.log(showAddCard, clientSecret);
+
   const handlePlanSelection = async (id) => {
     setLoading(true);
     try {
@@ -128,9 +133,12 @@ export default function MyPlans({
         throw new Error("Failed to initiate payment");
       }
 
-      console.log("💳 Payment details:", res);
-      if (!res.invoice_url) {
-        throw new Error("No URL found in payment response");
+      
+      if (!res.invoice_url && res.requires_setup) {
+        console.log("💳 Payment details:", res);
+        setClientSecret(res.setup_client_secret);
+        setShowAddCard(true);
+        return;
       }
       window.location.href = res.invoice_url;
 
@@ -400,6 +408,20 @@ export default function MyPlans({
             </p>
           </div>
         </div>
+      )}
+
+      {showAddCard && clientSecret && (
+        <AddPaymentMethod
+          clientSecret={clientSecret}
+          onSuccess={(setupIntent) => {
+            console.log("Card added!", setupIntent);
+            setShowAddCard(false);
+            // Refresh your payment methods list
+          }}
+          onCancel={() => {
+            setShowAddCard(false);
+          }}
+        />
       )}
     </div>
   );
