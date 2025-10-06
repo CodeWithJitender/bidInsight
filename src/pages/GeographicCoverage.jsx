@@ -58,7 +58,7 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   const [skipClicked, setSkipClicked] = useState(false); // 🆕 Skip flag
   // After line 64 (after const [stateOptions, setStateOptions] = useState([]);)
   const profileData = useSelector((state) => state.profile.profile);
-  console.log(profileData, "🔥 Profile data in GeographicCoverage");
+  console.log(profileData.profile.states, "🔥 Profile data in GeographicCoverage");
 
   const [popupState, setPopupState] = useState({
     isOpen: false,
@@ -163,33 +163,29 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
 
   // 🔁 Load sessionStorage on first mount
   useEffect(() => {
-
-    if (profileData?.profile) {
-      console.log("⏭️ Skipping sessionStorage - Redux profile exists");
-      return; // Redux data hai to sessionStorage skip
-    }
-
-
+    // ✅ Check sessionStorage FIRST
     const saved = sessionStorage.getItem("onboardingForm");
     if (saved) {
       const parsed = JSON.parse(saved);
       const geo = parsed.geographic || {};
-      setSelectedRegions(geo.selectedRegions || []);
-      setNationwideSelected(geo.nationwideSelected || false);
-      setSelectedStates(geo.selectedStates || []);
-    }
-  }, [profileData]);
 
+      // If sessionStorage has data, use it (user made changes)
+      if (geo.selectedRegions || geo.nationwideSelected || geo.selectedStates) {
+        setSelectedRegions(geo.selectedRegions || []);
+        setNationwideSelected(geo.nationwideSelected || false);
+        setSelectedStates(geo.selectedStates || []);
+        console.log("✅ Loaded from sessionStorage (user changes)");
+        return; // Don't prefill from Redux
+      }
+    }
+
+    // If no sessionStorage data, we'll prefill from Redux in next useEffect
+  }, []); // ✅ Run only once on mount
   // 💾 Save to sessionStorage (only if not skipped)
   useEffect(() => {
     if (skipClicked) return;
 
-
-    if (profileData?.profile) {
-      console.log("⏭️ Skipping sessionStorage save - data from Redux");
-      return; // Redux data ko sessionStorage mein mat daalo
-    }
-
+    // ✅ ALWAYS save to sessionStorage when user makes changes
     const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
     const updated = {
       ...prev,
@@ -200,7 +196,8 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
       },
     };
     sessionStorage.setItem("onboardingForm", JSON.stringify(updated));
-  }, [selectedRegions, nationwideSelected, selectedStates, skipClicked, profileData]);
+  }, [selectedRegions, nationwideSelected, selectedStates, skipClicked]);
+  // ✅ Removed profileData dependency
 
   // 🌐 Fetch states
   useEffect(() => {
@@ -224,98 +221,202 @@ function GeographicCoverage({ onFeatureRestriction = () => { } }) {
   }, []);
 
   // ⭐ NEW: Prefill from Redux profile data
-  useEffect(() => {
-    if (
-      profileData?.profile &&
-      stateOptions.length > 0 &&
-      Object.keys(regionMapping).length > 0 &&
-      !isDataLoaded // Only run once
-    ) {
-      console.log("📝 PREFILLING from Redux Profile");
+  // useEffect(() => {
 
-      const apiProfile = profileData.profile;
-      console.log("🔍 Raw API Data:", {
-        nation_wide: apiProfile.nation_wide,
-        region: apiProfile.region,
-        states: apiProfile.states
-      });
 
-      // Clear sessionStorage first
-      const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
-      if (prev.geographic) {
-        delete prev.geographic;
-        sessionStorage.setItem("onboardingForm", JSON.stringify(prev));
+  //   const apiProfile = profileData?.profile;
+  //   console.log("🔥 useEffect Check:", {
+  //   hasApiProfile: !!apiProfile,
+  //   stateOptionsLength: stateOptions.length,
+  //   regionMappingKeys: Object.keys(regionMapping).length,
+  //   isDataLoaded,
+  //   apiProfileStates: apiProfile?.states
+  // });
+
+  //   if (
+  //     apiProfile &&
+  //     stateOptions.length > 0 &&
+  //     Object.keys(regionMapping).length > 0 &&
+  //     !isDataLoaded // Only run once
+  //   ) {
+  //     // ✅ Check if sessionStorage already has data
+  //     const saved = sessionStorage.getItem("onboardingForm");
+  //     if (saved) {
+  //       const parsed = JSON.parse(saved);
+  //       if (parsed.geographic) {
+  //         console.log("⏭️ SessionStorage exists - skipping Redux prefill");
+  //         setIsDataLoaded(true);
+  //         return; // User ne changes kiye hain, Redux mat use karo
+  //       }
+  //     }
+
+  //     console.log("🔥 FULL profileData:", JSON.stringify(profileData, null, 2));
+
+  //     console.log("📝 PREFILLING from Redux Profile");
+
+  //     // const apiProfile = profileData.profile;
+  //     console.log(apiProfile, "🔥 apiProfile");
+  //     console.log("🔍 Raw API Data:", {
+  //       nation_wide: apiProfile.nation_wide,
+  //       region: apiProfile.region,
+  //       states: apiProfile.states
+  //     });
+
+  //     // Force reset ALL states
+  //     setNationwideSelected(false);
+  //     setSelectedRegions([]);
+  //     setSelectedStates([]);
+
+  //     // Small delay for state batching
+  //     setTimeout(() => {
+  //       // Check nationwide - STRICT true check
+  //       if (apiProfile.nation_wide === true) {
+  //         console.log("✅ Setting Nationwide = TRUE");
+  //         setNationwideSelected(true);
+  //         setIsDataLoaded(true);
+  //         return;
+  //       }
+
+  //       // Check regions
+  //       if (apiProfile.region && apiProfile.region.length > 0) {
+  //         // Handle both formats - objects OR IDs
+  //         const regionIds = apiProfile.region.map(item => {
+  //           if (typeof item === 'object' && item.id) {
+  //             return item.id;
+  //           }
+  //           return item;
+  //         });
+
+  //         console.log("🔍 Extracted Region IDs:", regionIds);
+
+  //         // Map IDs to names
+  //         const regionNames = regionIds
+  //           .map(regionId => {
+  //             const regionName = Object.keys(regionMapping).find(
+  //               name => regionMapping[name] === regionId
+  //             );
+  //             console.log(`Mapping ID ${regionId} -> ${regionName}`);
+  //             return regionName;
+  //           })
+  //           .filter(Boolean);
+
+  //         if (regionNames.length > 0) {
+  //           console.log("✅ Setting regions:", regionNames);
+  //           setSelectedRegions(regionNames);
+  //           setIsDataLoaded(true);
+  //           return;
+  //         }
+  //       }
+
+  //       // Check states
+  //       if (apiProfile.states && apiProfile.states.length > 0) {
+  //         const selectedStateObjects = apiProfile.states.map(state => {
+  //           const stateId = typeof state === 'object' ? state.id : state;
+  //           return stateOptions.find(opt => opt.value === stateId) || {
+  //             value: stateId,
+  //             label: typeof state === 'object' ? state.name : `State ${stateId}`
+  //           };
+  //         });
+
+  //         console.log("✅ Setting states:", selectedStateObjects);
+  //         setSelectedStates(selectedStateObjects);
+  //       }
+
+  //       setIsDataLoaded(true);
+  //     }, 100);
+  //   }
+  // }, [profileData?.profile, stateOptions, regionMapping, isDataLoaded]);
+
+
+  // ⭐ NEW: Prefill from Redux profile data
+useEffect(() => {
+  const apiProfile = profileData?.profile; // ✅ Just one .profile
+  
+  console.log("🔥 useEffect Check:", {
+    hasApiProfile: !!apiProfile,
+    stateOptionsLength: stateOptions.length,
+    regionMappingKeys: Object.keys(regionMapping).length,
+    isDataLoaded,
+    apiProfileStates: apiProfile?.states
+  });
+
+  if (
+    apiProfile && // ✅ Changed from profileData?.profile
+    stateOptions.length > 0 &&
+    Object.keys(regionMapping).length > 0 &&
+    !isDataLoaded
+  ) {
+    // Check sessionStorage
+    const saved = sessionStorage.getItem("onboardingForm");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.geographic) {
+        console.log("⏭️ SessionStorage exists - skipping Redux prefill");
+        setIsDataLoaded(true);
+        return;
+      }
+    }
+
+    console.log("📝 PREFILLING from Redux Profile");
+    console.log("🔍 Raw API Data:", {
+      nation_wide: apiProfile.nation_wide,
+      region: apiProfile.region,
+      states: apiProfile.states
+    });
+
+    // Reset states
+    setNationwideSelected(false);
+    setSelectedRegions([]);
+    setSelectedStates([]);
+
+    setTimeout(() => {
+      // Check nationwide
+      if (apiProfile.nation_wide === true) {
+        console.log("✅ Setting Nationwide = TRUE");
+        setNationwideSelected(true);
+        setIsDataLoaded(true);
+        return;
       }
 
-      // Force reset ALL states
-      setNationwideSelected(false);
-      setSelectedRegions([]);
-      setSelectedStates([]);
+      // Check regions
+      if (apiProfile.region && apiProfile.region.length > 0) {
+        const regionIds = apiProfile.region.map(item => 
+          typeof item === 'object' ? item.id : item
+        );
 
-      // Small delay for state batching
-      setTimeout(() => {
-        // Check nationwide - STRICT true check
-        if (apiProfile.nation_wide === true) {
-          console.log("✅ Setting Nationwide = TRUE");
-          setNationwideSelected(true);
+        const regionNames = regionIds
+          .map(regionId => 
+            Object.keys(regionMapping).find(name => regionMapping[name] === regionId)
+          )
+          .filter(Boolean);
+
+        if (regionNames.length > 0) {
+          console.log("✅ Setting regions:", regionNames);
+          setSelectedRegions(regionNames);
           setIsDataLoaded(true);
           return;
         }
+      }
 
-        // Check regions
-        if (apiProfile.region && apiProfile.region.length > 0) {
-          // ⭐ FIX: Handle both formats - objects OR IDs
-          const regionIds = apiProfile.region.map(item => {
-            // If it's an object with id property
-            if (typeof item === 'object' && item.id) {
-              return item.id;
-            }
-            // If it's just a number
-            return item;
-          });
+      // Check states
+      if (apiProfile.states && apiProfile.states.length > 0) {
+        const selectedStateObjects = apiProfile.states.map(state => {
+          const stateId = typeof state === 'object' ? state.id : state;
+          return stateOptions.find(opt => opt.value === stateId) || {
+            value: stateId,
+            label: typeof state === 'object' ? state.name : `State ${stateId}`
+          };
+        });
 
-          console.log("🔍 Extracted Region IDs:", regionIds);
+        console.log("✅ Setting states:", selectedStateObjects);
+        setSelectedStates(selectedStateObjects);
+      }
 
-          // Now map IDs to names
-          const regionNames = regionIds
-            .map(regionId => {
-              const regionName = Object.keys(regionMapping).find(
-                name => regionMapping[name] === regionId
-              );
-              console.log(`Mapping ID ${regionId} -> ${regionName}`);
-              return regionName;
-            })
-            .filter(Boolean);
-
-          if (regionNames.length > 0) {
-            console.log("✅ Setting regions:", regionNames);
-            setSelectedRegions(regionNames);
-            setIsDataLoaded(true);
-            return;
-          }
-        }
-
-        // Check states
-        if (apiProfile.states && apiProfile.states.length > 0) {
-          const selectedStateObjects = apiProfile.states.map(state => {
-            const stateId = typeof state === 'object' ? state.id : state;
-            return stateOptions.find(opt => opt.value === stateId) || {
-              value: stateId,
-              label: typeof state === 'object' ? state.name : `State ${stateId}`
-            };
-          });
-
-          console.log("✅ Setting states:", selectedStateObjects);
-          setSelectedStates(selectedStateObjects);
-        }
-
-        setIsDataLoaded(true);
-      }, 100);
-    }
-  }, [profileData?.profile, stateOptions, regionMapping, isDataLoaded]);
-
-
-
+      setIsDataLoaded(true);
+    }, 100);
+  }
+}, [profileData?.profile, stateOptions, regionMapping, isDataLoaded]);
+// ^^^^^^^^^^^^^^^^^^^ ✅ Changed dependency too
 
   // Starter plan code
   const isStarter = planInfo?.plan_code === "002" || planInfo?.isStarter;

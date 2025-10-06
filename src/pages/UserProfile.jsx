@@ -68,7 +68,7 @@ export default function UserProfile() {
       setPaymentLoading(true);
       const payments = await userPaymentTable();
 
-      console.log("Payment Data Response:", payments); // Console log
+      console.log("Payment Data Response.......................................:", payments); // Console log
       setPaymentData(payments);
     } catch (error) {
       console.error("Failed to fetch payment data", error);
@@ -83,15 +83,15 @@ export default function UserProfile() {
       const response = await paymentRecipt(paymentId);
       console.log("Receipt response:", response);
 
-      if (response?.receipt_url) {
-        window.open(response.receipt_url, '_blank');
-      } else {
-        console.error("No receipt URL found in response");
-        alert("Receipt not available");
-      }
+      // if (response?.receipt_url) {
+      //   window.open(response.receipt_url, '_blank');
+      // } else {
+      //   console.error("No receipt URL found in response");
+      //   alert("Receipt not available");
+      // }
     } catch (error) {
       console.error("Failed to download receipt:", error);
-      alert("Failed to download receipt. Please try again.");
+      // alert("Failed to download receipt. Please try again.");
     }
   };
 

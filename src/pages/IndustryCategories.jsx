@@ -214,6 +214,16 @@ function IndustryCategories() {
       return;
     }
 
+
+      const saved = sessionStorage.getItem("onboardingForm");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (parsed.industry?.selectedIndustry) {
+      console.log("✅ Using sessionStorage industry (user changes)");
+      return; // Don't override with Redux
+    }
+  }
+
     // ✅ FIX: Check profileData first, not reduxIndustryCategory
     // Profile data is the source of truth for prefilling
     if (profileData?.profile?.industry && allIndustries.length > 0) {
@@ -254,6 +264,9 @@ function IndustryCategories() {
     }
   }, [profileData, allIndustries, skipClicked, reduxIndustryCategory]);
   // Loading state
+
+
+  
   if (isLoading) {
     return (
       <ProcessWrapper>
