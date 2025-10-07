@@ -5,7 +5,7 @@ function BgCover({ children, title, description, onClick }) {
   
   return (
     <div className="tooltip-wrapper relative" onClick={onClick}>
-      <div className="bg-btn border-1 border-solid border-white p-4 px-5 rounded-[30px] font-inter">
+      <div className="bg-btn border-1 border-solid border-white p-4 md:px-5 rounded-[30px] font-inter">
         {children}
       </div>
       <div className="tooltip absolute right-[30%] bottom-[120%] w-[200px] rounded-[20px] p-3 bg-[#7180FF]">

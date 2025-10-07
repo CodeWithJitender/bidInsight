@@ -759,7 +759,7 @@ function Dashboard() {
         )}
 
         <div className="container-fixed py-10 px-4">
-          <div className="dashboard-header flex justify-between items-center pt-5">
+          <div className="dashboard-header flex flex-col gap-3 md:flex-row justify-between items-center pt-5">
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
               {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
@@ -778,7 +778,7 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-feature pt-20">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center  gap-4">
               <div className="feature-left">
                 <div
                   className={`bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer ${restrictions?.advanceSearch ? 'opacity-50 bg-white/10' : ''
@@ -805,8 +805,6 @@ function Dashboard() {
                   )}
                 </div>
               </div>
-
-
               <div className="dashboard-middle">
                 {loading ? (
                   <StatShimmer />
@@ -824,13 +822,11 @@ function Dashboard() {
                   />
                 )}
               </div>
-
-
-              <div className="feature-right">
-                <div className="flex gap-4 items-center">
+              <div className="feature-right md:w-full lg:w-auto">
+                <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div
-                    className={`bg-btn p-4 rounded-[16px] cursor-pointer relative ${exportLoading ? 'opacity-50' : restrictions?.export ? 'opacity-50 bg-white/10' : ''
+                    className={` hidden md:block bg-btn p-4 rounded-[16px] cursor-pointer relative ${exportLoading ? 'opacity-50' : restrictions?.export ? 'opacity-50 bg-white/10' : ''
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -862,7 +858,8 @@ function Dashboard() {
                     )}
                   </div>
 
-                  {/* Saved Search Dropdown with restrictions */}
+                 <div className=" flex">
+                   {/* Saved Search Dropdown with restrictions */}
                   <div
                   // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
                   // onClick={(e) => {
@@ -878,6 +875,7 @@ function Dashboard() {
                   //   }
                   // }}
                   // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
+                  className="hidden md:block"
                   >
                     <ProfessionalSavedSearchDropdown
                       savedSearches={restrictions?.savedSearch ? [] : savedSearches}
@@ -888,7 +886,8 @@ function Dashboard() {
                   </div>
 
                   {/* Save Search Button with restrictions */}
-                  <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                  <div className="hidden md:block">
+                   <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
                     <div
                       className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
                         }`}
@@ -908,6 +907,11 @@ function Dashboard() {
                       Save Search
                     </div>
                   </BgCover>
+                    </div>
+                <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
+                  <i class="fas fa-sort-alt"></i> 
+                </div>
+                 </div>
                 </div>
               </div>
             </div>

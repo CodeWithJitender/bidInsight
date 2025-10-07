@@ -127,7 +127,7 @@ const handleUpdateProfile = async () => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+            className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
               }`}
             readOnly={!isEditing}
           />
@@ -143,7 +143,7 @@ const handleUpdateProfile = async () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-5 font-inter border rounded-md   cursor-not-allowed"
+            className="w-full p-2 md:p-5 font-inter border rounded-md   cursor-not-allowed"
             readOnly
             disabled
           />
@@ -168,7 +168,7 @@ const handleUpdateProfile = async () => {
               name="companyName"
               value={formData.companyName}
               onChange={handleChange}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
                 }`}
               readOnly={!isEditing}
             />
@@ -184,7 +184,7 @@ const handleUpdateProfile = async () => {
               name="companyFIEN"
               value={formData.companyFIEN}
               onChange={handleChange}
-              className={`w-full p-5 font-inter border rounded-md bg-[#999999] cursor-not-allowed`}
+              className={`w-full p-2 md:p-5 font-inter border rounded-md bg-[#999999] cursor-not-allowed`}
               readOnly={!isEditing}
               disabled
             />
@@ -199,7 +199,7 @@ const handleUpdateProfile = async () => {
               value={formData.employees || "1-10"}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
                 }`}
             >
               <option value="">Select an option</option>
@@ -219,7 +219,7 @@ const handleUpdateProfile = async () => {
               value={formData.yearInBusiness}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
                 }`}
             >
               <option value="">Select an option</option>
@@ -245,7 +245,7 @@ const handleUpdateProfile = async () => {
               value={formData.contractSize}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && "  cursor-not-allowed"
                 }`}
             >
               <option value="">Select an option</option>
@@ -262,7 +262,7 @@ const handleUpdateProfile = async () => {
               value={formData.state}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
                 }`}
             >
               <option value="">Select a state</option>
@@ -284,7 +284,7 @@ const handleUpdateProfile = async () => {
               value={formData.contractSize}
               onChange={handleChange}
               disabled={!isEditing}
-              className={`w-full p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
+              className={`w-full p-2 md:p-5 font-inter border rounded-md focus:ring-2 focus:ring-blue-400 outline-none ${!isEditing && " cursor-not-allowed"
                 }`}
             >
               <option value="">Select an option</option>
