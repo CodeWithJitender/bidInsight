@@ -1,181 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BidInsight Daily Brief</title>
-  <style>
-    /* General Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BidInsight Daily Brief</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+      /* General Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-body {
-  font-family: "Inter", Arial, sans-serif;
-  color: #fff;
-  background: url("Email alert- Final.jpg") center/cover no-repeat fixed;
-  min-height: 100vh;
-  padding: 40px 20px;
-}
+      .inter {
+        font-family: "Inter", sans-serif;
+      }
+      .archivo {
+        font-family: "Archivo", sans-serif;
+      }
+      body {
+        font-family: "Inter", Arial, sans-serif;
+        color: #fff;
+        min-height: 100vh;
+        /* padding: 40px 20px; */
+      }
 
-.container {
-  max-width: 700px;
-  margin: auto;
-  background: rgba(0, 0, 40, 0.5);
-  border-radius: 20px;
-  padding: 30px;
-  backdrop-filter: blur(8px);
-}
+      .container {
+        max-width: 600px;
+        /* margin: auto; */
+        background: rgba(0, 0, 40, 0.5);
+        /* border-radius: 20px; */
+        padding: 30px;
+        backdrop-filter: blur(8px);
+        background: url("https://bid-insight.vercel.app/bg.jpg") center/cover
+          no-repeat fixed;
+      }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
 
-.logo {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #cfe2ff;
-}
+      .logo {
+        max-width: 200px;
+        font-weight: 700;
+        color: #cfe2ff;
+      }
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
 
-.date {
-  font-size: 0.9rem;
-  opacity: 0.85;
-}
+      .date {
+        font-size: 12px;
+        text-align: end;
+      }
+      .date span {
+        font-size: 14px;
+        font-weight: 600;
+      }
 
-.main-box {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 25px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-}
+      .main-box {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.05);
+      }
 
-.main-box h2 {
-  font-size: 1.3rem;
-  margin-bottom: 10px;
-}
+      .main-box h2 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+      }
 
-.details {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  margin-bottom: 15px;
-}
+      .details {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 15px;
+      }
 
-.cta {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 25px;
-  padding: 10px 25px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.3s;
-}
+      .cta {
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
 
-.cta:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
+      .cta:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
 
-.free-edition {
-  margin: 20px 0;
-  font-size: 0.9rem;
-  text-align: center;
-}
+      .free-edition {
+        margin: 20px 0;
+        font-size: 12px;
+        text-align: center;
+      }
 
-.free-edition a {
-  color: #a7c0ff;
-  text-decoration: none;
-}
+      .free-edition a {
+        color: #a7c0ff;
+        text-decoration: none;
+      }
 
-.recent-bids h3 {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-}
+      .recent-bids h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
 
-.bid-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 15px 20px;
-  margin-bottom: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+      .bid-card {
+        /* background: rgba(255, 255, 255, 0.05); */
+        padding: 15px 2px;
+        /* margin-bottom: 12px; */
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+      }
 
-.bid-card h4 {
-  font-size: 1rem;
-  font-weight: 600;
-}
+      .bid-card h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        position: relative;
+      }
+      .bid-card h4::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 0px;
+        width: 40%;
+        height: 100%;
+        /* backdrop-filter: blur(8px); */
+        opacity: 3;
+        border-radius: 2px;
+      }
 
-.hidden {
-  font-size: 0.85rem;
-  opacity: 0.8;
-  margin: 4px 0;
-}
+      .hidden {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin: 4px 0;
+      }
 
-.bid-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  margin-top: 10px;
-}
+      .bid-footer {
+        text-align: end;
+        font-size: 0.85rem;
+      }
+      .bid-card a{
+        color: #ffffff;
 
-.dashboard-link {
-  color: #a7c0ff;
-  text-decoration: none;
-}
+        font-size: 0.85rem;
+      }
 
-.dashboard-link:hover {
-  text-decoration: underline;
-}
+      .dashboard-link {
+        color: #a7c0ff;
+        text-decoration: none;
+      }
 
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <h1 class="logo">BidInsight</h1>
-      <div class="date">Daily Brief • <span>August 08, 2025</span></div>
-    </header>
+      .dashboard-link:hover {
+        text-decoration: underline;
+      }
+      .bold {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1 class="logo">
+          <img src="https://bid-insight.vercel.app/logo.png" alt="" />
+        </h1>
+        <div class="date inter">
+          Daily Brief <br />
+          <span>August 08, 2025</span>
+        </div>
+      </header>
 
-    <section class="main-box">
-      <h2>Get Full Access to All 855 Active Bids</h2>
-      <p class="details">
-        See organization details • Direct Source Links • Follow Bids • Set bid alerts
+      <section class="main-box">
+        <h2 class="archivo" style="">Get Full Access to All 855 Active Bids</h2>
+        <p class="details inter">
+          See organization details • Direct Source Links • Follow Bids • Set bid
+          alerts
+        </p>
+        <button class="cta inter">Start Free Trial</button>
+      </section>
+
+      <p class="free-edition">
+        <span class="bold">Free Edition : </span>
+        <span> Showing 15 of 11 new bids from the last 24 hours. </span>
+        <a href="#" class="bold" style="color: white; text-decoration: none"
+          >Try AI powerhouse →</a
+        >
       </p>
-      <button class="cta">Start Free Trial</button>
-    </section>
 
-    <p class="free-edition">
-      Free Edition: Showing 15 of 11 new bids from the last 24 hours.
-      <a href="#">Try AI powerhouse →</a>
-    </p>
+      <section class="recent-bids">
+        <h3 class="archivo" style="font-size: 14px">Recent Bids</h3>
 
-    <section class="recent-bids">
-      <h3>Recent Bids</h3>
+      
 
-      <div class="bid-card">
-        <h4>Classroom Optimization and ...</h4>
-        <p class="hidden">Organisation & Due Date Hidden</p>
-        <div class="bid-footer">
-          <span>Open Date: <strong>August 08, 2025</strong></span>
-          <a href="#" class="dashboard-link">Visit the Bid Dashboard →</a>
+        <div class="bid-card">
+          <div class="">
+            <h4 class="archivo">Classroom Optimization and Events Sofware</h4>
+            <p class="hidden inter">Organisation & Due Date Hidden</p>
+            <a href="#" class="dashboard-link inter">Visit the Bid Dashboard →</a>
+          </div>
+          <div class="bid-footer">
+            <div style="margin-bottom: 5px;">Open Date: </div>
+            <strong>August 08, 2025</strong>
+          </div>
         </div>
-      </div>
-
-      <div class="bid-card">
-        <h4>Classroom Optimization and ...</h4>
-        <p class="hidden">Organisation & Due Date Hidden</p>
-        <div class="bid-footer">
-          <span>Open Date: <strong>August 08, 2025</strong></span>
-          <a href="#" class="dashboard-link">Visit the Bid Dashboard →</a>
+        <div class="bid-card">
+          <div class="">
+            <h4 class="archivo">Classroom Optimization and Events Software</h4>
+            <p class="hidden inter">Organisation & Due Date Hidden</p>
+            <a href="#" class="dashboard-link inter">Visit the Bid Dashboard →</a>
+          </div>
+          <div class="bid-footer">
+            <div style="margin-bottom: 5px;">Open Date: </div>
+            <strong>August 08, 2025</strong>
+          </div>
         </div>
-      </div>
-    </section>
-  </div>
-</body>
+      </section>
+    </div>
+  </body>
 </html>
