@@ -289,7 +289,7 @@ useEffect(() => {
   dispatch(clearOnboardingData());
 
   // ⭐ CHANGED: Single navigation logic
-  navigate(isUpdate ? "/user-profile" : "/dashboard");
+  navigate("/user-profile");
   
 } catch (err) {
   const message = err.response ? JSON.stringify(err.response.data) : err.message;

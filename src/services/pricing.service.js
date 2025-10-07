@@ -59,3 +59,13 @@ export const paymentSessionDetail = async (sessionId) => {
     throw error;
   }
 };
+
+export const changePaymentMethodAPI = async () => {
+  try {
+    const res = await API.post("/payments/change-payment-method/");
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching payment session details:", error);
+    throw error;
+  }
+};

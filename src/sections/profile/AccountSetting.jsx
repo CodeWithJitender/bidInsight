@@ -129,6 +129,13 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
   const settings = [
     {
+      title: "Change payment method",
+      description: "Change your payment method",
+      tooltip: "Update your credit/debit card or bank details.",
+      icon: <FaRedo className={`text-primary text-xl ${isPasswordLoading ? 'animate-spin' : ''}`} />,
+      action: "payment"
+    },
+    {
       title: "Change Password",
       description: "Change your password",
       tooltip: "Use a strong password with at least 8 characters with one capital letter, one number & one special character.",
@@ -341,6 +348,12 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
   // Handle setting click
   const handleSettingClick = async (action) => {
+
+    if( action === "payment") {
+      navigate('/user-profile/change-payment-method');
+      return;
+    }
+
     if (action === "password") {
       if (isPasswordDisabled) {
         return;

@@ -34,6 +34,7 @@ function HelpOurAi() {
   };
 
   const yesNoOptions = [
+    // { value: "", label: "Select an option", disabled: true }, // ✅ Disabled placeholder
     { value: "yes", label: "Yes" },
     { value: "no", label: "No" },
   ];
@@ -54,7 +55,7 @@ function HelpOurAi() {
   const [formValues, setFormValues] = useState(() => {
     const initialState = {};
     fields.forEach(field => {
-      initialState[field.name] = "";
+      initialState[field.name] = "no";
     });
     return initialState;
   });
@@ -92,7 +93,7 @@ function HelpOurAi() {
           // Create complete form object with all fields
           const completeFormValues = {};
           fields.forEach(field => {
-            completeFormValues[field.name] = insurance[field.name] || "";
+            completeFormValues[field.name] = insurance[field.name] || "no";
           });
 
           console.log("✅ Complete form values to set:", completeFormValues);
@@ -137,26 +138,35 @@ function HelpOurAi() {
   }, [formValues, skipClicked, isLoading]);
 
   // ⭐ NEW: Prefill from Redux profile data
-useEffect(() => {
-  if (profileData?.profile && !isLoading) {
-    console.log("📝 Prefilling HelpOurAi from Redux");
-    
-    const apiProfile = profileData.profile;
-    
-    // Map API boolean fields to form yes/no values
-    const prefilledValues = {
-      workersCompensation: apiProfile.workers_compensation ? "yes" : apiProfile.workers_compensation === false ? "no" : "",
-      generalLiability: apiProfile.general_liability_insurance ? "yes" : apiProfile.general_liability_insurance === false ? "no" : "",
-      autoLiability: apiProfile.auto_mobile_liability_insurance ? "yes" : apiProfile.auto_mobile_liability_insurance === false ? "no" : "",
-      cyberInsurance: apiProfile.cyber_security_insurance ? "yes" : apiProfile.cyber_security_insurance === false ? "no" : "",
-      environmentalInsurance: apiProfile.enviormental_insurance ? "yes" : apiProfile.enviormental_insurance === false ? "no" : "",
-      medicalProfessional: apiProfile.medical_professional_eso_insurance ? "yes" : apiProfile.medical_professional_eso_insurance === false ? "no" : "",
-    };
-    
-    setFormValues(prefilledValues);
-    console.log("✅ HelpOurAi prefilled with:", prefilledValues);
-  }
-}, [profileData, isLoading]);
+  useEffect(() => {
+    if (profileData?.profile && !isLoading) {
+      console.log("📝 Prefilling HelpOurAi from Redux");
+
+      const apiProfile = profileData.profile;
+
+      // Map API boolean fields to form yes/no values
+      // const prefilledValues = {
+      //   workersCompensation: apiProfile.workers_compensation ? "yes" : apiProfile.workers_compensation === false ? "no" : "",
+      //   generalLiability: apiProfile.general_liability_insurance ? "yes" : apiProfile.general_liability_insurance === false ? "no" : "",
+      //   autoLiability: apiProfile.auto_mobile_liability_insurance ? "yes" : apiProfile.auto_mobile_liability_insurance === false ? "no" : "",
+      //   cyberInsurance: apiProfile.cyber_security_insurance ? "yes" : apiProfile.cyber_security_insurance === false ? "no" : "",
+      //   environmentalInsurance: apiProfile.enviormental_insurance ? "yes" : apiProfile.enviormental_insurance === false ? "no" : "",
+      //   medicalProfessional: apiProfile.medical_professional_eso_insurance ? "yes" : apiProfile.medical_professional_eso_insurance === false ? "no" : "",
+      // };
+
+      const prefilledValues = {
+        workersCompensation: apiProfile.workers_compensation === true ? "yes" : "no",
+        generalLiability: apiProfile.general_liability_insurance === true ? "yes" : "no",
+        autoLiability: apiProfile.auto_mobile_liability_insurance === true ? "yes" : "no",
+        cyberInsurance: apiProfile.cyber_security_insurance === true ? "yes" : "no",
+        environmentalInsurance: apiProfile.enviormental_insurance === true ? "yes" : "no",
+        medicalProfessional: apiProfile.medical_professional_eso_insurance === true ? "yes" : "no",
+      };
+
+      setFormValues(prefilledValues);
+      console.log("✅ HelpOurAi prefilled with:", prefilledValues);
+    }
+  }, [profileData, isLoading]);
 
   // 🔥 UPDATED: Handle change with touched state
   const handleChange = (name, value) => {
@@ -187,11 +197,14 @@ useEffect(() => {
 
   // 🔥 UPDATED: Dynamic message generation based on touched state OR showValidation
   const getMessage = (name) => {
-    const shouldShow = touched[name] || showValidation;
-    if (!shouldShow) return "";
-    return formValues[name] ? "This field is selected" : "This field is required";
-  };
-
+  const shouldShow = touched[name] || showValidation;
+  if (!shouldShow) return "";
+  
+  // Since default is "no", field is always selected
+  return formValues[name] && formValues[name] !== "" 
+    ? "This field is selected" 
+    : "This field is required";
+};
   const getMessageType = (name) => {
     const shouldShow = touched[name] || showValidation;
     if (!shouldShow) return "";
@@ -261,10 +274,10 @@ useEffect(() => {
       text: "Next",
       link: "/extra-data",
     },
-    skip: {
-      text: "Skip",
-      link: "/extra-data",
-    },
+    // skip: {
+    //   text: "Skip",
+    //   link: "/extra-data",
+    // },
   };
 
   // Show loading state while data is being loaded
