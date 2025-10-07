@@ -28,13 +28,16 @@ const fallbackIndustries = [
   { id: 11, name: "Real Estate and Rental and Leasing" },
   { id: 12, name: "Professional, Scientific, and Technical Services" },
   { id: 13, name: "Management of Companies and Enterprises" },
-  { id: 14, name: "Administrative and Support and Waste Management and Remediation Services" },
+  {
+    id: 14,
+    name: "Administrative and Support and Waste Management and Remediation Services",
+  },
   { id: 15, name: "Educational Services" },
   { id: 16, name: "Health Care and Social Assistance" },
   { id: 17, name: "Arts, Entertainment, and Recreation" },
   { id: 18, name: "Accommodation and Food Services" },
   { id: 19, name: "Other Services (except Public Administration)" },
-  { id: 20, name: "Public Administration" }
+  { id: 20, name: "Public Administration" },
 ];
 
 function IndustryCategories() {
@@ -67,11 +70,12 @@ function IndustryCategories() {
     next: {
       text: "Next",
     },
-
   };
 
   const profileData = useSelector((state) => state.profile.profile);
-  const reduxIndustryCategory = useSelector((state) => state.onboarding.industryCategory);
+  const reduxIndustryCategory = useSelector(
+    (state) => state.onboarding.industryCategory
+  );
   console.log(profileData, "🔥 Profile data in IndustryCategories");
 
   // State management
@@ -96,7 +100,11 @@ function IndustryCategories() {
       setError(null);
       const industries = await fetchIndustryCategories();
 
-      if (Array.isArray(industries) && industries.length > 0 && industries[0].id) {
+      if (
+        Array.isArray(industries) &&
+        industries.length > 0 &&
+        industries[0].id
+      ) {
         // Use API data directly if it has id and name
         setAllIndustries(industries);
       } else {
@@ -157,34 +165,46 @@ function IndustryCategories() {
       filtered = allIndustries.slice(0, 6);
     }
 
-    // Move selected industry to top if it exists in filtered results
-    if (selectedIndustry && filtered.some(i => i.id === selectedIndustry.id)) {
-      const selectedIndex = filtered.findIndex(i => i.id === selectedIndustry.id);
-      const reordered = [
-        selectedIndustry,
-        ...filtered.slice(0, selectedIndex),
-        ...filtered.slice(selectedIndex + 1)
-      ];
-      return reordered;
+    // ✅ FIXED: Always check ALL industries for selected one, not just filtered
+    if (selectedIndustry) {
+      // Check if selected industry is in current filtered list
+      const isInFiltered = filtered.some((i) => i.id === selectedIndustry.id);
+      
+      if (isInFiltered) {
+        // If already in filtered list, move to top
+        const selectedIndex = filtered.findIndex(
+          (i) => i.id === selectedIndustry.id
+        );
+        const reordered = [
+          selectedIndustry,
+          ...filtered.slice(0, selectedIndex),
+          ...filtered.slice(selectedIndex + 1),
+        ];
+        return reordered;
+      } else {
+        // ✅ If selected industry is NOT in filtered list (was selected via search),
+        // add it to the top of the list
+        return [selectedIndustry, ...filtered];
+      }
     }
 
     return filtered;
   }, [searchTerm, allIndustries, selectedIndustry]);
   // Handle form submission
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (selectedIndustry) {
-    // Save if industry selected
-    dispatch(saveIndustryCategory(selectedIndustry.id));
-  } else {
-    // Save null if nothing selected
-    dispatch(saveIndustryCategory(null));
-  }
-  
-  // Always navigate regardless of selection
-  navigate("/help-our-ai");
-};
+    if (selectedIndustry) {
+      // Save if industry selected
+      dispatch(saveIndustryCategory(selectedIndustry.id));
+    } else {
+      // Save null if nothing selected
+      dispatch(saveIndustryCategory(null));
+    }
+
+    // Always navigate regardless of selection
+    navigate("/help-our-ai");
+  };
 
   // Handle skip action
   const handleSkip = () => {
@@ -214,15 +234,14 @@ function IndustryCategories() {
       return;
     }
 
-
-      const saved = sessionStorage.getItem("onboardingForm");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.industry?.selectedIndustry) {
-      console.log("✅ Using sessionStorage industry (user changes)");
-      return; // Don't override with Redux
+    const saved = sessionStorage.getItem("onboardingForm");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.industry?.selectedIndustry) {
+        console.log("✅ Using sessionStorage industry (user changes)");
+        return; // Don't override with Redux
+      }
     }
-  }
 
     // ✅ FIX: Check profileData first, not reduxIndustryCategory
     // Profile data is the source of truth for prefilling
@@ -232,16 +251,20 @@ function IndustryCategories() {
       const apiIndustry = profileData.profile.industry;
 
       // If industry is object with id
-      if (typeof apiIndustry === 'object' && apiIndustry.id) {
-        const foundIndustry = allIndustries.find(ind => ind.id === apiIndustry.id);
+      if (typeof apiIndustry === "object" && apiIndustry.id) {
+        const foundIndustry = allIndustries.find(
+          (ind) => ind.id === apiIndustry.id
+        );
         if (foundIndustry) {
           setSelectedIndustry(foundIndustry);
           console.log("✅ Industry prefilled:", foundIndustry.name);
         }
       }
       // If industry is just ID
-      else if (typeof apiIndustry === 'number') {
-        const foundIndustry = allIndustries.find(ind => ind.id === apiIndustry);
+      else if (typeof apiIndustry === "number") {
+        const foundIndustry = allIndustries.find(
+          (ind) => ind.id === apiIndustry
+        );
         if (foundIndustry) {
           setSelectedIndustry(foundIndustry);
           console.log("✅ Industry prefilled:", foundIndustry.name);
@@ -254,7 +277,7 @@ function IndustryCategories() {
         ? reduxIndustryCategory[0]
         : reduxIndustryCategory;
 
-      const foundIndustry = allIndustries.find(ind => ind.id === industryId);
+      const foundIndustry = allIndustries.find((ind) => ind.id === industryId);
       if (foundIndustry) {
         setSelectedIndustry(foundIndustry);
         console.log("✅ Industry prefilled from Redux:", foundIndustry.name);
@@ -265,8 +288,6 @@ function IndustryCategories() {
   }, [profileData, allIndustries, skipClicked, reduxIndustryCategory]);
   // Loading state
 
-
-  
   if (isLoading) {
     return (
       <ProcessWrapper>
@@ -358,7 +379,9 @@ function IndustryCategories() {
                   </div>
                 ) : (
                   <div className="text-white text-sm text-center py-8">
-                    {searchTerm ? "No industries found matching your search." : "No industries available."}
+                    {searchTerm
+                      ? "No industries found matching your search."
+                      : "No industries available."}
                   </div>
                 )}
               </div>
@@ -380,10 +403,7 @@ function IndustryCategories() {
             </div>
 
             {/* Footer with submit button */}
-            <FormFooter
-              data={formFooter}
-              onSkipClick={handleSkip}
-            />
+            <FormFooter data={formFooter} onSkipClick={handleSkip} />
           </form>
         </div>
       </div>
