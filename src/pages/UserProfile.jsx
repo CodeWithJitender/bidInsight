@@ -104,33 +104,33 @@ export default function UserProfile() {
 
   // Line 118 ke baad add karo:
 
-// 🔥 Browser back button handler
-// 🔥 Browser back button handler - Block and redirect
-// useEffect(() => {
-//   // Push initial state to prevent back navigation
-//   window.history.pushState(null, null, window.location.pathname);
+  // 🔥 Browser back button handler
+  // 🔥 Browser back button handler - Block and redirect
+  useEffect(() => {
+    // Push initial state to prevent back navigation
+    window.history.pushState(null, null, window.location.pathname);
 
-//   const handlePopState = () => {
-//     console.log("🔙 Back button pressed - redirecting to dashboard");
-    
-//     // Block back by pushing state again
-//     window.history.pushState(null, null, window.location.pathname);
-    
-//     // Redirect to dashboard
-//     navigate("/dashboard", { replace: true });
-//   };
+    const handlePopState = () => {
+      console.log("🔙 Back button pressed - redirecting to dashboard");
 
-//   window.addEventListener("popstate", handlePopState);
+      // Block back by pushing state again
+      window.history.pushState(null, null, window.location.pathname);
 
-//   return () => {
-//     window.removeEventListener("popstate", handlePopState);
-//   };
-// }, [navigate]);
+      // Redirect to dashboard
+      navigate("/dashboard", { replace: true });
+    };
 
-useEffect(() => {
-  fetchUserProfile();
-  fetchPaymentData();
-}, []);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchUserProfile();
+    fetchPaymentData();
+  }, []);
 
   useEffect(() => {
     fetchUserProfile();
@@ -305,15 +305,22 @@ useEffect(() => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between h-screen fixed md:static top-0 left-0 z-20 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300`}>
+      <aside
+        className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between h-screen fixed md:static top-0 left-0 z-20 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 transition-transform duration-300`}
+      >
         <div>
           <h1 className="text-2xl font-bold mb-10 ps-4 flex items-center justify-between">
             <Link to="/">
               <img src="logo.png" alt="" />
             </Link>
-          <div className="block md:hidden">
-              <i class="far fa-times text-xl w-8 h-full flex justify-center items-center text-white  rounded-full bg-primary " onClick={() => setSidebarOpen(!sidebarOpen)}></i>
-          </div>
+            <div className="block md:hidden">
+              <i
+                class="far fa-times text-xl w-8 h-full flex justify-center items-center text-white  rounded-full bg-primary "
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              ></i>
+            </div>
           </h1>
 
           <nav className="flex flex-col gap-6 relative md:translate-x-0 transition-all duration-300">
@@ -327,7 +334,7 @@ useEffect(() => {
               <div
                 key={i}
                 onClick={() => {
-                  setActive(item.title)
+                  setActive(item.title);
                   setSidebarOpen(false); // Close sidebar on item click (for mobile)
                 }}
                 className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${
@@ -357,32 +364,36 @@ useEffect(() => {
         <div className="flex flex-wrap justify-between py-4 px-4 md:px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
           <div className="hidden md:block">
             {active === "Profile" ? (
-            <button
-              className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
-              onClick={() => navigate("/dashboard")}
-              style={{
-                background: "none",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-              }}
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span>Back to Dashboard</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span>Back to Dashboard</span>
-            </button>
-          )}
+              <button
+                className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+                onClick={() => navigate("/dashboard")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+                <span>Back to Dashboard</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+                <span>Back to Dashboard</span>
+              </button>
+            )}
           </div>
           <div className="block md:hidden">
-             <h2 className="md:text-2xl font-semibold font-archivo text-gray-800 flex items-center gap-2">
-             <i class="far fa-bars w-8 h-8 flex justify-center items-center text-white text-sm rounded-full bg-primary " onClick={() => setSidebarOpen(!sidebarOpen)}></i> {active}
+            <h2 className="md:text-2xl font-semibold font-archivo text-gray-800 flex items-center gap-2">
+              <i
+                class="far fa-bars w-8 h-8 flex justify-center items-center text-white text-sm rounded-full bg-primary "
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              ></i>{" "}
+              {active}
             </h2>
           </div>
           <div className="flex items-center gap-4">
