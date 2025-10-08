@@ -62,7 +62,7 @@ function HomePricingCard({ title, price, features, delay, icon, isComingSoon, pl
 
       {/* Action Button */}
       <button
-        className={`bg-btn border border-white text-white p-4 font-inter w-[14rem] font-medium rounded-2xl my-3 ${
+        className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${
           isComingSoon
             ? "opacity-50 cursor-not-allowed"
             : "hover:text-blue transition-colors"

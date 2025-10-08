@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { saveInsuranceData, setSkippedInsurance, setAllNoInsurance } from "../redux/reducer/onboardingSlice";
@@ -75,7 +75,7 @@ function HelpOurAi() {
   const [isLoading, setIsLoading] = useState(true);
   const profileData = useSelector((state) => state.profile.profile);
   console.log(profileData, "🔥 Profile data in HelpOurAi");
-
+   const hasPrefilledFromProfileRef = useRef(false);
   // Enhanced session storage loading with proper state management
   useEffect(() => {
     const loadStoredData = () => {
@@ -138,21 +138,38 @@ function HelpOurAi() {
   }, [formValues, skipClicked, isLoading]);
 
   // ⭐ NEW: Prefill from Redux profile data
-  useEffect(() => {
-    if (profileData?.profile && !isLoading) {
-      console.log("📝 Prefilling HelpOurAi from Redux");
+   useEffect(() => {
+    if (isLoading) {
+      console.log("⏳ Still loading, skipping profile prefill");
+      return;
+    }
+
+    // ✅ CHECK 1: If already prefilled (from sessionStorage or profile), don't prefill again
+    if (hasPrefilledFromProfileRef.current) {
+      console.log("⏭️ Already prefilled, skipping profile data");
+      return;
+    }
+
+    // ✅ CHECK 2: Only prefill from profile if sessionStorage was empty
+    const saved = sessionStorage.getItem("onboardingForm");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.insuranceData && Object.keys(parsed.insuranceData).length > 0) {
+          console.log("⏭️ sessionStorage has data, not prefilling from profile");
+          hasPrefilledFromProfileRef.current = true;
+          return; // ✅ EXIT - sessionStorage wins
+        }
+      } catch (err) {
+        console.error("Error checking sessionStorage:", err);
+      }
+    }
+
+    // ✅ CHECK 3: Prefill from profile (FIRST TIME ONLY)
+    if (profileData?.profile) {
+      console.log("📝 Prefilling from Profile Data (first time)");
 
       const apiProfile = profileData.profile;
-
-      // Map API boolean fields to form yes/no values
-      // const prefilledValues = {
-      //   workersCompensation: apiProfile.workers_compensation ? "yes" : apiProfile.workers_compensation === false ? "no" : "",
-      //   generalLiability: apiProfile.general_liability_insurance ? "yes" : apiProfile.general_liability_insurance === false ? "no" : "",
-      //   autoLiability: apiProfile.auto_mobile_liability_insurance ? "yes" : apiProfile.auto_mobile_liability_insurance === false ? "no" : "",
-      //   cyberInsurance: apiProfile.cyber_security_insurance ? "yes" : apiProfile.cyber_security_insurance === false ? "no" : "",
-      //   environmentalInsurance: apiProfile.enviormental_insurance ? "yes" : apiProfile.enviormental_insurance === false ? "no" : "",
-      //   medicalProfessional: apiProfile.medical_professional_eso_insurance ? "yes" : apiProfile.medical_professional_eso_insurance === false ? "no" : "",
-      // };
 
       const prefilledValues = {
         workersCompensation: apiProfile.workers_compensation === true ? "yes" : "no",
@@ -164,7 +181,8 @@ function HelpOurAi() {
       };
 
       setFormValues(prefilledValues);
-      console.log("✅ HelpOurAi prefilled with:", prefilledValues);
+      hasPrefilledFromProfileRef.current = true; // ✅ Mark as prefilled
+      console.log("✅ Prefilled from profile:", prefilledValues);
     }
   }, [profileData, isLoading]);
 

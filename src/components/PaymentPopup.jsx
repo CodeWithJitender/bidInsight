@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const PaymentPopup = ({ content, onClose }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 md:flex items-center justify-center bg-blue backdrop-blur-sm p-4 overflow-y-scroll">
       {/* Card */}
       <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
         {/* Close Button */}
@@ -38,10 +38,10 @@ const PaymentPopup = ({ content, onClose }) => {
         </div>
 
         {/* Payment Details */}
-        <div className="text-left space-y-4 text-lg font-inter mt-8">
+        <div className="text-left space-y-2 md:space-y-4 text-lg font-inter mt-2 md:mt-8">
           {content.details &&
             content.details.map((detail, idx) => (
-              <div className="flex justify-between" key={idx}>
+              <div className="flex flex-col md:flex-row justify-between" key={idx}>
                 <span className="font-semibold">{detail.label}</span>
                 <span className="opacity-80">{detail.value}</span>
               </div>
@@ -56,7 +56,7 @@ const PaymentPopup = ({ content, onClose }) => {
                 <Link
                   key={idx}
                   to={btn.url}
-                  className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center"
+                  className="w-full font-archivo text-base md:text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center"
                 >
                   {btn.text}
                 </Link>
@@ -64,7 +64,7 @@ const PaymentPopup = ({ content, onClose }) => {
                 <button
                   key={idx}
                   onClick={btn.onClick}
-                  className="w-full font-archivo  text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold"
+                  className="w-full font-archivo text-base md:text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold"
                 >
                   {btn.text}
                 </button>

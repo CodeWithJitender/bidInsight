@@ -104,7 +104,10 @@ function Dashboard() {
   const [error, setError] = useState("");
   const abortControllerRef = useRef(null);
   // Dashboard.jsx - Existing states ke saath add karo
-  const [viewMode, setViewMode] = useState(false); // false = default table, true = detailed cards
+  const [viewMode, setViewMode] = useState(() => {
+    const saved = localStorage.getItem('bidTableViewMode');
+    return saved === 'detailed';
+  }); // false = default table, true = detailed cards
 
   const [isBookmarkView, setIsBookmarkView] = useState(false);
   const [restrictionPopup, setRestrictionPopup] = useState({
@@ -764,7 +767,7 @@ function Dashboard() {
             <div className="flex items-center gap-[15px]">
               {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
               {/* <AlertToggle /> */}
-              <div className="search-box bg-btn p-4 px-6 flex gap-3 items-center rounded-[30px]">
+              <div className="search-box bg-btn py-3 md:p-4 px-6 flex gap-3 items-center rounded-[30px] max-w-[90%] md:max-w-full m-auto md:m-0">
                 <i className="far text-white fa-search"></i>
                 <input
                   type="text"
@@ -806,12 +809,16 @@ function Dashboard() {
                 </div>
                 <div>
                   <div className="hidden lg:flex items-center gap-2">
-                    <span className="text-white/70 text-sm">View:</span>
+                    <span className="text-white/70 text-sm">View</span>
                     <button
-                      onClick={() => setViewMode(!viewMode)}
+                      onClick={() => {
+                        const newMode = !viewMode;
+                        setViewMode(newMode);
+                        localStorage.setItem('bidTableViewMode', newMode ? 'detailed' : 'table');
+                      }}
                       className={`px-4 py-2 w-24 rounded-lg transition-all ${viewMode
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
                         }`}
                     >
                       {viewMode ? 'Detailed' : 'Table'}

@@ -44,7 +44,7 @@ function FormRadio2({
           className="sr-only" // Hide input
         />
       </div>
-      <div className="font-t text-left mt-20">{label}</div>
+      <div className="font-t text-left md:mt-20">{label}</div>
     </label>
   );
 }

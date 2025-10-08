@@ -726,7 +726,7 @@ const BidTable = forwardRef(
 
 
         {viewMode && (
-          <div className="block bg-btn  text-white py-8  rounded-[21px] shadow-xl overflow-x-auto border-white border-2 border-solid space-y-3 my-[50px] px-4">
+          <div className="block bg-btn max-h-screen  text-white py-8  rounded-[21px] shadow-xl overflow-x-auto border-white border-2 border-solid space-y-3 my-[50px] px-4">
             {data.length === 0 ? (
               <div className="text-center py-12 text-white/60">
                 <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
