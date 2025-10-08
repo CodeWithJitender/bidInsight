@@ -27,12 +27,19 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
       setPopupContent({
         image: "/payment-ussuccessfull.png",
         title: "Failed to Add Payment Method",
-        description: "Stripe has not loaded yet. Please wait a moment and try again.",
+        description:
+          "Stripe has not loaded yet. Please wait a moment and try again.",
         details: [
           { label: "Status", value: "FAILED" },
-          { label: "Error", value: "Stripe not initialized" }
+          { label: "Error", value: "Stripe not initialized" },
         ],
-        buttons: [{ type: "button", text: "Try Again", onClick: () => setShowPopup(false) }]
+        buttons: [
+          {
+            type: "button",
+            text: "Try Again",
+            onClick: () => setShowPopup(false),
+          },
+        ],
       });
       setShowPopup(true);
       setLoading(false);
@@ -47,9 +54,15 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
         description: "Card element not found. Please refresh the page.",
         details: [
           { label: "Status", value: "FAILED" },
-          { label: "Error", value: "Card element missing" }
+          { label: "Error", value: "Card element missing" },
         ],
-        buttons: [{ type: "button", text: "Try Again", onClick: () => setShowPopup(false) }]
+        buttons: [
+          {
+            type: "button",
+            text: "Try Again",
+            onClick: () => setShowPopup(false),
+          },
+        ],
       });
       setShowPopup(true);
       setLoading(false);
@@ -59,8 +72,8 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
     const { setupIntent, error } = await stripe.confirmCardSetup(clientSecret, {
       payment_method: {
         card: cardElement,
-        billing_details: { 
-          name: "Customer Name" // You can pass this as a prop if needed
+        billing_details: {
+          name: "Customer Name", // You can pass this as a prop if needed
         },
       },
     });
@@ -70,17 +83,25 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
       setPopupContent({
         image: "/payment-ussuccessfull.png",
         title: "Failed to Add Payment Method",
-        description: error.message || "We're sorry, your payment method could not be added.",
+        description:
+          error.message ||
+          "We're sorry, your payment method could not be added.",
         details: [
           { label: "Error Code", value: error.code || "UNKNOWN_ERROR" },
           { label: "Status", value: "FAILED" },
-          { label: "Date", value: new Date().toLocaleDateString('en-GB') }
+          { label: "Date", value: new Date().toLocaleDateString("en-GB") },
         ],
-        buttons: [{ type: "button", text: "Try Again", onClick: () => setShowPopup(false) }],
+        buttons: [
+          {
+            type: "button",
+            text: "Try Again",
+            onClick: () => setShowPopup(false),
+          },
+        ],
         note: {
           text: "If the issue continues, contact our support team at",
           email: "support@bidinsight.com",
-        }
+        },
       });
       setShowPopup(true);
       setLoading(false);
@@ -91,20 +112,26 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
         title: "Payment Method Added Successfully",
         description: "Your card has been saved for autopay.",
         details: [
-          { label: "Payment Method ID", value: setupIntent.payment_method || "N/A" },
-          { label: "Added Date", value: new Date().toLocaleDateString('en-GB') },
-          { label: "Status", value: "COMPLETED" }
+          {
+            label: "Payment Method ID",
+            value: setupIntent.payment_method || "N/A",
+          },
+          {
+            label: "Added Date",
+            value: new Date().toLocaleDateString("en-GB"),
+          },
+          { label: "Status", value: "COMPLETED" },
         ],
         buttons: [
-          { 
-            type: "button", 
-            text: "Done", 
+          {
+            type: "button",
+            text: "Done",
             onClick: () => {
               setShowPopup(false);
               if (onSuccess) onSuccess(setupIntent);
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
       setShowPopup(true);
       setLoading(false);
@@ -118,8 +145,12 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
         className="min-h-[60vh] w-full flex flex-col gap-4 justify-center items-center p-4"
       >
         <div className="w-full">
-          <h2 className="text-2xl font-bold text-white mb-2 text-center">Add Payment Method</h2>
-          <p className="text-gray-300 text-center mb-6">Save your card for automatic payments</p>
+          <h2 className="text-2xl font-bold text-white mb-2 text-center">
+            Add Payment Method
+          </h2>
+          <p className="text-gray-300 text-center mb-6">
+            Save your card for automatic payments
+          </p>
         </div>
 
         <div className="w-full max-w-md">
@@ -169,10 +200,10 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
   );
 }
 
-export default function AddPaymentMethod({ 
-  clientSecret, 
-  onSuccess, 
-  onCancel 
+export default function AddPaymentMethod({
+  clientSecret,
+  onSuccess,
+  onCancel,
 }) {
   const [error, setError] = useState("");
 
@@ -209,7 +240,8 @@ export default function AddPaymentMethod({
       <div className="fixed top-0 left-0 w-full min-h-screen z-10 flex items-center justify-center bg-black/50">
         <div className="bg-blue max-w-2xl w-full rounded-xl p-6">
           <p className="text-yellow-500">
-            Missing Stripe publishable key. Set VITE_STRIPE_PUBLISHABLE_KEY or pass publishableKey prop.
+            Missing Stripe publishable key. Set VITE_STRIPE_PUBLISHABLE_KEY or
+            pass publishableKey prop.
           </p>
         </div>
       </div>
@@ -223,10 +255,10 @@ export default function AddPaymentMethod({
 
   return (
     <div className="fixed top-0 left-0 w-full min-h-screen z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-blue max-w-2xl w-full rounded-xl">
+      <div className="bg-blue max-w-[90vw] md:max-w-2xl w-full rounded-xl">
         <Elements stripe={stripePromise} options={options}>
-          <PaymentForm 
-            clientSecret={clientSecret} 
+          <PaymentForm
+            clientSecret={clientSecret}
             onSuccess={onSuccess}
             onCancel={onCancel}
           />

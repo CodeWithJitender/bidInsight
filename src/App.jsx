@@ -119,8 +119,8 @@ const App = () => {
           </Route>
           <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
           <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
-          <Route path="/*" element={<Error404 />} />
           <Route path="/payment" element={<Payment content={content} />} />
+          <Route path="/*" element={<Error404 />} />
           {/* <Route path="/payment-unsuccessful" element={<PaymentUnsuccessful />} /> */}
         </Routes>
       </Suspense> 
