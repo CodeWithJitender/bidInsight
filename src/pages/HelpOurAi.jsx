@@ -309,9 +309,9 @@ function HelpOurAi() {
           </div>
 
           <form className="form-container flex flex-col h-full justify-between">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:gap-4">
               {[0, 1, 2].map((row) => (
-                <div key={row} className="flex gap-4">
+                <div key={row} className="md:flex gap-4">
                   {fields.slice(row * 2, row * 2 + 2).map((field) => (
                     <div className="w-full " key={field.name}>
                       <FormSelect

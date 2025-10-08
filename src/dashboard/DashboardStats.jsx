@@ -127,8 +127,8 @@ const DashboardStats = ({
             onClick={item.onClick || (() => {})}
           >
             <div className={`flex flex-wrap justify-center md:flex-row gap-2 items-center`}>
-              <div className="text-[12px] text font-inter text-[#DBDBDB]">{item.title}</div>
-              <p className="text-[12px] num font-inter font-semibold text-white">
+              <div className="text-[12px] lg:text-base font-inter text-[#DBDBDB]">{item.title}</div>
+              <p className="text-[12px] num lg:text-xl font-inter font-semibold text-white">
                 {item.num}
               </p>
             </div>

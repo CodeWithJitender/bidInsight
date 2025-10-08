@@ -69,7 +69,7 @@ function FormFooter({ data, onNextClick, onSkipClick }) {
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-center gap-5 mt-5 mb-3">
-      <div className="flex flex-col text-center md:flex-row gap-2 w-full lg:w-auto">
+      <div className="flex flex-col-reverse text-center md:flex-row gap-2 w-full lg:w-auto">
         {back && (
           <Link
             to={back.link}

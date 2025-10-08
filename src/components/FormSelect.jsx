@@ -177,7 +177,7 @@ function FormSelect({
 
       {/* Custom Dropdown */}
       <div
-        className={`relative font-t p-3 py-5 rounded-[20px] border border-gray-300 text-white ${dark ? "text-white" : "text-black"} cursor-pointer`}
+        className={`relative font-t p-3 md:py-5 rounded-[20px] border border-gray-300 focus:ring-0 text-white ${dark ? "text-white" : "text-black"} cursor-pointer`}
         onClick={handleDropdownToggle}
       > 
       
