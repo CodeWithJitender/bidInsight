@@ -469,7 +469,7 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
                   Loading regions...
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 mb-3">
                   {regionOptions.map((reg, i) => (
                     <FormRadio
                       key={i}

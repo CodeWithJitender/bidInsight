@@ -5,7 +5,7 @@ const StatShimmer = () => {
   const statCards = Array.from({ length: 5 }, (_, index) => index);
 
   return (
-    <div className="flex gap-3 text-[1em]">
+    <div className="flex text-[1em]">
       {statCards.map((_, index) => (
         <div
           key={index}
