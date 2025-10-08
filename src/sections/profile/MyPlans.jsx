@@ -282,7 +282,7 @@ export default function MyPlans({
           <h2 className="text-lg font-semibold mb-4">
             {isFreeplan ? "Locked Features" : "My Features"}
           </h2>
-          <div className="p-4">
+          <div className="max-w-[100%] w-full">
             <FeatureSlider currentPlan={subscriptionPlanId} />
           </div>
         </div>

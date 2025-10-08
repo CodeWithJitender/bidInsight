@@ -484,3 +484,8 @@ p {
   background-color: rebeccapurple;
   border-radius: 9999px;
 }
+
+
+.mySwiper.swiper {
+  height: auto !important;
+}

@@ -132,7 +132,8 @@ export default function AccountSetting({ fullName, lastLogin }) {
       title: "Change payment method",
       description: "Change your payment method",
       tooltip: "Update your credit/debit card or bank details.",
-      icon: <FaRedo className={`text-primary text-xl ${isPasswordLoading ? 'animate-spin' : ''}`} />,
+      icon: <i class="far fa-university text-primary text-xl"></i>,
+      // icon: <FaRedo className={`text-primary text-xl ${isPasswordLoading ? 'animate-spin' : ''}`} />,
       action: "payment"
     },
     {
