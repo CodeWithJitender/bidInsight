@@ -839,7 +839,7 @@ function Dashboard() {
                   />
                 )}
               </div>
-              <div className="feature-right md:w-full xl:w-auto">
+              <div className="feature-right md:w-full 2xl:w-auto ">
                 <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div
@@ -871,7 +871,7 @@ function Dashboard() {
                     ) : exportLoading ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      <img src="/export.png" className="w-6" alt="Export" />
+                      <img src="/export.png" className="w-6 min-w-6" alt="Export" />
                     )}
                   </div>
 
