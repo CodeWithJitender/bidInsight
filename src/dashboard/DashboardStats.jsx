@@ -121,7 +121,7 @@ const DashboardStats = ({
     <div className="flex gap-3 text-[1em]">
       {stats.map((item) => (
         <div className={`featue-${item.id}`} key={item.id}>
-          <BgCover
+          <BgCover 
             description={item.description}
             title={item.title}
             onClick={item.onClick || (() => {})}

@@ -80,6 +80,19 @@ function Verification() {
     return () => clearInterval(countdown);
   }, [otpFromSignup]);
 
+  const handlePaste = (e) => {
+  e.preventDefault();
+  const pastedData = e.clipboardData.getData('text').trim();
+  
+  if (/^\d{6}$/.test(pastedData)) {
+    const otpDigits = pastedData.split('');
+    setOtp(otpDigits);
+    setOtpMessage("");
+    setOtpMessageType("");
+    inputsRef.current[5]?.focus();
+  }
+};
+
   const handleChange = (value, index) => {
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
@@ -93,10 +106,13 @@ function Verification() {
   };
 
   const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
-    }
-  };
+  if (e.key === "Backspace" && !otp[index] && index > 0) {
+    inputsRef.current[index - 1].focus();
+  }
+  if (e.key === "Enter") {
+    handleVerify();
+  }
+};
 
   const handleVerify = async () => {
     const enteredOtp = otp.join("");
@@ -288,6 +304,7 @@ function Verification() {
                     value={digit}
                     onChange={(e) => handleChange(e.target.value, i)}
                     onKeyDown={(e) => handleKeyDown(e, i)}
+                    onPaste={i === 0 ? handlePaste : undefined}
                     disabled={isLoading}
                     className={`w-10 md:w-14 h-10 md:h-14 rounded-md bg-transparent border border-white text-3xl text-center focus:outline-none focus:ring-2 focus:ring-white text-white ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}

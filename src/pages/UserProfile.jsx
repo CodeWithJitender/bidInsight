@@ -421,7 +421,7 @@ export default function UserProfile() {
         {/* Dynamic Section */}
         <div className="h-full">{renderComponent()}</div>
       </main>
-      <Outlet />
+    
     </div>
   );
 }
