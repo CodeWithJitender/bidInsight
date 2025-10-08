@@ -9,7 +9,7 @@ const StatShimmer = () => {
       {statCards.map((_, index) => (
         <div
           key={index}
-          className="stat-shimmer-card rounded-2xl py-3 px-1 backdrop-blur-sm border border-white/10 shadow-lg"
+          className="stat-shimmer-card rounded-2xl py-3  backdrop-blur-sm border border-white/10 shadow-lg"
           style={{ 
             backgroundColor: "#4752CB",
             animationDelay: `${index * 150}ms`

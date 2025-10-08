@@ -8,6 +8,8 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import { changePaymentMethodAPI } from "../services/pricing.service";
 import PaymentPopup from "../components/PaymentPopup";
+import { IoMdClose } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 // Read Vite env correctly (must start with VITE_)
 const FALLBACK_PUBLISHABLE_STRIPE_KEY = import.meta.env
@@ -147,6 +149,7 @@ export default function ChangePaymentMethod() {
     FALLBACK_PUBLISHABLE_STRIPE_KEY || ""
   );
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClientSecret = async () => {
@@ -193,7 +196,10 @@ export default function ChangePaymentMethod() {
 
   return (
     <div className="fixed top-0 left-0 w-full min-h-screen z-10 flex items-center justify-center bg-black/50">
-      <div className="bg-blue max-w-2xl w-full rounded-xl">
+      <div className="bg-blue max-w-[90vw] md:max-w-2xl w-full rounded-xl relative">
+        <div className="p-4 cursor-pointer absolute right-3 top-2 text-white text-3xl" onClick={() => navigate("/user-profile")}>
+       <IoMdClose />
+        </div>
         <Elements stripe={stripePromise} options={options}>
           <PaymentForm clientSecret={clientSecret} />
         </Elements>
