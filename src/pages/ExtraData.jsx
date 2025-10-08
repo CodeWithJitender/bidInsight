@@ -155,17 +155,24 @@ useEffect(() => {
 }, [profileData]);
 
   const validateField = (name, value) => {
-    if (!value || value.trim() === "") {
-      return { msg: "This field is required", type: "error" };
-    }
-    if (!/^[0-9]+(\.[0-9]{1,2})?$/.test(value)) {
-      return { msg: "Please enter a valid amount (numbers only)", type: "error" };
-    }
-    if (parseFloat(value) <= 0) {
-      return { msg: "Amount must be greater than 0", type: "error" };
-    }
-    return { msg: "This field is valid", type: "success" };
-  };
+  if (!value || value.trim() === "") {
+    return { msg: "This field is required", type: "error" };
+  }
+  if (!/^[0-9]+(\.[0-9]{1,2})?$/.test(value)) {
+    return { msg: "Please enter a valid amount (numbers only)", type: "error" };
+  }
+  
+  // 🆕 Check for max 10 digits (before decimal)
+  const digitsOnly = value.split('.')[0]; // Get part before decimal
+  if (digitsOnly.length > 10) {
+    return { msg: "Amount cannot exceed 10 digits", type: "error" };
+  }
+  
+  if (parseFloat(value) <= 0) {
+    return { msg: "Amount must be greater than 0", type: "error" };
+  }
+  return { msg: "This field is valid", type: "success" };
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;

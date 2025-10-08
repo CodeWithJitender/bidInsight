@@ -13,7 +13,7 @@ function BgCover({ children, title, description, onClick }) {
           <h1 className="text-sm font-inter font-medium text-white">
            {title}
           </h1>
-          <p className="text-[12px] font-inter font-light text-white mt-1">
+          <p className="text-[12px]  font-inter font-light text-white mt-1">
            {description}
           </p>
         </div>

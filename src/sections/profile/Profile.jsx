@@ -155,13 +155,13 @@ const handleCompleteForm = () => {
               Complete verification process
             </div>
 
-            <div className="progress flex gap-4 items-center">
+            <div className="progress flex flex-wrap gap-4 items-center">
               <div className="text-[#999999] font-inter font-medium text-sm">
                 Progress till far
               </div>
 
               {/* ⭐ DYNAMIC Progress Bars */}
-              <div className="flex w-[300px] gap-1">
+              <div className="flex w-[200px] md:w-[300px] gap-1">
                 {[...Array(6)].map((_, index) => (
                   <div
                     key={index}

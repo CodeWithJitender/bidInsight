@@ -159,7 +159,7 @@ function LockedFeature() {
 
       <div className="locked-content w-full">
         <div ref={containerRef}
-          className="locked-content-inner sticky top-0 bg-blue min-h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
+          className="locked-content-inner sticky top-0 bg-blue  ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
           style={{
             transform: 'translateZ(0)', // Enable hardware acceleration
             // backfaceVisibility: 'hidden'

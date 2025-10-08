@@ -366,7 +366,7 @@ function CompanyBuild() {
               />
 
 
-              <div className="flex w-[100%] md:w-[90%] gap-4">
+              <div className="md:flex  w-[100%] md:w-[90%] gap-4">
                 <FormSelect
                   label="Year in business *"
                   name="yearInBusiness"
@@ -403,7 +403,7 @@ function CompanyBuild() {
 
 
 
-              <div className="flex w-[100%] md:w-[90%] gap-4">
+              <div className="md:flex w-[100%] md:w-[90%] gap-4">
                 <FormSelect
                   label="State *"
                   name="state"

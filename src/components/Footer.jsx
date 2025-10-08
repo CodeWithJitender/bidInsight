@@ -19,7 +19,7 @@ const Footer = () => {
           </div>
 
           {/* Middle Section: Navigation */}
-          <div className="flex flex-wrap   flex-col sm:flex-row gap-8 md:gap-12 xl:gap-16 xl:justify-end md:col-span-2">
+          <div className="flex flex-wrap mb-12 md:mb-auto  flex-col sm:flex-row gap-8 md:gap-12 xl:gap-16 xl:justify-end md:col-span-2">
             {[
               { 
                 title: "Home", 
@@ -74,7 +74,7 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className="">
-          <h1 className="text-g text-6xl lg:text-8xl font-black font-h max-w-4xl" data-aos="fade-up" data-aos-delay="">
+          <h1 className="text-g text-6xl lg:text-8xl font-black font-h max-w-4xl " data-aos="fade-up" data-aos-delay="">
             Your next government contract awaits!
           </h1>
           <div className="mt-12 border-t border-white/20 pt-4 flex flex-col md:flex-row justify-between items-center gap-3" >

@@ -29,6 +29,7 @@ import { useFollowBids } from "../dashboard/useFollowBids";
 import { useSearchHandling } from "../hooks/useSearchHandling";
 import { useFilterHandling } from "../hooks/useFilterHandling";
 import { useDashboardUI } from "../hooks/useDashboardUI";
+import AlertToggle from "../components/AlertToggle";
 
 function Dashboard() {
   const perPage = DASHBOARD_CONSTANTS.PER_PAGE;
@@ -102,7 +103,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const abortControllerRef = useRef(null);
-
+  // Dashboard.jsx - Existing states ke saath add karo
+  const [viewMode, setViewMode] = useState(false); // false = default table, true = detailed cards
 
   const [isBookmarkView, setIsBookmarkView] = useState(false);
   const [restrictionPopup, setRestrictionPopup] = useState({
@@ -344,13 +346,13 @@ function Dashboard() {
 
 
     if (abortControllerRef.current) {
-    console.log("🚫 Cancelling previous API call");
-    abortControllerRef.current.abort();
-  }
+      console.log("🚫 Cancelling previous API call");
+      abortControllerRef.current.abort();
+    }
 
-  // 🔥 STEP 2: Create new AbortController
-  abortControllerRef.current = new AbortController();
-  const signal = abortControllerRef.current.signal;
+    // 🔥 STEP 2: Create new AbortController
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setLoading(true);
     setError("");
@@ -403,26 +405,26 @@ function Dashboard() {
       console.log("🔥 Bids Count in Response:", res?.count);
       console.log("🔥 New Bids in URL:", searchParams.get('new_bids'));
 
-     if (!signal.aborted) {
-      dispatch(setBids(res));
-      console.log("✅ Redux Updated Successfully");
-    } else {
-      console.log("⚠️ Request was cancelled, skipping Redux update");
-    }
+      if (!signal.aborted) {
+        dispatch(setBids(res));
+        console.log("✅ Redux Updated Successfully");
+      } else {
+        console.log("⚠️ Request was cancelled, skipping Redux update");
+      }
 
 
     } catch (err) {
       if (err.name === 'AbortError' || err.message === 'canceled') {
-      console.log("🚫 Request cancelled");
-      return; // Don't show error for cancelled requests
-    }
-    
-    console.error("❌ Failed to fetch bids:", err);
-    setError("Failed to fetch bids");
+        console.log("🚫 Request cancelled");
+        return; // Don't show error for cancelled requests
+      }
+
+      console.error("❌ Failed to fetch bids:", err);
+      setError("Failed to fetch bids");
     } finally {
-       if (!abortControllerRef.current?.signal.aborted) {
-      setLoading(false);
-    }
+      if (!abortControllerRef.current?.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [currentPage, navigate, perPage, appliedFilters, dispatch, location.search]);
 
@@ -713,8 +715,6 @@ function Dashboard() {
   };
 
 
-  // console.log("🔥 Passing bids to BidTable:::::::::::::::::::::::::::::", bids);
-  console.log("🔥 Current URL::::::::::::::::::::::::::::::::", window.location.search);
 
   console.log("🔥 Passing bids to BidTable:", isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []));
   console.log("🔥 bidsInfo state:", bidsInfo);
@@ -778,8 +778,8 @@ function Dashboard() {
           </div>
 
           <div className="dashboard-feature pt-20">
-            <div className="flex justify-between items-center  gap-4">
-              <div className="feature-left">
+            <div className="flex flex-wrap justify-between items-center  gap-4">
+              <div className="feature-left hidden md:flex gap-4 items-center">
                 <div
                   className={`bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer ${restrictions?.advanceSearch ? 'opacity-50 bg-white/10' : ''
                     }`}
@@ -804,7 +804,24 @@ function Dashboard() {
                     />
                   )}
                 </div>
+                <div>
+                  <div className="hidden lg:flex items-center gap-2">
+                    <span className="text-white/70 text-sm">View:</span>
+                    <button
+                      onClick={() => setViewMode(!viewMode)}
+                      className={`px-4 py-2 w-24 rounded-lg transition-all ${viewMode
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                        }`}
+                    >
+                      {viewMode ? 'Detailed' : 'Table'}
+                    </button>
+                  </div>
+                </div>
               </div>
+
+
+
               <div className="dashboard-middle">
                 {loading ? (
                   <StatShimmer />
@@ -822,7 +839,7 @@ function Dashboard() {
                   />
                 )}
               </div>
-              <div className="feature-right md:w-full lg:w-auto">
+              <div className="feature-right md:w-full xl:w-auto">
                 <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div
@@ -858,60 +875,60 @@ function Dashboard() {
                     )}
                   </div>
 
-                 <div className=" flex">
-                   {/* Saved Search Dropdown with restrictions */}
-                  <div
-                  // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
-                  // onClick={(e) => {
-                  //   if (restrictions?.savedSearch) {
-                  //     e.preventDefault();
-                  //     e.stopPropagation();
-                  //     showFeatureRestriction(
-                  //       " Saved Search Locked",
-                  //       "Upgrade your plan to access and manage your saved searches for quick filtering.",
-                  //       "Saved Search Feature",
-                  //       true
-                  //     );
-                  //   }
-                  // }}
-                  // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
-                  className="hidden md:block"
-                  >
-                    <ProfessionalSavedSearchDropdown
-                      savedSearches={restrictions?.savedSearch ? [] : savedSearches}
-                      selectedSavedSearch={restrictions?.savedSearch ? null : selectedSavedSearch}
-                      handleSavedSearchSelect={restrictions?.savedSearch ? () => { } : enhancedHandleSavedSearchSelect}
-                      disabled={restrictions?.savedSearch}
-                    />
-                  </div>
-
-                  {/* Save Search Button with restrictions */}
-                  <div className="hidden md:block">
-                   <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                  <div className=" flex">
+                    {/* Saved Search Dropdown with restrictions */}
                     <div
-                      className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
-                        }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveSearchClick(); // Use the new function with restrictions
-                      }}
-                      title={
-                        restrictions?.savedSearch
-                          ? "Upgrade to save searches"
-                          : "Save current search"
-                      }
+                      // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
+                      // onClick={(e) => {
+                      //   if (restrictions?.savedSearch) {
+                      //     e.preventDefault();
+                      //     e.stopPropagation();
+                      //     showFeatureRestriction(
+                      //       " Saved Search Locked",
+                      //       "Upgrade your plan to access and manage your saved searches for quick filtering.",
+                      //       "Saved Search Feature",
+                      //       true
+                      //     );
+                      //   }
+                      // }}
+                      // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
+                      className="hidden md:block"
                     >
-                      {restrictions?.savedSearch && (
-                        <i className="fas fa-lock text-sm text-white/60 mr-2"></i>
-                      )}
-                      Save Search
+                      <ProfessionalSavedSearchDropdown
+                        savedSearches={restrictions?.savedSearch ? [] : savedSearches}
+                        selectedSavedSearch={restrictions?.savedSearch ? null : selectedSavedSearch}
+                        handleSavedSearchSelect={restrictions?.savedSearch ? () => { } : enhancedHandleSavedSearchSelect}
+                        disabled={restrictions?.savedSearch}
+                      />
                     </div>
-                  </BgCover>
+
+                    {/* Save Search Button with restrictions */}
+                    <div className="hidden md:block">
+                      <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                        <div
+                          className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
+                            }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSaveSearchClick(); // Use the new function with restrictions
+                          }}
+                          title={
+                            restrictions?.savedSearch
+                              ? "Upgrade to save searches"
+                              : "Save current search"
+                          }
+                        >
+                          {restrictions?.savedSearch && (
+                            <i className="fas fa-lock text-sm text-white/60 mr-2"></i>
+                          )}
+                          Save Search
+                        </div>
+                      </BgCover>
                     </div>
-                <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
-                  <i class="fas fa-sort-alt"></i> 
-                </div>
-                 </div>
+                    <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
+                      <i class="fas fa-sort-alt"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -984,6 +1001,7 @@ function Dashboard() {
                 blurConfig={blurConfig}
                 shouldBlurBid={shouldBlurBid}
                 restrictions={restrictions}
+                viewMode={viewMode}
               />
             )}
 
