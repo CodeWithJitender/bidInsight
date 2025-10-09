@@ -831,21 +831,46 @@ useEffect(() => {
                   )}
                 </div>
                 <div>
-                  <div className="hidden lg:flex items-center gap-2">
-                    <span className="text-white/70 text-sm">View</span>
-                    <button
-                      onClick={() => {
-                        const newMode = !viewMode;
-                        setViewMode(newMode);
-                        localStorage.setItem('bidTableViewMode', newMode ? 'detailed' : 'table');
-                      }}
-                      className={`px-4 py-2 w-24 rounded-lg transition-all ${viewMode
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                    >
-                      {viewMode ? 'Detailed' : 'Table'}
-                    </button>
+                  <div className="hidden lg:flex items-center gap-3">
+                    <span className="text-white text-sm font-normal">Full View</span>
+
+                    {/* Toggle Switch - Exact Design */}
+                    <div className="relative inline-block">
+                      <label
+                        htmlFor="viewSwitch"
+                        className={`relative w-[72px] h-[36px] rounded-full p-[3px] flex items-center transition-all duration-300 cursor-pointer ${viewMode ? 'bg-[#2B6BE6]' : 'bg-[#1E3A5F]/40'
+                          }`}
+                      >
+                        {/* OFF Text */}
+                        <span className={`absolute left-[8px] text-[11px] font-medium z-10 transition-all duration-300 ${!viewMode ? 'text-white' : 'text-white/40'
+                          }`}>
+                          OFF
+                        </span>
+
+                        {/* ON Text */}
+                        <span className={`absolute right-[10px] text-[11px] font-medium z-10 transition-all duration-300 ${viewMode ? 'text-white' : 'text-white/40'
+                          }`}>
+                          ON
+                        </span>
+
+                        {/* White Circle Slider */}
+                        <span className={`absolute w-[30px] h-[30px] bg-white rounded-full top-[3px] transition-all duration-300 ease-in-out shadow-md ${viewMode ? 'left-[39px]' : 'left-[3px]'
+                          }`}></span>
+
+                        {/* Hidden Checkbox Input */}
+                        <input
+                          type="checkbox"
+                          id="viewSwitch"
+                          className="sr-only"
+                          checked={viewMode}
+                          onChange={() => {
+                            const newMode = !viewMode;
+                            setViewMode(newMode);
+                            localStorage.setItem('bidTableViewMode', newMode ? 'detailed' : 'table');
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>

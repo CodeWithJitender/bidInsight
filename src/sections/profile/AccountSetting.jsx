@@ -419,7 +419,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
         <div className="text-right">
           <p className="text-sm text-[#999999] font-inter font-medium">
-            Signup On
+            Signup Date
           </p>
           <p className="text-lg font-medium text-black">{lastLogin}</p>
         </div>
