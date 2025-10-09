@@ -51,9 +51,9 @@ function LockedFeature() {
   const throttledResize = useMemo(() => handleResize(), [handleResize]);
 
   useEffect(() => {
-    window.addEventListener("resize", throttledResize);
+    window.addEventListener('resize', throttledResize);
     return () => {
-      window.removeEventListener("resize", throttledResize);
+      window.removeEventListener('resize', throttledResize);
     };
   }, [throttledResize]);
 
@@ -107,42 +107,42 @@ function LockedFeature() {
   // }, []);
 
   // Optimized panel rendering
-  const renderPanel = useCallback(
-    (item, index) => (
-      <div key={`panel-${index}-${item.title}`} className="panel my-14">
-        <div className="locked-item">
-          <div className="locked-img border border-white rounded-[30px] overflow-hidden">
-            <img
-              src={item.img}
-              alt={item.title}
-              loading="lazy"
-              decoding="async"
-              className="rounded-[30px]"
-              onLoad={(e) => {
-                // Fade in image when loaded
-                gsap.to(e.target, { opacity: 1, duration: 0.3 });
-              }}
-            />
+  const renderPanel = useCallback((item, index) => (
+    <div
+      key={`panel-${index}-${item.title}`}
+      className="panel my-14   flex-[50%]"
+    >
+      <div className="locked-item">
+        <div className="locked-img border border-white rounded-[30px] overflow-hidden">
+          <img
+            src={item.img}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            className="rounded-[30px]"
+            onLoad={(e) => {
+              // Fade in image when loaded
+              gsap.to(e.target, { opacity: 1, duration: 0.3 });
+            }}
+          />
+        </div>
+        <div className="locked-text h-full p-5 hidden">
+          <div className="locked-title font-h font-semibold text-black mb-3 h3">
+            {item.title}
           </div>
-          <div className="locked-text h-full p-5 hidden">
-            <div className="locked-title font-h font-semibold text-black mb-3 h3">
-              {item.title}
-            </div>
-            <div className="locked-para font-t body-t text-black mb-3">
-              {item.para}
-            </div>
-            <div className="locked-btn flex justify-end">
-              <Arrow
-                link={item.link}
-                customclass="w-10 h-10 leading-10 -rotate-45"
-              />
-            </div>
+          <div className="locked-para font-t body-t text-black mb-3">
+            {item.para}
+          </div>
+          <div className="locked-btn flex justify-end">
+            <Arrow
+              link={item.link}
+              customclass="w-10 h-10 leading-10 -rotate-45"
+            />
           </div>
         </div>
       </div>
-    ),
-    []
-  );
+    </div>
+  ), []);
 
   return (
     <div className="locked-feature">
@@ -157,22 +157,33 @@ function LockedFeature() {
         </div>
       </div>
 
-      <div className="bg-blue">
-        <div className="container-section">
-          <div className="locked-content w-full">
-            <div
-              ref={containerRef}
-              className="locked-content-inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 gap-6"
-              style={{
-                transform: "translateZ(0)", // Enable hardware acceleration
-                // backfaceVisibility: 'hidden'
-              }}
-            >
-             <div className="locked-img border border-white rounded-[30px] overflow-hidden "><img src={FEATURE_DATA[0].img} alt="" /></div>
-             <div className="locked-img border border-white rounded-[30px] overflow-hidden hidden md:block"><img src={FEATURE_DATA[0].img} alt="" /></div>
-             <div className="locked-img border border-white rounded-[30px] overflow-hidden hidden lg:block"><img src={FEATURE_DATA[0].img} alt="" /></div>
+      <div className="locked-content w-full">
+        <div ref={containerRef}
+          className="locked-content-inner sticky top-0 bg-blue min-h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
+          style={{
+            transform: 'translateZ(0)', // Enable hardware acceleration
+            // backfaceVisibility: 'hidden'
+          }}
+        >
+          {data.map(renderPanel)}
+
+          {/* Final CTA Panel */}
+          <div className="panel h-full flex-[50%]">
+            <div className="h-full bg-white">
+              <div className="flex justify-center items-center flex-col px-10 md:px-40 gap-6 h-full text-center">
+                <Heading
+                  textD="Discover all the"
+                  textL="functionality"
+                  textAlign="text-center"
+                />
+                <Arrow
+                  link="/"
+                  customclass="w-10 h-10 md:w-16 md:h-16 body-t"
+                />
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

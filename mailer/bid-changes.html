@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BidInsight – Bid Change Alert</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .inter {
+        font-family: "Inter", sans-serif;
+      }
+      .archivo {
+        font-family: "Archivo", sans-serif;
+      }
+
+      body {
+        font-family: "Inter", Arial, sans-serif;
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 600px;
+        background: url("https://bid-insight.vercel.app/bg.jpg")
+          center/cover no-repeat fixed;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        max-width: 200px;
+        font-weight: 700;
+        color: #cfe2ff;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .date {
+        font-size: 12px;
+        text-align: end;
+      }
+
+      .date span {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .main-box {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 40px 25px;
+        text-align: center;
+        background: rgb(255 255 255 / 21%);
+      }
+
+      .main-box h2 {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        font-weight: normal;
+      }
+
+      .counter {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .digit {
+        font-size: 2.8rem;
+        font-weight: 400;
+        padding: 10px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, -0.92);
+        min-width: 60px;
+      }
+
+      .subtext {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 10px;
+        margin-bottom: 25px;
+
+      }
+
+      .message {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 35px;
+        line-height: 1.6;
+      }
+
+      .cta {
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 25px;
+        padding: 10px 50px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .cta:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1 class="logo">
+          <img src="https://bid-insight.vercel.app/logo.png" alt="BidInsight" />
+        </h1>
+        <div class="date inter">
+          Daily Brief <br />
+          <span>August 08, 2025</span>
+        </div>
+      </header>
+
+      <section class="main-box">
+        <h2 class="archivo">
+          <strong>Important:</strong> Your bid details have changed!
+        </h2>
+
+        <div class="counter">
+          <div class="digit inter">0</div>
+          <div class="digit inter">4</div>
+        </div>
+
+        <p class="subtext inter">Bids updated</p>
+
+        <p class="message inter">
+          Hey there <strong>Ayush</strong>,<br />
+          Some of your bids just got updated. Stay ahead by reviewing the changes
+          and confirming your details before the next round begins.
+        </p>
+
+        <button class="cta inter">Login Now</button>
+      </section>
+    </div>
+  </body>
+</html>

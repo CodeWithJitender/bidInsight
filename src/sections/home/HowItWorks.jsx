@@ -75,6 +75,7 @@ function HowItWorks() {
                 text={"Get Started"}
                 btnBg={"bg-primary text-white"}
                 arrowBg={"bg-white text-primary"}
+                link={"/register"}
               />
             </motion.div>
           </motion.div>
