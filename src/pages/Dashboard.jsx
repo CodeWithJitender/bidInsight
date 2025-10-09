@@ -721,7 +721,30 @@ function Dashboard() {
 
   console.log("🔥 Passing bids to BidTable:", isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []));
   console.log("🔥 bidsInfo state:", bidsInfo);
+useEffect(() => {
+    if (sidebarToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarToggle]);
+useEffect(() => {
+    if (saveSearchToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [saveSearchToggle]);
   return (
     <>
       <div className="py-[120px] bg-blue">
