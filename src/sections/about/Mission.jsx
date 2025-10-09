@@ -26,34 +26,34 @@ const Mission = () => {
           </h3> */}
 
           {/* Paragraph */}
-          <div className="font-inter mt-6 leading-relaxed text-base md:text-xl">
+          <div className="font-inter mt-6 leading-relaxed text-base lg:text-xl">
             
 At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
 
           </div>
           {/* Paragraph */}
-          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+          <div className="font-inter mt-3 leading-relaxed text-base lg:text-xl">
             
 <b>Empower Businesses:</b> To help all organizations, whether big or small, focus on their core business instead of searching a needle in a haystack.
 
 
           </div>
           {/* Paragraph */}
-          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+          <div className="font-inter mt-3 leading-relaxed text-base lg:text-xl">
             
 <b>Eliminate Guesswork:</b> To remove the guesswork from government and public-sector bidding with clarity and precision.
 
 
           </div>
           {/* Paragraph */}
-          <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+          <div className="font-inter mt-3 leading-relaxed text-base lg:text-xl">
 
 <b>Intelligent Automation: </b>To use advanced tools and AI to streamline the search, evaluation and selection of RFPs.
 
 
           </div>
           {/* Paragraph */}
-          {/* <div className="font-inter mt-3 leading-relaxed text-base md:text-xl">
+          {/* <div className="font-inter mt-3 leading-relaxed text-base lg:text-xl">
             
 At BidInsight, we believe that every business, whether you’re a nimble startup or an industry veteran, deserves to spend its time winning contracts, not chasing them.
 

@@ -766,7 +766,7 @@ function Dashboard() {
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
               {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
-              {/* <AlertToggle /> */}
+              <AlertToggle />
               <div className="search-box bg-btn py-3 md:p-4 px-6 flex gap-3 items-center rounded-[30px] max-w-[90%] md:max-w-full m-auto md:m-0">
                 <i className="far text-white fa-search"></i>
                 <input
