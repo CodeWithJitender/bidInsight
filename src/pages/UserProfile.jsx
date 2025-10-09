@@ -413,7 +413,7 @@ export default function UserProfile() {
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
             </div> */}
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full hover:bg-blue-700 transition">
-              Hi, {fullName}
+              Hi, <span className="capitalize">{fullName}</span>
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import lock from "../../public/lock.png";
+import lock from "../../public/lock.svg";
 import NormalBtn from "./NormalBtn";
 
 

@@ -156,34 +156,36 @@ function LockedFeature() {
           </div>
         </div>
       </div>
-      <div className="bg-blue">
 
-    <div className="container-section">
-<div className="locked-content w-full">
+      <div className="locked-content w-full">
         <div ref={containerRef}
-          className="locked-content-inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+          className="locked-content-inner sticky top-0 bg-blue  ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
           style={{
             transform: 'translateZ(0)', // Enable hardware acceleration
             // backfaceVisibility: 'hidden'
           }}
         >
-          <div className="border border-white overflow-hidden rounded-[30px]">
-            <img src={FEATURE_DATA[0].img} alt="" />
-          </div>
-          <div className="border border-white overflow-hidden rounded-[30px] hidden md:block">
-            <img src={FEATURE_DATA[1].img} alt="" />
-          </div>
-          <div className="border border-white overflow-hidden rounded-[30px] hidden lg:block">
-            <img src={FEATURE_DATA[2].img} alt="" />
-          </div>
+          {data.map(renderPanel)}
 
-          
+          {/* Final CTA Panel */}
+          <div className="panel h-full flex-[50%]">
+            <div className="h-full bg-white">
+              <div className="flex justify-center items-center flex-col px-10 md:px-40 gap-6 h-full text-center">
+                <Heading
+                  textD="Discover all the"
+                  textL="functionality"
+                  textAlign="text-center"
+                />
+                <Arrow
+                  link="/"
+                  customclass="w-10 h-10 md:w-16 md:h-16 body-t"
+                />
+              </div>
+            </div>
+          </div>
 
         </div>
       </div>
-    </div>
-      </div>
-      
     </div>
   );
 }
