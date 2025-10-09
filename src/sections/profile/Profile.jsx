@@ -132,7 +132,7 @@ const handleCompleteForm = () => {
             <p className="text-sm text-gray-500 font-medium font-inter">
               Hello
             </p>
-            <p className="text-2xl font-medium text-black font-inter">
+            <p className="text-2xl font-medium text-black font-inter capitalize">
               {profileData?.full_name || fullName}
             </p>
           </div>

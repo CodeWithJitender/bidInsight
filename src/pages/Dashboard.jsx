@@ -721,7 +721,30 @@ function Dashboard() {
 
   console.log("🔥 Passing bids to BidTable:", isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []));
   console.log("🔥 bidsInfo state:", bidsInfo);
+useEffect(() => {
+    if (sidebarToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarToggle]);
+useEffect(() => {
+    if (saveSearchToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [saveSearchToggle]);
   return (
     <>
       <div className="py-[120px] bg-blue">
@@ -766,7 +789,7 @@ function Dashboard() {
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
               {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
-              {/* <AlertToggle /> */}
+              <AlertToggle />
               <div className="search-box bg-btn py-3 md:p-4 px-6 flex gap-3 items-center rounded-[30px] max-w-[90%] md:max-w-full m-auto md:m-0">
                 <i className="far text-white fa-search"></i>
                 <input
