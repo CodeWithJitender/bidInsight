@@ -317,16 +317,16 @@ export default function MyPlans({
                       <td className="py-3 px-4">
                         {tx.metadata.purpose === "buy_addon_state"
                           ? `Bolt-on Purchase`
-                          : `Payment for ${getPlanName(tx.metadata)}`}
+                          : `Payment for ${(tx.plan)}`}
                       </td>
                       <td className="py-3 px-4">
-                        {tx.stripe_payment_intent_id}
+                        {tx.stripe_invoice_id}
                       </td>
                       <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
                       <td className="py-3 px-4 font-bold">
                         {formatAmount(tx.amount)}
                       </td>
-                      <td className="py-3 px-4">{getPlanName(tx.metadata)}</td>
+                      <td className="py-3 px-4">{(tx.plan)}</td>
                       <td
                         className={`py-3 px-4 font-semibold ${statusInfo.color}`}
                       >
