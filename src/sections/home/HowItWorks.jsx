@@ -84,7 +84,10 @@ function HowItWorks() {
             
 
       {/* Work Steps */}
-      <div className="work-content relative bg-blue grid md:grid-cols-2 lg:grid-cols-4">
+      <div className="bg-blue">
+
+     
+      <div className="work-content relative  grid md:grid-cols-2 lg:grid-cols-4">
         {/* <div className="absolute z-50 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[1600px] m-auto">
               <img src="/line.svg" alt="" />
             </div> */}
@@ -189,7 +192,17 @@ function HowItWorks() {
             </div>
           </motion.div>
         ))}
+        
       </div>
+      <div className="flex justify-center pb-20">
+           <Button
+                      link={"/login"}
+                      text={"Get Started"}
+                      btnBg={"bg-white"}
+                      arrowBg={"bg-primary text-white"}
+                    />
+        </div>
+         </div>
     </div>
   );
 }
