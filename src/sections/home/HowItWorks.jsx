@@ -87,7 +87,7 @@ function HowItWorks() {
       <div className="bg-blue">
 
      
-      <div className="work-content relative  grid md:grid-cols-2 lg:grid-cols-4">
+      <div className="work-content relative  grid md:grid-cols-2 lg:grid-cols-4 py-5">
         {/* <div className="absolute z-50 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[1600px] m-auto">
               <img src="/line.svg" alt="" />
             </div> */}
@@ -95,13 +95,14 @@ function HowItWorks() {
           <motion.div
             key={index}
             className="work-item  lg:py-16"
+           id={`work-content-${index}`}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeInUp}
           >
             <div className="p-5 xl:p-10">
-              <div className={`work-content hidden md:flex gap-5 ${index%2 == 0? "flex-col":"flex-col-reverse"}`}>
+              <div className={`work-content hidden md:flex  gap-5 ${index%2 == 0? "flex-col":"flex-col-reverse"}`}  >
                 {/* Image */}
                 <motion.div
                   className="work-img rounded-[20px] overflow-hidden"
