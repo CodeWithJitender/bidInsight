@@ -23,7 +23,7 @@ const tabs = [
   "UNSPSC Code",
   "Published Date",
   "Closing Date",
-  "Solicitation Type",
+  // "Solicitation Type",
 ];
 
 const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters, onApply }) => {
@@ -319,7 +319,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
   // ✅ Updated clearAllFilters with date filters
   const clearAllFilters = () => {
     const clearedFilters = {
-      status: "",
+      status: "Active",
       keyword: {
         include: [],
         exclude: [],
@@ -366,11 +366,10 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
     params.append('pageSize', '500');
 
     params.append('ordering', 'closing_date');
+    params.append('bid_type', filters.status || 'Active');
 
     // Convert status (Active/Inactive)
-    if (filters.status) {
-      params.append('bid_type', filters.status);
-    }
+    
 
     // Convert location array to comma-separated state values
     // if (filters.location && filters.location.length > 0) {
@@ -471,13 +470,13 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
       case "Keyword":
         return <KeywordTab filters={filters} setFilters={updateFilters} />;
       case "Location":
-        return <LocationTab filters={filters} setFilters={updateFilters} />;
+        return <LocationTab filters={filters} setFilters={updateFilters} onCloseFilterPanel={onClose}  />;
       case "Published Date":
         return <PublishedDateTab filters={filters} setFilters={updateFilters} />;
       case "Closing Date":
         return <ClosingDateTab filters={filters} setFilters={updateFilters} />;
-      case "Solicitation Type":
-        return <SolicitationTypeTab filters={filters} setFilters={updateFilters} />;
+      // case "Solicitation Type":
+      //   return <SolicitationTypeTab filters={filters} setFilters={updateFilters} />;
       default:
         return null;
     }

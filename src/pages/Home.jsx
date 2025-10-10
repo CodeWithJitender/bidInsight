@@ -3,7 +3,7 @@ import Hero from "../sections/home/Hero";
 import KeyValuePro from "../sections/home/KeyValuePro";
 import LockedFeature from "../sections/home/LockedFeature";
 import HowItWorks from "../sections/home/HowItWorks";
-// import PricingSection from '../sections/home/PricingSection'
+import PricingSection from '../sections/home/PricingSection'
 import CallToAction from "../sections/home/CallToAction";
 import ComparisonGrid from "../sections/home/ComparisonGrid";
 import PricingHero from "../sections/pricing/PricingHero";
@@ -126,8 +126,8 @@ function Home() {
      </div>
       <LockedFeature />
       <HowItWorks />
-      {/* <PricingSection /> */}
-      <PricingHero />
+      <PricingSection />
+      {/* <PricingHero /> */}
       <ComparisonGrid />
       <CallToAction
         t1="Still Thinking "

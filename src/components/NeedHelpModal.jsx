@@ -206,7 +206,7 @@ const NeedHelpModal = ({ onClose }) => {
         </button>
 
         {/* Title */}
-        <h2 className="text-center mb-2 text-h3 text-g font-bold mb-3">Need help</h2>
+        <h2 className="text-center text-h3 text-g font-bold mb-3">Need help</h2>
         {/* <p className="text-center text-white/90 mb-6  max-w-xl mx-auto text-p font-inter">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. In accumsan eros non fringilla
           faucibus.

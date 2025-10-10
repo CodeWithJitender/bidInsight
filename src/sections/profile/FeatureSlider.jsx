@@ -48,7 +48,7 @@ export default function FeatureSlider({ currentPlan }) {
           <LazyLoadImage
             src={imageSrc}
             alt={`Feature ${index + 1}`}
-          className="w-full h-full object-cover rounded-xl"
+          className="w-full rounded-[18px]"
             onError={(e) => {
               // Fallback image agar koi image load nahi ho
               e.target.src = '/feature.png';

@@ -2,9 +2,13 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Trash2, Search, ChevronDown, ChevronUp } from "lucide-react";
 // 👇 Import the real API function
 import { getAllStates } from "../../services/user.service";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import FeatureRestrictionPopup from "../FeatureRestrictionPopup"; // adjust path if needed
 import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
+// Top mein add karo
+import { checkOutSessionBoltOn } from "../../services/pricing.service";
+import FormSelect from "../FormSelect";
+import { useNavigate } from "react-router-dom";
 
 // Mock local entities data
 const LOCAL_ENTITIES = [
@@ -17,7 +21,7 @@ const LOCAL_ENTITIES = [
   { name: "Township" }
 ];
 
-const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
+const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel }) => {
   console.log("🔥 LocationTab received filters:", filters);
 
   // 🔥 FIXED: Properly initialize state from filters.location structure
@@ -59,6 +63,8 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
     initializeLocationState(filters.location)
   );
 
+  console.log(locationState, "locationState in LocationTab.........................");
+
   // Dropdown states
   const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
   const [localDropdownOpen, setLocalDropdownOpen] = useState(false);
@@ -71,10 +77,20 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
   const [states, setStates] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  console.log(states, "states in LocationTab");
+
+  // Existing states ke saath add karo
+  const [showBoltOnPopup, setShowBoltOnPopup] = useState(false);
+  const [boltOnStates, setBoltOnStates] = useState([]);
+  const [selectedBoltOnState, setSelectedBoltOnState] = useState(null);
+  const [boltOnLoading, setBoltOnLoading] = useState(false);
+  const navigate = useNavigate();
+
   // Plan and profile data from Redux
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
   const activeAddonState = useSelector(state => state.profile?.profile?.subscription_plan?.active_addon?.state);
-
+  // Existing Redux selectors ke saath add karo
+  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
   const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
   console.log(activeAddonState)
   const isEssentialPlan = planCode === "003";
@@ -84,7 +100,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
     console.log("🔥 Syncing LocationTab state with filters:", filters.location);
     const newLocationState = initializeLocationState(filters.location);
     setLocationState(newLocationState);
-  }, [filters.location]);
+  }, []);
 
   // Fetch states from API
   useEffect(() => {
@@ -92,10 +108,58 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       try {
         setLoading(true);
         const response = await getAllStates();
-        const sorted = response.sort((a, b) =>
-          (a.name || a).toLowerCase().localeCompare((b.name || b).toLowerCase())
+
+        // ✅ Essential plan (003) - simple alphabetical list
+        if (planCode === "003") {
+          const sortedStates = response.sort((a, b) =>
+            (a.name || a).toLowerCase().localeCompare((b.name || b).toLowerCase())
+          );
+          setStates(sortedStates);
+          return;
+        }
+
+        // For other plans - existing complex logic
+        const profileStateNames = userStates.map(s => s.name);
+        const priorityStateNames = [...profileStateNames];
+
+        if (activeAddonState && !priorityStateNames.includes(activeAddonState.name)) {
+          priorityStateNames.push(activeAddonState.name);
+        }
+
+        const priorityStates = response.filter(state =>
+          priorityStateNames.includes(state.name || state)
         );
-        setStates(sorted);
+        const otherStates = response.filter(state =>
+          !profileStateNames.includes(state.name || state)
+        ).sort((a, b) => (a.name || a).toLowerCase().localeCompare((b.name || b).toLowerCase()));
+
+        console.log(otherStates, "otherStates");
+        console.log(priorityStates, "priorityStates");
+
+        const map = {};
+        otherStates.forEach(obj => {
+          map[obj.id] = obj;
+        });
+        priorityStates.forEach(obj => {
+          map[obj.id] = obj;
+        });
+
+        if (activeAddonState) {
+          map[activeAddonState.id] = activeAddonState;
+        }
+
+        const sortedStates = [
+          ...priorityStates.map(p => map[p.id]),
+          ...(activeAddonState && !priorityStates.some(p => p.id === activeAddonState.id) ? [map[activeAddonState.id]] : []),
+          ...otherStates.filter(
+            o =>
+              !priorityStates.some(p => p.id === o.id) &&
+              (!activeAddonState || o.id !== activeAddonState.id)
+          )
+        ];
+
+        console.log(sortedStates, "sortedStates");
+        setStates(sortedStates);
       } catch (error) {
         console.error("Failed to fetch states:", error);
         setStates([]);
@@ -104,14 +168,65 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       }
     };
     fetchStates();
-  }, []);
+  }, [userStates, activeAddonState, planCode]);
 
+  // Ye function names change karo
+  const handleBoltOnClick = async () => {
+
+    console.log("bolton clicked");
+    setBoltOnLoading(true);
+    try {
+      const states = await getAllStates();
+      const filteredStates = states.filter(
+        state => !userStates.some(userState => userState.id === state.id)
+      );
+      setBoltOnStates(filteredStates);
+      setShowBoltOnPopup(true);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    } finally {
+      setBoltOnLoading(false);
+    }
+  };
+
+  const handleBoltOnStateSelect = (selectedStateId) => {
+    const selectedState = boltOnStates.find(state => state.id.toString() === selectedStateId);
+    setSelectedBoltOnState(selectedState);
+  };
+
+  const handleBoltOnProceed = async () => {
+    setBoltOnLoading(true);
+    try {
+      const res = await checkOutSessionBoltOn(selectedBoltOnState.id);
+      if (!res) {
+        throw new Error("Failed to initiate payment");
+      }
+
+      setShowBoltOnPopup(false);
+      onCloseFilterPanel(); // Filter panel close kar do
+
+      navigate("/payment", {
+        state: {
+          clientSecret: res.clientSecret,
+          publishableKey: res.publishableKey,
+          plan: res.plan,
+        },
+      });
+      setShowBoltOnPopup(false);
+    } catch (error) {
+      console.error("Failed to initiate payment:", error);
+    } finally {
+      setBoltOnLoading(false);
+    }
+  };
   // Filtered data
   const filteredStates = useMemo(() => {
     return states.filter((state) =>
       (state.name || state).toLowerCase().includes(stateSearchTerm.toLowerCase())
     );
   }, [stateSearchTerm, states]);
+
+  console.log(states, "states in LocationTab.........................");
 
   const filteredLocal = useMemo(() => {
     return LOCAL_ENTITIES.filter((entity) =>
@@ -182,6 +297,10 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
     return params.toString();
   };
 
+  const activeAddon = useSelector((state) =>
+    state.profile?.profile?.subscription_plan?.active_addon || null
+  );
+
   // Federal handlers
   const toggleFederal = useCallback(() => {
     const newLocationState = {
@@ -195,12 +314,55 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
 
   // State handlers
   const toggleState = useCallback((stateName) => {
-    // If on Starter and already 1 state selected, show popup
-    if (planCode === "002" && locationState.states.length >= 1 && !locationState.states.includes(stateName)) {
-      setShowRestrictionPopup(true);
+    // ✅ ESSENTIAL PLAN - Complete freedom, no restrictions
+    if (planCode === "003") {
+      const newStates = locationState.states.includes(stateName)
+        ? locationState.states.filter(s => s !== stateName)
+        : [...locationState.states, stateName];
+
+      const newLocationState = {
+        ...locationState,
+        states: newStates
+      };
+
+      console.log("Essential plan state toggled:", stateName, "New states:", newStates);
+      updateLocationFilters(newLocationState);
       return;
     }
 
+    // Existing logic for other plans (002, etc.)
+    const isProfileState = profileStates.some(ps => ps.name === stateName);
+    const isAddonState = activeAddonState && activeAddonState.name === stateName;
+
+    if (isProfileState || isAddonState) {
+      const newStates = locationState.states.includes(stateName)
+        ? locationState.states.filter(s => s !== stateName)
+        : [...locationState.states, stateName];
+
+      const newLocationState = {
+        ...locationState,
+        states: newStates
+      };
+
+      console.log("Profile/Addon state toggled:", stateName, "New states:", newStates);
+      updateLocationFilters(newLocationState);
+      return;
+    }
+
+    if (
+      planCode === "002" &&
+      !isProfileState &&
+      !isAddonState
+    ) {
+      if (activeAddon === null) {
+        setShowSavedSearchPopup(true);
+      } else {
+        setShowRestrictionPopup(true);
+      }
+      return;
+    }
+
+    // Normal toggle logic for other plans
     const newStates = locationState.states.includes(stateName)
       ? locationState.states.filter(s => s !== stateName)
       : [...locationState.states, stateName];
@@ -210,9 +372,9 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       states: newStates
     };
 
-    console.log("🔥 State toggled:", stateName, "New states:", newStates);
+    console.log("State toggled:", stateName, "New states:", newStates);
     updateLocationFilters(newLocationState);
-  }, [planCode, locationState.states, updateLocationFilters]);
+  }, [planCode, locationState.states, activeAddon, profileStates, activeAddonState, updateLocationFilters]);
 
   const toggleAllStates = useCallback(() => {
     const visibleStateNames = filteredStates.map(state => state.name || state);
@@ -306,29 +468,29 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       // Only select the first state (Starter plan allows 1)
 
       if (profileStates.length > 0) {
-        selectedStates.push(profileStates[0].name);
+        // selectedStates.push(profileStates[0].name);
       }
 
       if (activeAddonState && !selectedStates.includes(activeAddonState.name)) {
-        selectedStates.push(activeAddonState.name);
+        // selectedStates.push(activeAddonState.name);
       }
 
 
       setLocationState(prev => ({
         ...prev,
-        federal: true, // <-- Yeh line add karo!
-        states: selectedStates
+        // federal: true, // <-- Yeh line add karo!
+        // states: selectedStates
       }));
       setFilters(prev => ({
         ...prev,
         location: {
           ...prev.location,
-          federal: true, // <-- Yeh bhi add karo!
-          states: selectedStates
+          // federal: true, // <-- Yeh bhi add karo!
+          // states: selectedStates
         }
       }));
     }
-  }, [planCode, profileStates, activeAddonState, setFilters]);
+  }, [planCode, profileStates, activeAddonState]);
 
 
 
@@ -373,6 +535,8 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
       }
     }
   };
+
+  console.log(filteredStates, "filteredStates.........................");
 
   return (
     <div className="min-h-screen flex flex-col p-6 bg-gray-50">
@@ -478,9 +642,15 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
                       (state) => (state.name || state) !== profileStates[0].name
                     )
                   ) {
-                    setShowSavedSearchPopup(true);
+                    // ✅ NEW LOGIC: Check active_addon status
+                    if (activeAddon === null) {
+                      setShowSavedSearchPopup(true); // Show Bolton
+                    } else {
+                      setShowRestrictionPopup(true); // Show Upgrade
+                    }
                     return;
                   }
+                  // Fix: toggleAllStates() instead of toggleState(name)
                   toggleAllStates();
                 }}
                 ref={(el) => {
@@ -538,33 +708,76 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
                 ) : filteredStates.length === 0 ? (
                   <div className="p-4 text-center text-gray-500">No states found</div>
                 ) : (
+                  // filteredStates.map() wale section mein (Line ~380)
                   filteredStates.map((state) => {
                     const name = state.name || state;
                     const checked = locationState.states.includes(name);
+                    const isGeographicState = userStates.some(userState => userState.name === name);
+                    const isAddonState = activeAddonState && activeAddonState.name === name;
+
                     return (
                       <label
                         key={name}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        className={`flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                          // ✅ Only show special styling for non-Essential plans
+                          planCode !== "003" && isGeographicState ? 'bg-green-50 border-l-4 border-l-blue-500' : ''
+                          }`}
                       >
                         <input
                           type="checkbox"
                           className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                           checked={checked}
                           onChange={() => {
-                            // Starter plan: only allow profileStates[0].name
-                            if (
-                              planCode === "002" &&
-                              profileStates.length > 0 &&
-                              name !== profileStates[0].name
-                            ) {
-                              setShowSavedSearchPopup(true);
+                            // ✅ ESSENTIAL PLAN - Direct toggle, no restrictions
+                            if (planCode === "003") {
+                              toggleState(name);
                               return;
                             }
+
+                            // Existing restriction logic for other plans
+                            if (!isAddonState && !isGeographicState) {
+                              if (activeAddon === null) {
+                                setShowSavedSearchPopup(true); // Bolton
+                              } else {
+                                setShowRestrictionPopup(true); // Upgrade -> /pricing
+                              }
+                              return;
+                            }
+
+                            if (
+                              !isAddonState &&
+                              planCode === "002" &&
+                              profileStates.length >= 1 &&
+                              name !== profileStates[0].name
+                            ) {
+                              if (activeAddon === null) {
+                                setShowSavedSearchPopup(true);
+                              } else {
+                                setShowRestrictionPopup(true);
+                              }
+                              return;
+                            }
+
                             toggleState(name);
                           }}
-                          disabled={profileStates.length === 0}
+                          // ✅ Remove disabled logic for Essential plan
+                          disabled={planCode !== "003" && profileStates.length === 0 && !isAddonState && !isGeographicState}
                         />
-                        <span className="text-gray-900">{name}</span>
+
+                        <div className="flex flex-col">
+                          <span className="text-gray-900">{name}</span>
+                          {/* ✅ Only show notes for non-Essential plans */}
+                          {planCode !== "003" && isGeographicState && (
+                            <span className="text-xs font-semibold text-blue-600 mt-1">
+                              Your geographic preference from profile
+                            </span>
+                          )}
+                          {planCode !== "003" && isAddonState && !isGeographicState && (
+                            <span className="text-xs font-semibold text-blue-600 mt-1">
+                              Add-on state
+                            </span>
+                          )}
+                        </div>
                       </label>
                     );
                   })
@@ -713,11 +926,60 @@ const LocationTab = ({ filters = {}, setFilters = () => { } }) => {
         <SavedSearchPopup
           isOpen={showSavedSearchPopup}
           onClose={() => setShowSavedSearchPopup(false)}
+          onCloseFilterPanel={onCloseFilterPanel}
+          showBoltOnButton={planCode === "002" && !activeAddon}
+          onBoltOnClick={() => {
+            setShowSavedSearchPopup(false);
+            handleBoltOnClick();
+          }}
           title="Location Access Restricted"
           message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
           upgradeButtonText="Upgrade Plan"
           cancelButtonText="Got It"
         />
+      )}
+
+      {/* Bolt-on popup - MyPlans wala copy karo */}
+      {showBoltOnPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-blue rounded-xl p-6 max-w-md w-full mx-4">
+            {boltOnLoading ? (
+              <div className="text-center p-4">Loading states...</div>
+            ) : (
+              <>
+                <FormSelect
+                  dark={false}
+                  label="Select State"
+                  name="selectedBoltOnState"
+                  options={boltOnStates.map(state => ({
+                    value: state.id.toString(),
+                    label: state.name
+                  }))}
+                  className="text-white"
+                  placeholder="Choose a state"
+                  required={false}
+                  onChange={(e) => handleBoltOnStateSelect(e.target.value)}
+                />
+              </>
+            )}
+            <div className="flex justify-between mt-6 gap-4 w-full pb-4">
+              <button
+                onClick={() => setShowBoltOnPopup(false)}
+                className="px-4 py-2 text-white border-white border-[1px] rounded-xl transition-colors"
+              >
+                Close
+              </button>
+              <button
+                disabled={!selectedBoltOnState}
+                onClick={handleBoltOnProceed}
+                className="px-4 border-white border-[1px] rounded-xl text-white transition-colors"
+              >
+                {boltOnLoading ? "Loading..." : "Proceed"}
+              </button>
+            </div>
+            <p className="text-sm text-white w-96 pb-5">NOTE: This fee is recurring with the validity & cadence as per your master plan.</p>
+          </div>
+        </div>
       )}
     </div>
   );

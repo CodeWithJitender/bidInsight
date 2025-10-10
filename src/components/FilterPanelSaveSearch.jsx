@@ -30,7 +30,7 @@ const tabs = [
   "UNSPSC Code",
   "Published Date",
   "Closing Date",
-  "Solicitation Type",
+  // "Solicitation Type",
 ];
 
 const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, handleSavedSearchSelect }) => {
@@ -371,10 +371,10 @@ const FilterPanelSaveSearch = ({ onClose, selectedSearch, setSelectedSearch, han
         return <PublishedDateTab filters={filters} setFilters={setFilters} />;
       case "Closing Date":
         return <ClosingDateTab filters={filters} setFilters={setFilters} />;
-      case "Solicitation Type":
-        return (
-          <SolicitationTypeTab filters={filters} setFilters={setFilters} />
-        );
+      // case "Solicitation Type":
+      //   return (
+      //     <SolicitationTypeTab filters={filters} setFilters={setFilters} />
+      //   );
       default:
         return null;
     }

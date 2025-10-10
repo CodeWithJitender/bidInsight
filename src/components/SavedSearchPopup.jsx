@@ -7,9 +7,12 @@ import { data } from "jquery";
 const SavedSearchPopup = ({
   isOpen,
   onClose,
+  onCloseFilterPanel,
   title = "Saved Search Limit Reached",
   message = "You've reached your saved search limit for the Starter plan. Upgrade to create unlimited saved searches.",
   upgradeButtonText = "Upgrade Plan",
+  showBoltOnButton = false,
+  onBoltOnClick,
   cancelButtonText = "Cancel",
   showBackToDashboard = false,
   onBackToDashboard,
@@ -24,24 +27,37 @@ const SavedSearchPopup = ({
     }
   };
 
+  const activeAddon = useSelector((state) =>
+    state.profile?.profile?.subscription_plan?.active_addon || null
+  );
+
+  console.log(activeAddon, "activeAddon in saved search popup");
+  const hasActiveAddon = Boolean(activeAddon);
+
   // Button text decide karo
   const cancelText = showBackToDashboard ? "Back to Dashboard" : cancelButtonText;
 
-  const dataPlan = useSelector((state) => state.profile?.profile); // To re-render on profile change
-  console.log(dataPlan, "🔥 Profile Data in SavedSearchPopup");
+  const dataPlan = useSelector((state) => state.profile?.profile?.subscription_plan?.name); // To re-render on profile change
 
   if (!isOpen) return null;
 
   const handleUpgrade = () => {
     navigate("/pricing");
     onClose();
+
+    if (onCloseFilterPanel) {
+      onCloseFilterPanel();
+    }
   };
+
+
+  const shouldShowUpgrade = !showBoltOnButton || hasActiveAddon;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
       {/* Card - Using PaymentPopup styling */}
       <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
-        
+
         {/* Icon / Image - Using AlertTriangle from original */}
         <div className="flex justify-center mb-6">
           <div className="w-[80px] h-[80px] bg-white/10 rounded-full flex items-center justify-center">
@@ -61,7 +77,7 @@ const SavedSearchPopup = ({
         <div className="text-left space-y-3 text-lg font-inter mt-6">
           <div className="flex justify-between">
             <span className="">Plan Type</span>
-            <span className="opacity-80">Starter Plan</span>
+            <span className="opacity-80">{dataPlan} Plan</span>
           </div>
           <div className="flex justify-between">
             <span className="">Current Status</span>
@@ -81,14 +97,25 @@ const SavedSearchPopup = ({
           >
             {cancelText}
           </button>
-          
-          <button
-            onClick={handleUpgrade}
-            className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
-          >
-            <Crown size={20} />
-            {upgradeButtonText}
-          </button>
+
+          {showBoltOnButton && !hasActiveAddon ? (
+            // Bolton Button - when no addon exists
+            <button
+              onClick={onBoltOnClick}
+              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center gap-2"
+            >
+              Bolt On
+            </button>
+          ) : (
+            // Upgrade Button - when addon already exists
+            <button
+              onClick={handleUpgrade}
+              className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 transition text-white font-semibold flex items-center justify-center gap-2"
+            >
+              <Crown size={20} />
+              {upgradeButtonText}
+            </button>
+          )}
         </div>
 
         {/* Note - Adding upgrade benefits */}

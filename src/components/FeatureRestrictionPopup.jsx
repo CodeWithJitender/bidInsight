@@ -34,7 +34,7 @@ const FeatureRestrictionPopup = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-2">
       {/* Card - Using SavedSearchPopup styling */}
       <div className="relative w-full max-w-[500px] bg-blue text-white rounded-2xl border border-[#DBDFFF] p-8 shadow-xl">
         
@@ -67,7 +67,7 @@ const FeatureRestrictionPopup = ({
         </div>
 
         {/* Buttons - Using SavedSearchPopup button structure */}
-        <div className="mt-10 grid sm:grid-cols-2 justify-center gap-6">
+        <div className="my-4 md:mt-10 flex flex-col-reverse md:grid  sm:grid-cols-2 justify-center gap-3 md:gap-6">
           <button
             onClick={onClose}
             className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl border border-white/50 text-white hover:bg-white/20 transition text-center"

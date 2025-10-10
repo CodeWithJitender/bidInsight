@@ -6,17 +6,21 @@ import { useState } from "react";
 import { getAllStates } from "../../services/user.service"; // adjust path
 // Add this import at top
 import FormSelect from "../../components/FormSelect"; // adjust path
-import { initiateBoltOrder } from "../../services/pricing.service";
+import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import { useNavigate } from "react-router-dom";
+import AddPaymentMethod from "../../pages/AddPaymentMethod";
 
-export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload, profileData }) {
-
+export default function MyPlans({
+  paymentData,
+  paymentLoading,
+  onReceiptDownload,
+  profileData,
+}) {
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
 
   const transactions = paymentData || [];
-
 
   const [showStatePopup, setShowStatePopup] = useState(false);
   const [allStates, setAllStates] = useState([]);
@@ -25,11 +29,17 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-
-  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
-  const activeAddon = useSelector((state) =>
-    state.profile?.profile?.subscription_plan?.active_addon || null
+  const userStates = useSelector(
+    (state) => state.profile?.profile?.profile?.states || []
   );
+  const activeAddon = useSelector(
+    (state) => state.profile?.profile?.subscription_plan?.active_addon || null
+  );
+
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [clientSecret, setClientSecret] = useState(null);
+  const [cardJustAdded, setCardJustAdded] = useState(false);
+  const [pendingStateSelection, setPendingStateSelection] = useState(null);
 
   console.log("Active addon:", activeAddon);
 
@@ -43,7 +53,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       const states = await getAllStates();
       // Filter out states that user already has
       const filteredStates = states.filter(
-        state => !userStates.some(userState => userState.id === state.id)
+        (state) => !userStates.some((userState) => userState.id === state.id)
       );
 
       setAllStates(filteredStates);
@@ -56,7 +66,9 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
   // Add after handleBoltOnClick
   const handleStateSelect = (selectedStateId) => {
-    const selectedState = allStates.find(state => state.id.toString() === selectedStateId);
+    const selectedState = allStates.find(
+      (state) => state.id.toString() === selectedStateId
+    );
     setSelectedState(selectedState);
   };
 
@@ -69,20 +81,19 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
   };
 
   // Date format karna
- const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  try {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2); // Last 2 digits
-    return `${month}/${day}/${year}`;
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Invalid Date';
-  }
-};
-
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2); // Last 2 digits
+      return `${month}/${day}/${year}`;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
+    }
+  };
 
   // Add this function after formatDate function (around line 90)
   const getPaymentStatus = (status) => {
@@ -107,49 +118,49 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
       }
 
       // Regular plan purchase
-      return detail.plan?.name || 'N/A';
+      return detail.plan?.name || "N/A";
     } catch {
-      return 'N/A';
+      return "N/A";
     }
   };
 
-  // Receipt download handler
-  const handleDownloadClick = (paymentId) => {
-    if (onReceiptDownload) {
-      onReceiptDownload(paymentId);
-    }
-  };
+  console.log(showAddCard, clientSecret);
 
-  const handlePlanSelection = async () => {
-
+  const handlePlanSelection = async (id) => {
     setLoading(true);
     try {
-
-      const res = await initiateBoltOrder(selectedState.id);
+      console.log(id.toString());
+      const res = await checkOutSessionBoltOn(id.toString());
       if (!res) {
         throw new Error("Failed to initiate payment");
       }
 
-      console.log("💳 Payment details:", res);
+      // If payment method setup is required
+      if (!res.invoice_url && res.requires_setup) {
+        console.log("💳 Payment method setup required:", res);
+        setClientSecret(res.setup_client_secret);
+        setPendingStateSelection(selectedState); // Store the selected state
+        setShowAddCard(true);
+        setShowStatePopup(false); // Close state selection popup
+        setLoading(false);
+        return;
+      }
 
-      navigate("/payment", {
-        state: {
-          clientSecret: res.clientSecret,
-          publishableKey: res.publishableKey,
-          plan: res.plan,
-        },
-      });
+      // If invoice URL is available, open in new tab
+      if (res.invoice_url) {
+        window.open(res.invoice_url, "_blank");
+      }
+      setShowStatePopup(false);
       setLoading(false);
     } catch (error) {
       console.error("❌ Failed to initiate payment:", error);
-      // alert(error?.message || "Failed to initiate payment. Please try again.");
-    } finally {
+      alert(error?.message || "Failed to initiate payment. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 font-inter">
+    <div className="bookmark-table p-4 md:p-6 font-inter">
       {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Subscription Card */}
@@ -160,13 +171,25 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 <div className="">
                   {/* Replace this with conditional images */}
                   {subscriptionPlanId === "001" && (
-                    <img src="/price-1.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Free Plan" />
+                    <img
+                      src="/price-1.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Free Plan"
+                    />
                   )}
                   {subscriptionPlanId === "002" && (
-                    <img src="/price-2.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Pro Plan" />
+                    <img
+                      src="/price-2.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Pro Plan"
+                    />
                   )}
                   {subscriptionPlanId === "003" && (
-                    <img src="/price-3.png" className="w-20 h-20 bg-primary rounded-[10px]" alt="Enterprise Plan" />
+                    <img
+                      src="/price-3.png"
+                      className="w-20 h-20 bg-primary rounded-[10px]"
+                      alt="Enterprise Plan"
+                    />
                   )}
                 </div>
                 <div className="h-20 flex flex-col justify-between ps-4">
@@ -174,22 +197,23 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                     Subscription Plan
                   </div>
                   <h2 className="text-xl font-inter font-medium">
-                    {isFreeplan ? "Free" : (profileData?.subscription_plan?.name || "N/A")}
+                    {isFreeplan
+                      ? "Free"
+                      : profileData?.subscription_plan?.name || "N/A"}
                   </h2>
                 </div>
               </div>
             </div>
 
-
             <div className="text-right">
               <p className="text-sm text-gray-500">Last Payment</p>
               <p className="font-medium">
-                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.plan_starts_at)}
+                {isFreeplan
+                  ? "N/A"
+                  : formatDate(profileData?.subscription_plan?.plan_starts_at)}
               </p>
             </div>
           </div>
-
-
 
           <div className="flex justify-between w-full">
             <p className="mt-5 ">
@@ -197,10 +221,14 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Frequency:
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : (
-                  profileData?.subscription_plan?.recurring_interval?.charAt(0).toUpperCase() +
-                  profileData?.subscription_plan?.recurring_interval?.slice(1) || 'N/A'
-                )}
+                {isFreeplan
+                  ? "N/A"
+                  : profileData?.subscription_plan?.recurring_interval
+                      ?.charAt(0)
+                      .toUpperCase() +
+                      profileData?.subscription_plan?.recurring_interval?.slice(
+                        1
+                      ) || "N/A"}
               </div>
             </p>
             <p className="mt-5 ">
@@ -208,28 +236,40 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                 Next Charge:
               </div>
               <div className="font-inter text-lg font-medium">
-                {isFreeplan ? "N/A" : formatDate(profileData?.subscription_plan?.plan_starts_at)}
+                {isFreeplan
+                  ? "N/A"
+                  : formatDate(
+                      profileData?.subscription_plan?.next_payment_date
+                    )}
               </div>
             </p>
             <p className="mt-5 ">
               <div className="text-lg font-inter font-medium text-[#999999]">
                 <div className="flex items-center gap-2">
                   Bolt-On
-                  {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") && !hasActiveAddon && (
-                    <FiExternalLink
-                      className="text-purple-500 cursor-pointer"
-                      onClick={handleBoltOnClick}
-                    />
-                  )}
-
+                  {(subscriptionPlanId === "002" ||
+                    subscriptionPlanId === "starter") &&
+                    !hasActiveAddon && (
+                      <FiExternalLink
+                        className="text-purple-500 cursor-pointer"
+                        onClick={handleBoltOnClick}
+                      />
+                    )}
                 </div>
               </div>
               <div className="font-inter text-lg font-medium">
-                {(subscriptionPlanId === "002" || subscriptionPlanId === "starter") ? "State" : "N/A"}
+                {subscriptionPlanId === "002" ||
+                subscriptionPlanId === "starter"
+                  ? "State"
+                  : "N/A"}
 
                 {hasActiveAddon && (
                   <span className="text-[#999999] text-sm">
-                    ({activeAddon?.name || activeAddon?.state?.name || "Unknown State"})
+                    (
+                    {activeAddon?.name ||
+                      activeAddon?.state?.name ||
+                      "Unknown State"}
+                    )
                   </span>
                 )}
               </div>
@@ -242,7 +282,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
           <h2 className="text-lg font-semibold mb-4">
             {isFreeplan ? "Locked Features" : "My Features"}
           </h2>
-          <div className="p-4">
+          <div className="max-w-[100%] w-full">
             <FeatureSlider currentPlan={subscriptionPlanId} />
           </div>
         </div>
@@ -250,7 +290,7 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
 
       {/* Transactions Table - Only show for non-free plans */}
       {subscriptionPlanId !== "001" && (
-        <div className="border-2 border-primary rounded-xl overflow-hidden shadow-sm">
+        <div className=" border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
           {paymentLoading ? (
             <div className="p-6 text-center">Loading payments...</div>
           ) : transactions.length > 0 ? (
@@ -277,25 +317,37 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
                       <td className="py-3 px-4">
                         {tx.metadata.purpose === "buy_addon_state"
                           ? `Bolt-on Purchase`
-                          : `Payment for ${getPlanName(tx.metadata)}`
-                        }
+                          : `Payment for ${(tx.plan)}`}
                       </td>
-                      <td className="py-3 px-4">{tx.stripe_payment_intent_id}</td>
+                      <td className="py-3 px-4">
+                        {tx.stripe_invoice_id}
+                      </td>
                       <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
-                      <td className="py-3 px-4 font-bold">{formatAmount(tx.amount)}</td>
-                      <td className="py-3 px-4">{getPlanName(tx.metadata)}</td>
-                      <td className={`py-3 px-4 font-semibold ${statusInfo.color}`}>
+                      <td className="py-3 px-4 font-bold">
+                        {formatAmount(tx.amount)}
+                      </td>
+                      <td className="py-3 px-4">{(tx.plan)}</td>
+                      <td
+                        className={`py-3 px-4 font-semibold ${statusInfo.color}`}
+                      >
                         {statusInfo.text}
                       </td>
                       <td className="py-3 px-4 flex justify-center">
-                        <FiDownload
-                          className={`transition-colors ${tx.status === "succeeded"
-                              ? "cursor-pointer hover:text-primary text-gray-700"
-                              : "cursor-not-allowed text-gray-300"
+                        <a href={tx.invoice_url} target="_blank">
+                          <FiDownload
+                            className={`transition-colors ${
+                              tx.status === "succeeded"
+                                ? "cursor-pointer hover:text-primary text-gray-700"
+                                : "cursor-not-allowed text-gray-300"
                             }`}
-                          onClick={() => tx.status === "succeeded" && handleDownloadClick(tx.id)}
-                          title={tx.status === "succeeded" ? "Download Receipt" : "Receipt not available for failed payments"}
-                        />
+                            onClick={() => tx.status === "succeeded"}
+                            title={
+                              tx.status === "succeeded"
+                                ? "Download Receipt"
+                                : "Receipt not available for failed payments"
+                            }
+                          />
+                        </a>
                       </td>
                     </tr>
                   );
@@ -303,53 +355,147 @@ export default function MyPlans({ paymentData, paymentLoading, onReceiptDownload
               </tbody>
             </table>
           ) : (
-            <div className="p-6 text-center text-gray-500">No payment history found</div>
+            <div className="p-6 text-center text-gray-500">
+              No payment history found
+            </div>
           )}
         </div>
       )}
-
 
       {/* State Selection Popup - ADD HERE */}
       {/* State Selection Popup with FormSelect */}
       {showStatePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Select States</h3>
+          <div className="bg-blue rounded-xl p-6 max-w-[90vw] md:max-w-md w-full mx-4">
+            {/* <h3 className="text-lg font-semibold mb-4">Select States</h3> */}
             {loading ? (
-              <div className="text-center p-4">Loading states...</div>
+              <div className="flex flex-col items-center justify-center p-8">
+                <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
             ) : (
-              <FormSelect
-                dark={false}
-                label="Select State"
-                name="selectedState"
-                options={allStates.map(state => ({
-                  value: state.id.toString(),
-                  label: state.name
-                }))}
-                placeholder="Choose a state"
-                required={false}
-                onChange={(e) => handleStateSelect(e.target.value)}
-              />
+              <>
+                <FormSelect
+                  dark={false}
+                  label="Select State"
+                  name="selectedState"
+                  options={allStates.map((state) => ({
+                    value: state.id.toString(),
+                    label: state.name,
+                  }))}
+                  className="text-white"
+                  placeholder="Choose a state"
+                  required={false}
+                  onChange={(e) => handleStateSelect(e.target.value)}
+                />
+                <div className="flex justify-between mt-6 gap-4 w-full pb-4">
+                  <button
+                    onClick={() => setShowStatePopup(false)}
+                    className=" px-4 py-2 text-white border-white border-[1px] rounded-xl  transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    disabled={!selectedState}
+                    onClick={() => handlePlanSelection(selectedState.id)}
+                    className=" px-4  border-white border-[1px] rounded-xl text-white transition-colors"
+                  >
+                    {isLoading ? "Loading..." : "Proceed"}
+                  </button>
+                </div>
+
+                <p className="text-sm text-white md:w-96 pb-5">
+                  NOTE: This fee is recurring with the validity & cadence as per
+                  your master plan.
+                </p>
+              </>
             )}
-            <div className="flex justify-between mt-6 gap-4 w-full">
+          </div>
+        </div>
+      )}
+
+      {showAddCard && clientSecret && (
+        <AddPaymentMethod
+          clientSecret={clientSecret}
+          onSuccess={(setupIntent) => {
+            console.log("Card added successfully!", setupIntent);
+            setShowAddCard(false);
+            setClientSecret(null);
+            setCardJustAdded(true);
+
+            // Auto-hide the success notification after 8 seconds
+            setTimeout(() => {
+              setCardJustAdded(false);
+            }, 8000);
+          }}
+          onCancel={() => {
+            setShowAddCard(false);
+            setClientSecret(null);
+            setPendingStateSelection(null);
+          }}
+        />
+      )}
+
+      {/* Card Added Success Notification */}
+      {cardJustAdded && (
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="bg-blue text-white px-6 py-4 rounded-lg shadow-lg max-w-md">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">
+                  Payment Method Added Successfully!
+                </h3>
+                <p className="text-sm opacity-90">
+                  Your card has been saved. You can now proceed to add the
+                  bolt-on state
+                  {pendingStateSelection && ` "${pendingStateSelection.name}"`}.
+                </p>
+                <button
+                  onClick={() => {
+                    setCardJustAdded(false);
+                    handleBoltOnClick(); // Reopen the state selection
+                  }}
+                  className="mt-3 bg-white text-black px-4 py-2 rounded font-medium text-sm hover:bg-green-50 transition-colors"
+                >
+                  Add Bolt-On State Now
+                </button>
+              </div>
               <button
-                onClick={() => setShowStatePopup(false)}
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                onClick={() => setCardJustAdded(false)}
+                className="flex-shrink-0 text-white hover:text-green-100"
               >
-                Close
-              </button>
-              <button
-                disabled={!selectedState}
-                onClick={() => handlePlanSelection(selectedState.id)}
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-              >
-                {isLoading ? "Loading..." : "Proceed"}
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

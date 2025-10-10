@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
   faLink,
@@ -22,10 +22,10 @@ import MyPlans from "../sections/profile/MyPlans";
 import Bids from "../sections/profile/Bids";
 import AiToolset from "../sections/profile/AiToolset";
 import AccountSetting from "../sections/profile/AccountSetting";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../services/bid.service";
-import { persistor } from '../redux/store';
-import { clearProfile } from '../redux/reducer/profileSlice';
+import { persistor } from "../redux/store";
+import { clearProfile } from "../redux/reducer/profileSlice";
 import { logoutUser } from "../redux/reducer/authSlice";
 import { clearLoginData } from "../redux/reducer/loginSlice";
 import { clearOnboardingData } from "../redux/reducer/onboardingSlice";
@@ -49,12 +49,11 @@ export default function UserProfile() {
   console.log("Login Data:", loginData);
   const dispatch = useDispatch();
 
-
   const fetchUserProfile = async () => {
     try {
       setProfileLoading(true);
       const profile = await getUserProfile();
-      setFreshProfileData(profile);  // YE CHANGE
+      setFreshProfileData(profile); // YE CHANGE
       console.log("Profile fetched in UserProfile:", profile);
     } catch (error) {
       console.error("Failed to fetch user profile", error);
@@ -68,7 +67,10 @@ export default function UserProfile() {
       setPaymentLoading(true);
       const payments = await userPaymentTable();
 
-      console.log("Payment Data Response:", payments); // Console log
+      console.log(
+        "Payment Data Response....................................:",
+        payments
+      ); // Console log
       setPaymentData(payments);
     } catch (error) {
       console.error("Failed to fetch payment data", error);
@@ -83,29 +85,57 @@ export default function UserProfile() {
       const response = await paymentRecipt(paymentId);
       console.log("Receipt response:", response);
 
-      if (response?.receipt_url) {
-        window.open(response.receipt_url, '_blank');
-      } else {
-        console.error("No receipt URL found in response");
-        alert("Receipt not available");
-      }
+      // if (response?.receipt_url) {
+      //   window.open(response.receipt_url, '_blank');
+      // } else {
+      //   console.error("No receipt URL found in response");
+      //   alert("Receipt not available");
+      // }
     } catch (error) {
       console.error("Failed to download receipt:", error);
-      alert("Failed to download receipt. Please try again.");
+      // alert("Failed to download receipt. Please try again.");
     }
   };
-
 
   const handleProfileUpdate = async () => {
     console.log("Profile updated, refreshing data...");
     await fetchUserProfile();
   };
 
+  // Line 118 ke baad add karo:
+
+  // 🔥 Browser back button handler
+  // 🔥 Browser back button handler - Block and redirect
+  useEffect(() => {
+    // Push initial state to prevent back navigation
+    window.history.pushState(null, null, window.location.pathname);
+
+    const handlePopState = () => {
+      console.log("🔙 Back button pressed - redirecting to dashboard");
+
+      // Block back by pushing state again
+      window.history.pushState(null, null, window.location.pathname);
+
+      // Redirect to dashboard
+      navigate("/dashboard", { replace: true });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchUserProfile();
+    fetchPaymentData();
+  }, []);
+
   useEffect(() => {
     fetchUserProfile();
     fetchPaymentData(); // ye line add karo
   }, []);
-
 
   // Full name nikalna
   const getFullName = () => {
@@ -120,10 +150,10 @@ export default function UserProfile() {
         return profileData.full_name;
       }
 
-      return 'User';
+      return "User";
     } catch (error) {
-      console.error('Error parsing profile:', error);
-      return 'User';
+      console.error("Error parsing profile:", error);
+      return "User";
     }
   };
 
@@ -132,7 +162,8 @@ export default function UserProfile() {
     try {
       // Pehle auth mein check karo
       if (authData) {
-        const parsedAuth = typeof authData === 'string' ? JSON.parse(authData) : authData;
+        const parsedAuth =
+          typeof authData === "string" ? JSON.parse(authData) : authData;
         if (parsedAuth?.last_login) {
           return formatDate(parsedAuth.last_login);
         }
@@ -140,42 +171,43 @@ export default function UserProfile() {
 
       // Auth mein nahi hai to login mein check karo
       if (loginData) {
-        const parsedLogin = typeof loginData === 'string' ? JSON.parse(loginData) : loginData;
+        const parsedLogin =
+          typeof loginData === "string" ? JSON.parse(loginData) : loginData;
         if (parsedLogin?.last_login) {
           return formatDate(parsedLogin.last_login);
         }
       }
 
-      return 'N/A';
+      return "N/A";
     } catch (error) {
-      console.error('Error parsing last login:', error);
-      return 'N/A';
+      console.error("Error parsing last login:", error);
+      return "N/A";
     }
   };
 
   // Date format change karna - "2025-09-07T08:40:09.756377Z" ko "07-09-2025" mein
- const formatDate = (dateString) => {
-  try {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2); // Last 2 digits only
-    return `${month}/${day}/${year}`;
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Invalid Date';
-  }
-};
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear()).slice(-2); // Last 2 digits only
+      return `${month}/${day}/${year}`;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
+    }
+  };
   const handleLogout = async () => {
     try {
       console.log("Logout clicked - starting cleanup...");
 
       // 🔥 Sabhi slices clear karo
       dispatch(clearProfile());
-      dispatch(logoutUser());           // authSlice
-      dispatch(clearLoginData());       // loginSlice  
-      dispatch(clearOnboardingData());  // onboardingSlice ✅
-      dispatch(clearSavedSearches());   // savedSearchesSlice (new action)
+      dispatch(logoutUser()); // authSlice
+      dispatch(clearLoginData()); // loginSlice
+      dispatch(clearOnboardingData()); // onboardingSlice ✅
+      dispatch(clearSavedSearches()); // savedSearchesSlice (new action)
 
       await persistor.purge();
       localStorage.clear();
@@ -183,7 +215,7 @@ export default function UserProfile() {
 
       navigate("/login", { replace: true });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       navigate("/login", { replace: true });
     }
   };
@@ -193,7 +225,8 @@ export default function UserProfile() {
     try {
       // Pehle auth mein check karo
       if (authData) {
-        const parsedAuth = typeof authData === 'string' ? JSON.parse(authData) : authData;
+        const parsedAuth =
+          typeof authData === "string" ? JSON.parse(authData) : authData;
         if (parsedAuth?.user) {
           return parsedAuth.user;
         }
@@ -201,7 +234,8 @@ export default function UserProfile() {
 
       // Auth mein nahi hai to login mein check karo
       if (loginData) {
-        const parsedLogin = typeof loginData === 'string' ? JSON.parse(loginData) : loginData;
+        const parsedLogin =
+          typeof loginData === "string" ? JSON.parse(loginData) : loginData;
         if (parsedLogin?.user) {
           return parsedLogin.user;
         }
@@ -209,7 +243,7 @@ export default function UserProfile() {
 
       return null;
     } catch (error) {
-      console.error('Error parsing user data:', error);
+      console.error("Error parsing user data:", error);
       return null;
     }
   };
@@ -225,49 +259,71 @@ export default function UserProfile() {
   const renderComponent = () => {
     switch (active) {
       case "Profile":
-        return <Profile
-          fullName={fullName}
-          userData={userData}
-          lastLogin={lastLogin}
-          profileData={freshProfileData}
-          onProfileUpdate={handleProfileUpdate}
-          loading={profileLoading}
-        />
+        return (
+          <Profile
+            fullName={fullName}
+            userData={userData}
+            lastLogin={lastLogin}
+            profileData={freshProfileData}
+            onProfileUpdate={handleProfileUpdate}
+            loading={profileLoading}
+          />
+        );
       case "My Plans":
-        return <MyPlans
-          paymentData={paymentData}
-          paymentLoading={paymentLoading}
-          onReceiptDownload={handleReceiptDownload}
-          profileData={freshProfileData}
-        />;
+        return (
+          <MyPlans
+            paymentData={paymentData}
+            paymentLoading={paymentLoading}
+            onReceiptDownload={handleReceiptDownload}
+            profileData={freshProfileData}
+          />
+        );
       case "Bids":
         return <Bids />;
       case "AI Toolset":
         return <AiToolset />;
       case "Account Settings":
-        return <AccountSetting
-          fullName={fullName}
-          userData={userData}
-          lastLogin={lastLogin}
-          profileData={profileData}
-        />
+        return (
+          <AccountSetting
+            fullName={fullName}
+            userData={userData}
+            lastLogin={lastLogin}
+            profileData={profileData}
+          />
+        );
       default:
-        return <Profile fullName={fullName} userData={userData} lastLogin={lastLogin} />;
+        return (
+          <Profile
+            fullName={fullName}
+            userData={userData}
+            lastLogin={lastLogin}
+          />
+        );
     }
   };
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className="sticky top-0 text-white w-64 pe-6 py-6 flex flex-col justify-between h-screen bg-blue">
+      <aside
+        className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between h-screen fixed md:static top-0 left-0 z-20 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 transition-transform duration-300`}
+      >
         <div>
-          <h1 className="text-2xl font-bold mb-10 ps-4">
+          <h1 className="text-2xl font-bold mb-10 ps-4 flex items-center justify-between">
             <Link to="/">
               <img src="logo.png" alt="" />
             </Link>
+            <div className="block md:hidden">
+              <i
+                class="far fa-times text-xl w-8 h-full flex justify-center items-center text-white  rounded-full bg-primary "
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              ></i>
+            </div>
           </h1>
 
-          <nav className="flex flex-col gap-6">
+          <nav className="flex flex-col gap-6 relative md:translate-x-0 transition-all duration-300">
             {[
               { title: "Profile", icon: faUser },
               { title: "My Plans", icon: faClipboardList },
@@ -277,11 +333,15 @@ export default function UserProfile() {
             ].map((item, i) => (
               <div
                 key={i}
-                onClick={() => setActive(item.title)}
-                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${active === item.title
-                  ? "bg-white/50 text-white"
-                  : "hover:text-blue-300"
-                  }`}
+                onClick={() => {
+                  setActive(item.title);
+                  setSidebarOpen(false); // Close sidebar on item click (for mobile)
+                }}
+                className={`flex items-center gap-3 text-lg p-2 ps-4 rounded-r-[50px] cursor-pointer transition font-inter ${
+                  active === item.title
+                    ? "bg-white/50 text-white"
+                    : "hover:text-blue-300"
+                }`}
               >
                 <FontAwesomeIcon icon={item.icon} />
                 <span>{item.title}</span>
@@ -289,7 +349,10 @@ export default function UserProfile() {
             ))}
           </nav>
         </div>
-        <div onClick={handleLogout} className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 ">
+        <div
+          onClick={handleLogout}
+          className="flex items-center gap-3 text-lg cursor-pointer hover:text-blue-300 transition font-inter ps-4 "
+        >
           <FontAwesomeIcon icon={faSignOutAlt} />
           <span>Logout</span>
         </div>
@@ -298,21 +361,41 @@ export default function UserProfile() {
       {/* Main Content */}
       <main className="flex-1  overflow-x-hidden relative h-screen">
         {/* Top Nav */}
-        <div className="flex flex-wrap justify-between py-4 px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
-          {active === "Profile" ? (
-            <button
-              className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
-              onClick={() => navigate("/dashboard")}
-              style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span>Back to Dashboard</span>
-            </button>
-          ) : (
-            <h2 className="text-2xl font-semibold font-archivo text-gray-800">
+        <div className="flex flex-wrap justify-between py-4 px-4 md:px-8 border-b-4 border-primary items-center gap-4 bg-white shadow-sm z-10 sticky top-0">
+          <div className="hidden md:block">
+            {active === "Profile" ? (
+              <button
+                className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+                onClick={() => navigate("/dashboard")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+                <span>Back to Dashboard</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="flex items-center gap-2 text-xl font-semibold text-zinc-900 transition"
+              >
+                <FontAwesomeIcon icon={faArrowLeft} />
+                <span>Back to Dashboard</span>
+              </button>
+            )}
+          </div>
+          <div className="block md:hidden">
+            <h2 className="md:text-2xl font-semibold font-archivo text-gray-800 flex items-center gap-2">
+              <i
+                class="far fa-bars w-8 h-8 flex justify-center items-center text-white text-sm rounded-full bg-primary "
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              ></i>{" "}
               {active}
             </h2>
-          )}
+          </div>
           <div className="flex items-center gap-4">
             {/* <div className="relative">
               <FontAwesomeIcon
@@ -330,7 +413,7 @@ export default function UserProfile() {
               <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-red-600 rounded-full border border-white"></span>
             </div> */}
             <button className="bg-primary text-white px-4 font-archivo py-2 rounded-full hover:bg-blue-700 transition">
-              Hi, {fullName}
+              Hi, <span className="capitalize">{fullName}</span>
             </button>
           </div>
         </div>
@@ -338,6 +421,7 @@ export default function UserProfile() {
         {/* Dynamic Section */}
         <div className="h-full">{renderComponent()}</div>
       </main>
+    
     </div>
   );
 }

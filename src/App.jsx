@@ -15,6 +15,7 @@ import PaymentStatus from "./pages/PaymentStatus.jsx";
 import ConfirmPassword from "./pages/ConfirmPassword.jsx";
 import { fetchUserProfile } from "./redux/reducer/profileSlice.js";
 import ForgotVerification from "./pages/ForgotVerification.jsx";
+import ChangePaymentMethod from "./pages/ChangePaymentMethod.jsx";
 // import PaymentPopup from "./components/PaymentPopup.jsx";
 
 // Lazy-loaded Pages
@@ -98,7 +99,7 @@ const App = () => {
           <Route path="/help" element={<HelpCenter />} />
           {/* <Route path="/paymentpopup" element={<PaymentPopup />} /> */}
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
-          <Route path="/ai-toolset" element={<ProtectedRoute> <AiToolSet /> </ProtectedRoute>} />
+          <Route path="/ai-toolset" element={<AiToolSet />} />
           <Route path="/plan" element={<Plan />} />
           <Route path="/geographic-coverage" element={<ProtectedRoute> <GeographicCoverage /> </ProtectedRoute>} />
           <Route path="/industry-categories" element={<ProtectedRoute> <IndustryCategories /> </ProtectedRoute>} />
@@ -113,11 +114,13 @@ const App = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/super-admin" element={<ProtectedRoute><SuperAdmin /></ProtectedRoute>} />
-          <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/user-profile/" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} >
+            <Route path="change-payment-method" element={<ProtectedRoute><ChangePaymentMethod /></ProtectedRoute>} />
+          </Route>
           <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
           <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
-          <Route path="/*" element={<Error404 />} />
           <Route path="/payment" element={<Payment content={content} />} />
+          <Route path="/*" element={<Error404 />} />
           {/* <Route path="/payment-unsuccessful" element={<PaymentUnsuccessful />} /> */}
         </Routes>
       </Suspense> 

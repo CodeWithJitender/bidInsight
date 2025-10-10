@@ -14,19 +14,19 @@ const FEATURE_DATA = [
     title: "Bid Dashboard",
     para: "Stay informed and seize opportunities with our comprehensive dashboard. Access real-time data on active bids and find the information you need to participate in government projects. Our user-friendly interface empowers businesses and individuals to engage in the bidding process transparently and efficiently.",
     link: "/",
-    img: "Group102.png",
+    img: "ai-coming.jpg",
   },
   {
     title: "Bid Compatibility Summary",
     para: "Utilize our AI-powered coaching tips to help improve your chances of winning bids. A summary is generated to assist in determining if the RFP is a match for your company based on factors like the past performance, the RFP's requirements, and industry benchmarks.",
     link: "/",
-    img: "Group102.png",
+    img: "ai-coming.jpg",
   },
   {
     title: "Proposal Compliancy Checklist",
     para: "Many RFPs are rejected due to non-compliance with submission requirements. Our Compliance Checker scans RFP responses and flags potential compliance issues before submission.",
     link: "/",
-    img: "Group102.png",
+    img: "ai-coming.jpg",
   },
 ];
 
@@ -156,36 +156,34 @@ function LockedFeature() {
           </div>
         </div>
       </div>
+      <div className="bg-blue">
 
-      <div className="locked-content w-full">
+    <div className="container-section">
+<div className="locked-content w-full">
         <div ref={containerRef}
-          className="locked-content-inner sticky top-0 bg-blue min-h-screen ps-14 flex w-[400%] lg:w-[200%] justify-stretch gap-5"
+          className="locked-content-inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
           style={{
             transform: 'translateZ(0)', // Enable hardware acceleration
             // backfaceVisibility: 'hidden'
           }}
         >
-          {data.map(renderPanel)}
-
-          {/* Final CTA Panel */}
-          <div className="panel h-full flex-[50%]">
-            <div className="h-full bg-white">
-              <div className="flex justify-center items-center flex-col px-10 md:px-40 gap-6 h-full text-center">
-                <Heading
-                  textD="Discover all the"
-                  textL="functionality"
-                  textAlign="text-center"
-                />
-                <Arrow
-                  link="/"
-                  customclass="w-10 h-10 md:w-16 md:h-16 body-t"
-                />
-              </div>
-            </div>
+          <div className="border border-white overflow-hidden rounded-[30px]">
+            <img src={FEATURE_DATA[0].img} alt="" />
           </div>
+          <div className="border border-white overflow-hidden rounded-[30px] hidden md:block">
+            <img src={FEATURE_DATA[1].img} alt="" />
+          </div>
+          <div className="border border-white overflow-hidden rounded-[30px] hidden lg:block">
+            <img src={FEATURE_DATA[2].img} alt="" />
+          </div>
+
+          
 
         </div>
       </div>
+    </div>
+      </div>
+      
     </div>
   );
 }

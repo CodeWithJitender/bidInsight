@@ -26,7 +26,8 @@ const LayoutWrapper = ({ children }) => {
     "/forgot-password",
     "/confirm-password",
     "/forgot-otp",
-    "/payment-status"
+    "/payment-status",
+    "/user-profile/change-payment-method",
   ];
 
   const isHidden = hiddenRoutes.includes(location.pathname);

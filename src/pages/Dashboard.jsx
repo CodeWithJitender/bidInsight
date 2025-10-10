@@ -29,6 +29,7 @@ import { useFollowBids } from "../dashboard/useFollowBids";
 import { useSearchHandling } from "../hooks/useSearchHandling";
 import { useFilterHandling } from "../hooks/useFilterHandling";
 import { useDashboardUI } from "../hooks/useDashboardUI";
+import AlertToggle from "../components/AlertToggle";
 
 function Dashboard() {
   const perPage = DASHBOARD_CONSTANTS.PER_PAGE;
@@ -101,7 +102,12 @@ function Dashboard() {
   const [bidCount, setBidCount] = useState({ count: 0, new_bids: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const abortControllerRef = useRef(null);
+  // Dashboard.jsx - Existing states ke saath add karo
+  const [viewMode, setViewMode] = useState(() => {
+    const saved = localStorage.getItem('bidTableViewMode');
+    return saved === 'detailed';
+  }); // false = default table, true = detailed cards
 
   const [isBookmarkView, setIsBookmarkView] = useState(false);
   const [restrictionPopup, setRestrictionPopup] = useState({
@@ -223,26 +229,26 @@ function Dashboard() {
 
 
 
-const handleFollowedCardClick = async () => {
-  if (restrictions?.follow) {
-    showFeatureRestriction(
-      " Follow Feature Locked",
-      "Upgrade your plan to follow important bids and get instant notifications.",
-      "Follow Feature",
-      true
-    );
-    return;
-  }
+  const handleFollowedCardClick = async () => {
+    if (restrictions?.follow) {
+      showFeatureRestriction(
+        " Follow Feature Locked",
+        "Upgrade your plan to follow important bids and get instant notifications.",
+        "Follow Feature",
+        true
+      );
+      return;
+    }
 
-  // Real-time data refresh before navigation
-  await refreshFollowedData(); // Ye line add karo
+    // Real-time data refresh before navigation
+    await refreshFollowedData(); // Ye line add karo
 
-  setIsFollowView(true);
-  setIsBookmarkView(false);
-  setIsRestrictedFollowView(false);
+    setIsFollowView(true);
+    setIsBookmarkView(false);
+    setIsRestrictedFollowView(false);
 
-  navigate("/dashboard/followedBids", { replace: false });
-};
+    navigate("/dashboard/followedBids", { replace: false });
+  };
 
 
   useEffect(() => {
@@ -297,49 +303,60 @@ const handleFollowedCardClick = async () => {
 
   // 🔥 FIX 2: Prevent auto-redirect on bookmark route refreshpaginat
   useEffect(() => {
-  const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
-  const isFollowRoute = location.pathname === '/dashboard/followedBids';
+    const isBookmarkRoute = location.pathname === '/dashboard/bookmarkBids';
+    const isFollowRoute = location.pathname === '/dashboard/followedBids';
 
-  setIsBookmarkView(isBookmarkRoute);
-  setIsFollowView(isFollowRoute);
+    setIsBookmarkView(isBookmarkRoute);
+    setIsFollowView(isFollowRoute);
 
-  if (isFollowRoute && restrictions?.follow) {
-    setIsRestrictedFollowView(true);
-    setLoading(false);
-    return;
-  } else {
-    setIsRestrictedFollowView(false);
-  }
-
-  if (isBookmarkRoute || isFollowRoute) {
-    setLoading(false);
-    return;
-  } else {
-    const searchParams = new URLSearchParams(location.search);
-    
-    // console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
-    // console.log("🔥 new_bids param:", searchParams.get('new_bids'));
-
-    // YAH FIX KARO - URL se filters decode karo
-    if (searchParams.toString() !== '') {
-      const decodedFilters = decodeUrlToFilters(searchParams);
-      if (!decodedFilters.ordering) {
-        decodedFilters.ordering = "closing_date";
-      }
-      // console.log("🔥 Decoded filters:", decodedFilters);
-      setFilters(decodedFilters);
-      setAppliedFilters(decodedFilters);
+    if (isFollowRoute && restrictions?.follow) {
+      setIsRestrictedFollowView(true);
+      setLoading(false);
+      return;
     } else {
-      const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
-      setFilters(defaultFilters);
-      setAppliedFilters(defaultFilters);
+      setIsRestrictedFollowView(false);
     }
-  }
-}, [location.pathname, location.search, restrictions?.follow]);
+
+    if (isBookmarkRoute || isFollowRoute) {
+      setLoading(false);
+      return;
+    } else {
+      const searchParams = new URLSearchParams(location.search);
+
+      // console.log("🔥 All URL params:", Object.fromEntries(searchParams.entries()));
+      // console.log("🔥 new_bids param:", searchParams.get('new_bids'));
+
+      // YAH FIX KARO - URL se filters decode karo
+      if (searchParams.toString() !== '') {
+        const decodedFilters = decodeUrlToFilters(searchParams);
+        if (!decodedFilters.ordering) {
+          decodedFilters.ordering = "closing_date";
+        }
+        // console.log("🔥 Decoded filters:", decodedFilters);
+        setFilters(decodedFilters);
+        setAppliedFilters(decodedFilters);
+      } else {
+        const defaultFilters = { ...DASHBOARD_CONSTANTS.DEFAULT_FILTERS, ordering: "closing_date" };
+        setFilters(defaultFilters);
+        setAppliedFilters(defaultFilters);
+      }
+    }
+  }, [location.pathname, location.search, restrictions?.follow]);
 
 
 
   const fetchBids = useCallback(async () => {
+
+
+    if (abortControllerRef.current) {
+      console.log("🚫 Cancelling previous API call");
+      abortControllerRef.current.abort();
+    }
+
+    // 🔥 STEP 2: Create new AbortController
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     setLoading(true);
     setError("");
     const token = localStorage.getItem("access_token");
@@ -383,15 +400,34 @@ const handleFollowedCardClick = async () => {
 
       // console.log("🔥 Fetching bids with query:", queryString);
 
-      const res = await getBids(`?${queryString}`, searchTermFromUrl);
+      const res = await getBids(`?${queryString}`, searchTermFromUrl, signal);
+      console.log("🔥 API Response Data:", res);
+      // console.log("🔥 Total Count:", response.data.count);
+      console.log("🔥 URL Params:", window.location.search);
 
-      // console.log(res, "🔥 Fetched bids data");
-      dispatch(setBids(res));
+      console.log("🔥 Bids Count in Response:", res?.count);
+      console.log("🔥 New Bids in URL:", searchParams.get('new_bids'));
+
+      if (!signal.aborted) {
+        dispatch(setBids(res));
+        console.log("✅ Redux Updated Successfully");
+      } else {
+        console.log("⚠️ Request was cancelled, skipping Redux update");
+      }
+
+
     } catch (err) {
-      console.error("Failed to fetch bids:", err);
+      if (err.name === 'AbortError' || err.message === 'canceled') {
+        console.log("🚫 Request cancelled");
+        return; // Don't show error for cancelled requests
+      }
+
+      console.error("❌ Failed to fetch bids:", err);
       setError("Failed to fetch bids");
     } finally {
-      setLoading(false);
+      if (!abortControllerRef.current?.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [currentPage, navigate, perPage, appliedFilters, dispatch, location.search]);
 
@@ -683,7 +719,32 @@ const handleFollowedCardClick = async () => {
 
 
 
+  console.log("🔥 Passing bids to BidTable:", isBookmarkView ? bookmarkedBids : (bidsInfo?.results || []));
+  console.log("🔥 bidsInfo state:", bidsInfo);
+useEffect(() => {
+    if (sidebarToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarToggle]);
+useEffect(() => {
+    if (saveSearchToggle) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup (important if component unmounts)
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [saveSearchToggle]);
   return (
     <>
       <div className="py-[120px] bg-blue">
@@ -724,12 +785,12 @@ const handleFollowedCardClick = async () => {
         )}
 
         <div className="container-fixed py-10 px-4">
-          <div className="dashboard-header flex justify-between items-center pt-5">
+          <div className="dashboard-header flex flex-col gap-3 md:flex-row justify-between items-center pt-5">
             <HeroHeading data={data} />
             <div className="flex items-center gap-[15px]">
               {/* <span className="font-inter text-[#DBDBDB]">Alert</span> */}
               {/* <AlertToggle /> */}
-              <div className="search-box bg-btn p-4 px-6 flex gap-3 items-center rounded-[30px]">
+              <div className="search-box bg-btn py-3 md:p-4 px-6 flex gap-3 items-center rounded-[30px] max-w-[90%] md:max-w-full m-auto md:m-0">
                 <i className="far text-white fa-search"></i>
                 <input
                   type="text"
@@ -743,8 +804,8 @@ const handleFollowedCardClick = async () => {
           </div>
 
           <div className="dashboard-feature pt-20">
-            <div className="flex justify-between items-center">
-              <div className="feature-left">
+            <div className="flex justify-between items-center  gap-4">
+              <div className="feature-left hidden md:flex gap-4 items-center">
                 <div
                   className={`bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer ${restrictions?.advanceSearch ? 'opacity-50 bg-white/10' : ''
                     }`}
@@ -769,7 +830,51 @@ const handleFollowedCardClick = async () => {
                     />
                   )}
                 </div>
+                <div>
+                  <div className="hidden lg:flex items-center gap-3">
+                    <span className="text-white text-sm font-normal">Full View</span>
+
+                    {/* Toggle Switch - Exact Design */}
+                    <div className="relative inline-block">
+                      <label
+                        htmlFor="viewSwitch"
+                        className={`relative w-[72px] h-[36px] rounded-full p-[3px] flex items-center transition-all duration-300 cursor-pointer ${viewMode ? 'bg-[#2B6BE6]' : 'bg-[#1E3A5F]/40'
+                          }`}
+                      >
+                        {/* OFF Text */}
+                        <span className={`absolute left-[8px] text-[11px] font-medium z-10 transition-all duration-300 ${!viewMode ? 'text-white' : 'text-white/40'
+                          }`}>
+                          OFF
+                        </span>
+
+                        {/* ON Text */}
+                        <span className={`absolute right-[10px] text-[11px] font-medium z-10 transition-all duration-300 ${viewMode ? 'text-white' : 'text-white/40'
+                          }`}>
+                          ON
+                        </span>
+
+                        {/* White Circle Slider */}
+                        <span className={`absolute w-[30px] h-[30px] bg-white rounded-full top-[3px] transition-all duration-300 ease-in-out shadow-md ${viewMode ? 'left-[39px]' : 'left-[3px]'
+                          }`}></span>
+
+                        {/* Hidden Checkbox Input */}
+                        <input
+                          type="checkbox"
+                          id="viewSwitch"
+                          className="sr-only"
+                          checked={viewMode}
+                          onChange={() => {
+                            const newMode = !viewMode;
+                            setViewMode(newMode);
+                            localStorage.setItem('bidTableViewMode', newMode ? 'detailed' : 'table');
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
+
 
 
               <div className="dashboard-middle">
@@ -789,13 +894,11 @@ const handleFollowedCardClick = async () => {
                   />
                 )}
               </div>
-
-
-              <div className="feature-right">
-                <div className="flex gap-4 items-center">
+              <div className="feature-right md:w-full 2xl:w-auto ">
+                <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div
-                    className={`bg-btn p-4 rounded-[16px] cursor-pointer relative ${exportLoading ? 'opacity-50' : restrictions?.export ? 'opacity-50 bg-white/10' : ''
+                    className={` hidden md:block bg-btn p-4 rounded-[16px] cursor-pointer relative ${exportLoading ? 'opacity-50' : restrictions?.export ? 'opacity-50 bg-white/10' : ''
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -823,56 +926,64 @@ const handleFollowedCardClick = async () => {
                     ) : exportLoading ? (
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      <img src="/export.png" className="w-6" alt="Export" />
+                      <img src="/export.png" className="w-6 min-w-6" alt="Export" />
                     )}
                   </div>
 
-                  {/* Saved Search Dropdown with restrictions */}
-                  <div
-                  // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
-                  // onClick={(e) => {
-                  //   if (restrictions?.savedSearch) {
-                  //     e.preventDefault();
-                  //     e.stopPropagation();
-                  //     showFeatureRestriction(
-                  //       " Saved Search Locked",
-                  //       "Upgrade your plan to access and manage your saved searches for quick filtering.",
-                  //       "Saved Search Feature",
-                  //       true
-                  //     );
-                  //   }
-                  // }}
-                  // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
-                  >
-                    <ProfessionalSavedSearchDropdown
-                      savedSearches={restrictions?.savedSearch ? [] : savedSearches}
-                      selectedSavedSearch={restrictions?.savedSearch ? null : selectedSavedSearch}
-                      handleSavedSearchSelect={restrictions?.savedSearch ? () => { } : enhancedHandleSavedSearchSelect}
-                      disabled={restrictions?.savedSearch}
-                    />
-                  </div>
-
-                  {/* Save Search Button with restrictions */}
-                  <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                  <div className=" flex">
+                    {/* Saved Search Dropdown with restrictions */}
                     <div
-                      className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
-                        }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveSearchClick(); // Use the new function with restrictions
-                      }}
-                      title={
-                        restrictions?.savedSearch
-                          ? "Upgrade to save searches"
-                          : "Save current search"
-                      }
+                      // className={`${restrictions?.savedSearch ? 'opacity-50' : ''}`}
+                      // onClick={(e) => {
+                      //   if (restrictions?.savedSearch) {
+                      //     e.preventDefault();
+                      //     e.stopPropagation();
+                      //     showFeatureRestriction(
+                      //       " Saved Search Locked",
+                      //       "Upgrade your plan to access and manage your saved searches for quick filtering.",
+                      //       "Saved Search Feature",
+                      //       true
+                      //     );
+                      //   }
+                      // }}
+                      // title={restrictions?.savedSearch ? "Upgrade to use saved searches" : undefined}
+                      className="hidden md:block"
                     >
-                      {restrictions?.savedSearch && (
-                        <i className="fas fa-lock text-sm text-white/60 mr-2"></i>
-                      )}
-                      Save Search
+                      <ProfessionalSavedSearchDropdown
+                        savedSearches={restrictions?.savedSearch ? [] : savedSearches}
+                        selectedSavedSearch={restrictions?.savedSearch ? null : selectedSavedSearch}
+                        handleSavedSearchSelect={restrictions?.savedSearch ? () => { } : enhancedHandleSavedSearchSelect}
+                        disabled={restrictions?.savedSearch}
+                      />
                     </div>
-                  </BgCover>
+
+                    {/* Save Search Button with restrictions */}
+                    <div className="hidden md:block">
+                      <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                        <div
+                          className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
+                            }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSaveSearchClick(); // Use the new function with restrictions
+                          }}
+                          title={
+                            restrictions?.savedSearch
+                              ? "Upgrade to save searches"
+                              : "Save current search"
+                          }
+                        >
+                          {restrictions?.savedSearch && (
+                            <i className="fas fa-lock text-sm text-white/60 mr-2"></i>
+                          )}
+                          Save Search
+                        </div>
+                      </BgCover>
+                    </div>
+                    <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
+                      <i class="fas fa-sort-alt"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -945,6 +1056,7 @@ const handleFollowedCardClick = async () => {
                 blurConfig={blurConfig}
                 shouldBlurBid={shouldBlurBid}
                 restrictions={restrictions}
+                viewMode={viewMode}
               />
             )}
 

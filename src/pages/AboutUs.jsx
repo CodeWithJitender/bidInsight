@@ -28,9 +28,9 @@ const { hash } = useLocation();
       <div className="" id="mission">
         <Mission />
       </div>
-      <div className="">
+      {/* <div className="">
         <img src="/marquee.jpg" alt="" />
-      </div>
+      </div> */}
       <div className="" id="vision">
         <Vision/>
       </div>

@@ -93,7 +93,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
   };
 
   return (
-    <div className="p-6 font-inter">
+    <div className="bookmark-table px-2 md:p-6 font-inter">
       {/* Title */}
       <div className="flex items-center gap-2 mb-3 w-full">
         <p className="text-2xl font-medium font-inter">
@@ -103,8 +103,8 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
       </div>
 
       {/* Table */}
-      <div className="border-2 border-primary rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+      <div className="border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
+        <table className="w-full text-left border-collapse ">
           <thead>
             <tr className="border-b-2 border-primary bg-gray-50 text-center">
               <th className="font-inter font-medium text-base py-3 px-4">Entity Type</th>
@@ -186,7 +186,7 @@ export default function BookmarkTable({ type, data, onRemove, loading }) {
 
       {/* Pagination */}
       {bids.length > 0 && (
-        <div className="flex justify-between items-center mt-4 text-sm text-black p-3 rounded-lg font-inter">
+        <div className="flex justify-between flex-col-reverse gap-3 md:flex-row items-center mt-4 text-sm text-black p-3 rounded-lg font-inter">
           <span>
             {indexOfFirstBid + 1}-{Math.min(indexOfLastBid, bids.length)} of{" "}
             {bids.length} results found

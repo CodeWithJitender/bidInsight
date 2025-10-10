@@ -50,7 +50,7 @@ function HowItWorks() {
   };
 
   return (
-    <div className="how-it-works">
+    <div className="how-it-works relative">
       {/* Hero Section */}
       <motion.div
         className="let-show bg-image bg-[url('https://bid-insight.vercel.app/line-bg.png')] relative"
@@ -75,35 +75,36 @@ function HowItWorks() {
                 text={"Get Started"}
                 btnBg={"bg-primary text-white"}
                 arrowBg={"bg-white text-primary"}
+                link={"/register"}
               />
             </motion.div>
           </motion.div>
         </div>
       </motion.div>
+            
 
       {/* Work Steps */}
-      <div className="work-content relative">
+      <div className="bg-blue">
+
+     
+      <div className="work-content relative  grid md:grid-cols-2 lg:grid-cols-4">
+        {/* <div className="absolute z-50 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[1600px] m-auto">
+              <img src="/line.svg" alt="" />
+            </div> */}
         {data.map((item, index) => (
           <motion.div
             key={index}
-            className="work-item bg-blue py-16"
+            className="work-item  lg:py-16"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeInUp}
           >
-            <div className="container-section">
-              <motion.div
-                className="main-title font-bold text-[100px] font-h text-white"
-                variants={fadeInUp}
-              >
-                {item.number}
-              </motion.div>
-
-              <div className="work-content grid lg:grid-cols-2 gap-5">
+            <div className="p-5 xl:p-10">
+              <div className={`work-content hidden md:flex gap-5 ${index%2 == 0? "flex-col":"flex-col-reverse"}`}>
                 {/* Image */}
                 <motion.div
-                  className="work-img rounded-[20px] overflow-hidden max-h-[65vh]"
+                  className="work-img rounded-[20px] overflow-hidden"
                   variants={fadeInUp}
                 >
                   <motion.img
@@ -117,7 +118,13 @@ function HowItWorks() {
                 {/* Text */}
                 <motion.div className="work-text" variants={fadeInUp}>
                   <motion.div
-                    className="title font-h font-bold h2 text-white"
+                    className="main-title font-bold text-[100px] font-h font-archivo text-white"
+                    variants={fadeInUp}
+                  >
+                    {item.number}
+                  </motion.div>
+                  <motion.div
+                    className="title font-h font-bold text-h3 text-white"
                     variants={fadeInUp}
                   >
                     {item.title}
@@ -128,20 +135,74 @@ function HowItWorks() {
                   >
                     {item.para}
                   </motion.div>
-                  <motion.div className="flex" variants={fadeInUp}>
+                  {/* <motion.div className="flex" variants={fadeInUp}>
                     <Button
                       link={item.link}
                       text={item.btnText}
                       btnBg={"bg-white"}
                       arrowBg={"bg-primary text-white"}
                     />
+                  </motion.div> */}
+                </motion.div>
+              </div>
+               <div className={`work-content flex  gap-5 flex-col md:hidden`}>
+                {/* Image */}
+                <motion.div
+                  className="work-img rounded-[20px] overflow-hidden"
+                  variants={fadeInUp}
+                >
+                  <motion.img
+                    src={item.img}
+                    className="w-full"
+                    alt={item.title}
+                    variants={fadeInUp}
+                  />
+                </motion.div>
+
+                {/* Text */}
+                <motion.div className="work-text" variants={fadeInUp}>
+                  <motion.div
+                    className="main-title font-bold text-[100px] font-h font-archivo text-white"
+                    variants={fadeInUp}
+                  >
+                    {item.number}
                   </motion.div>
+                  <motion.div
+                    className="title font-h font-bold text-h3 text-white"
+                    variants={fadeInUp}
+                  >
+                    {item.title}
+                  </motion.div>
+                  <motion.div
+                    className="para font-t body-t text-white mt-4 md:py-6 font-light"
+                    variants={fadeInUp}
+                  >
+                    {item.para}
+                  </motion.div>
+                  {/* <motion.div className="flex" variants={fadeInUp}>
+                    <Button
+                      link={item.link}
+                      text={item.btnText}
+                      btnBg={"bg-white"}
+                      arrowBg={"bg-primary text-white"}
+                    />
+                  </motion.div> */}
                 </motion.div>
               </div>
             </div>
           </motion.div>
         ))}
+        
       </div>
+      <div className="flex justify-center pb-20">
+           <Button
+                      link={"/login"}
+                      text={"Get Started"}
+                      btnBg={"bg-white"}
+                      arrowBg={"bg-primary text-white"}
+                    />
+        </div>
+         </div>
     </div>
   );
 }

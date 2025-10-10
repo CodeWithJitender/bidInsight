@@ -125,37 +125,7 @@ p {
   background-position: center center;
   background-repeat: no-repeat;
 }
-/* Apply CSS For Laptop View and Less */
-@media screen and (max-width: 992px) {
-}
-/* Apply CSS For Tab View and Less */
-@media screen and (max-width: 768px) {
-  .btn {
-    height: 44px;
-  }
-  .btn-arrow {
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-  }
-  .btn-text {
-    margin-left: 40px;
-  }
-  .container-section {
-    padding: 40px 20px !important;
-  }
-  .h1 {
-    font-size: clamp(32px, 5vw, 70px);
-  }
-  p {
-    font-size: clamp(14px, 5vw, 16px) !important;
-    line-height: 110%;
-  }
-}
 
-/* Apply CSS For Mobile View and Less */
-@media screen and (max-width: 576px) {
-}
 
 /* Home Page Start =================== */
 /* .comparison-grid {
@@ -465,5 +435,62 @@ p {
   .scroll-hide {
     -ms-overflow-style: none; /* IE & Edge */
     scrollbar-width: none; /* Firefox */
+  }
+}
+
+.bookmark-table *::-webkit-scrollbar {
+  height: 6px;
+}
+
+.bookmark-table *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bookmark-table *::-webkit-scrollbar-thumb {
+  background-color: rebeccapurple;
+  border-radius: 9999px;
+}
+
+.mySwiper.swiper {
+  height: auto !important;
+}
+/* Apply CSS For Laptop View and Less */
+@media screen and (max-width: 992px) {
+}
+/* Apply CSS For Tab View and Less */
+@media screen and (max-width: 768px) {
+  .btn {
+    height: 44px;
+  }
+  .btn-arrow {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .btn-text {
+    margin-left: 40px;
+  }
+  .container-section {
+    padding: 40px 20px !important;
+  }
+  .h1 {
+    font-size: clamp(32px, 5vw, 70px);
+  }
+  p {
+    font-size: clamp(14px, 5vw, 16px) !important;
+    line-height: 110%;
+  }
+  .featue-1,
+  .featue-4,
+  .featue-5 {
+    display: none;
+  }
+}
+
+/* Apply CSS For Mobile View and Less */
+@media screen and (max-width: 576px) {
+  .form-input {
+    padding: 10px 15px;
+    color: white;
   }
 }

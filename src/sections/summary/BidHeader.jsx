@@ -69,7 +69,7 @@ const BidHeader = ({
       <div className="container-fixed">
         <div className="summary flex flex-col md:flex-row justify-between items-center shadow-lg gap-6 md:gap-0">
           {/* Left Section */}
-          <div className="w-[70%]">
+          <div className="md:w-[70%]">
             <h2 className="text-h3 font-bold font-archivo">{title}</h2>
             <img src="/summary-line.png" className="w-full my-4" alt="divider" />
 
@@ -96,7 +96,7 @@ const BidHeader = ({
                   href={sourceLink.startsWith('http') ? sourceLink : `https://${sourceLink}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center flex-col text-center gap-2"
+                  className=" items-center flex-col text-center gap-2 hidden md:flex"
                 >
                   <i className="fas text-xl fa-external-link"></i>
                   <div>
@@ -104,7 +104,7 @@ const BidHeader = ({
                   </div>
                 </a>
               ) : (
-                <div className="flex items-center flex-col text-center gap-2 opacity-50 cursor-not-allowed">
+                <div className="flex items-center flex-col hidden md:flex text-center gap-2 opacity-50 cursor-not-allowed">
                   <i className="fas text-xl fa-external-link"></i>
                   <div>
                     <p className="font-inter text-xl text-[#DBDBDB]">Open Source</p>
@@ -129,7 +129,7 @@ const BidHeader = ({
                     }
                   }}
                   disabled={isBookmarking}
-                  className={`flex items-center flex-col text-center gap-2 transition-opacity ${isBookmarking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+                  className={` items-center flex-col text-center gap-2 transition-opacity hidden md:flex  ${isBookmarking ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
                     }`}
                 >
                   <i className={`${isBookmarked ? 'fas' : 'far'} text-xl fa-bookmark ${isBookmarking ? 'fa-spin' : ''

@@ -19,7 +19,7 @@ function SimilarBids({ similarBids }) {
   return (
     <div className="summary">
       <div className="space-y-6 text-white container-fixed">
-        <h1 className="font-archivo font-semibold text-p xl:text-[30px]">
+        <h1 className="font-archivo font-semibold text-xl md:text-p xl:text-[30px]">
           Explore More Bids
         </h1>
 
@@ -32,7 +32,7 @@ function SimilarBids({ similarBids }) {
                 className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4"
               >
                 {/* Left Section */}
-                <div className="space-y-1 w-1/2">
+                <div className="space-y-1 ">
                   <p className="font-archivo text-p font-bold">
                     {bid.bid_name || "Untitled Bid"}
                   </p>

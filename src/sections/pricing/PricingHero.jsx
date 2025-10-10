@@ -28,7 +28,7 @@ function PricingHero() {
         "3 Visible Bids Only",
         "Basic Access"
       ],
-      icon: "/price-1.png",
+      icon: "/price-1.svg",
       delay: "200",
       planID: "001"
     },
@@ -40,9 +40,10 @@ function PricingHero() {
         "All Federal Bids",
         "Unlimited Visible Bids",
         "1 Saved Search",
-        "5 Bookmarks"
+        "5 Bookmarks",
+        "One additional state as a bolt-on ($9/month)"
       ],
-      icon: "https://bid-insight.vercel.app/price-2.png",
+      icon: "/price-2.svg",
       delay: "200",
       planID: "002"
     },
@@ -60,7 +61,7 @@ function PricingHero() {
         "Cities & Counties (Coming Soon)",
         "RFP Compatibility Summary (Coming Soon)"
       ],
-      icon: "/price-3.png",
+      icon: "/price-3.svg",
       delay: "300",
       planID: "003"
     },
@@ -95,7 +96,7 @@ function PricingHero() {
         "3 Visible Bids Only",
         "Basic Access"
       ],
-      icon: "/price-1.png",
+      icon: "/price-1.svg",
       delay: "200",
       planID: "001"
     },
@@ -109,7 +110,7 @@ function PricingHero() {
         "1 Saved Search",
         "5 Bookmarks"
       ],
-      icon: "https://bid-insight.vercel.app/price-2.png",
+      icon: "/price-2.svg",
       delay: "200",
       planID: "002"
     },
@@ -127,7 +128,7 @@ function PricingHero() {
         `Cities & Counties  (Coming Soon)`,
         "RFP Compatibility Summary (Coming Soon)"
       ],
-      icon: "/price-3.png",
+      icon: "/price-3.svg",
       delay: "300",
       planID: "003"
     },
@@ -241,7 +242,7 @@ function PricingHero() {
       </div>
 
       {/* Pricing Cards - Simplified Animation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
         {billingCycle === "Monthly"
           ? getUpdatedPlans(plans).map((plan, index) => (
             <div
@@ -256,7 +257,7 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"monthly"} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"month"} />
             </div>
           ))
           : getUpdatedPlans(plansYear).map((plan, index) => (
@@ -272,13 +273,13 @@ function PricingHero() {
                 animationDelay: `${index * 0.1}s`,
               }}
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"yearly"} />
+              <PricingCard {...plan} planDetails={planDetails} duration={"year"} />
             </div>
           ))}
       </div>
 
 
-      <p className="text-white text-lg w-[63%] mx-auto mt-14"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
+      <p className="text-white text-lg max-w-[800px] mx-auto mt-14 px-5"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
 
       <style jsx>{`
         @keyframes fadeInUp {

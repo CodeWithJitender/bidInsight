@@ -21,6 +21,8 @@ export const getBids = async (queryOrId, searchTerm = "") => {
     }
 
     const response = await API.get(`/bids/${query}`, { headers });
+    console.log(response.data, "🔥 Bids fetched with query:vvvvvvvvvvvvvvvvvvvvvvvvvv", query);
+    console.log(response.data.results, "🔥 Bids fetched with query:vvvvvvvvvvvvvvvvvvvvvvvvvv");
     return response.data;
   } catch (error) {
     console.error("❌ Error fetching bids:", error);
@@ -57,6 +59,7 @@ export const getUserProfile = async (profileId) => {
     }
 
     const response = await API.get(`/auth/profile/`, { headers });
+    console.log(response.data, "🔥 User profile fetchedddddddddddddddddddddddddddd");
     return response.data;
   } catch (error) {
     console.error("Error fetching user profile:", error);
@@ -133,7 +136,7 @@ export const BookMarkedBids = async (id) => {
   }
 
   try {
-    const res = await API.post("/bids/bookmarks/", 
+    const res = await API.post("/bids/bookmarks/",
       { bid_id: id },
       {
         headers: {
@@ -150,13 +153,13 @@ export const BookMarkedBids = async (id) => {
 };
 
 export const totalBookmarkedBids = async () => {
-  const token = localStorage.getItem("access_token"); 
+  const token = localStorage.getItem("access_token");
   if (!token) {
     throw new Error("No access token found");
   }
   try {
     const res = await API.get("/bids/bookmarks/", {
-      headers: {  
+      headers: {
         Authorization: `Bearer ${token}`
       }
     });
@@ -165,7 +168,7 @@ export const totalBookmarkedBids = async () => {
   } catch (err) {
     console.error("Error fetching total bookmarked bids:", err);
     throw err;
-  } 
+  }
 };
 
 
@@ -190,7 +193,7 @@ export const deleteBookmarkedBid = async (bookmarkId) => {
   } catch (err) {
     console.error("Error toggling bookmark status:", err);
     throw err;
-  } 
+  }
 };
 
 // Export Bids to CSV via Backend API
@@ -223,7 +226,7 @@ export const exportBidsToCSV = async (bidIds) => {
     const link = document.createElement('a');
     link.href = url;
     link.download = `bids_export_${new Date().toISOString().split('T')[0]}.csv`;
-    
+
     // Trigger download
     document.body.appendChild(link);
     link.click();
@@ -244,7 +247,7 @@ export const exportBidsToCSV = async (bidIds) => {
 export const totalFollowedBids = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
-  
+
   try {
     const res = await API.get("/bids/follow/", {
       headers: { Authorization: `Bearer ${token}` }
@@ -264,10 +267,10 @@ export const followBids = async (id) => {
     throw new Error("No access token found");
   }
   try {
-    const res = await API.post("/bids/follow/", 
+    const res = await API.post("/bids/follow/",
       { bid_id: id },
       {
-        headers: {  
+        headers: {
           Authorization: `Bearer ${token}`
         }
       }
@@ -305,3 +308,15 @@ export const deleteFollowedBid = async (followId) => {
     throw err;
   }
 };
+
+
+export const region = async () => {
+  try {
+    const res = await API.get("/auth/regions/");
+    console.log(res.data, "🔥 Regions fetched")
+    return res.data
+  } catch (err) {
+    console.error("Error fetching regions:", err)
+    throw err
+  }
+}

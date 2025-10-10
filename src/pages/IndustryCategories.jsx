@@ -10,6 +10,8 @@ import FormImg from "../components/FormImg";
 import ProcessWrapper from "../components/ProcessWrapper";
 import { checkTTLAndClear } from "../utils/ttlCheck";
 import { fetchIndustryCategories } from "../services/user.service";
+import { useSelector } from "react-redux"; // Already hai, check karo
+import { updateProfileData } from "../redux/reducer/profileSlice"; // if needed
 
 // Static fallback data as array of objects
 const fallbackIndustries = [
@@ -26,19 +28,22 @@ const fallbackIndustries = [
   { id: 11, name: "Real Estate and Rental and Leasing" },
   { id: 12, name: "Professional, Scientific, and Technical Services" },
   { id: 13, name: "Management of Companies and Enterprises" },
-  { id: 14, name: "Administrative and Support and Waste Management and Remediation Services" },
+  {
+    id: 14,
+    name: "Administrative and Support and Waste Management and Remediation Services",
+  },
   { id: 15, name: "Educational Services" },
   { id: 16, name: "Health Care and Social Assistance" },
   { id: 17, name: "Arts, Entertainment, and Recreation" },
   { id: 18, name: "Accommodation and Food Services" },
   { id: 19, name: "Other Services (except Public Administration)" },
-  { id: 20, name: "Public Administration" }
+  { id: 20, name: "Public Administration" },
 ];
 
 function IndustryCategories() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   // Static data configurations
   const data = {
     title: "Your Industry Focus",
@@ -65,11 +70,13 @@ function IndustryCategories() {
     next: {
       text: "Next",
     },
-    skip: {
-      text: "Skip",
-      link: "/help-our-ai",
-    },
   };
+
+  const profileData = useSelector((state) => state.profile.profile);
+  const reduxIndustryCategory = useSelector(
+    (state) => state.onboarding.industryCategory
+  );
+  console.log(profileData, "🔥 Profile data in IndustryCategories");
 
   // State management
   const [allIndustries, setAllIndustries] = useState([]);
@@ -92,8 +99,12 @@ function IndustryCategories() {
       setIsLoading(true);
       setError(null);
       const industries = await fetchIndustryCategories();
-      
-      if (Array.isArray(industries) && industries.length > 0 && industries[0].id) {
+
+      if (
+        Array.isArray(industries) &&
+        industries.length > 0 &&
+        industries[0].id
+      ) {
         // Use API data directly if it has id and name
         setAllIndustries(industries);
       } else {
@@ -143,7 +154,7 @@ function IndustryCategories() {
   // Filter industries based on search term
   const filteredIndustries = useMemo(() => {
     let filtered = allIndustries;
-    
+
     // Apply search filter if search term exists
     if (searchTerm) {
       filtered = allIndustries.filter((industry) =>
@@ -153,35 +164,55 @@ function IndustryCategories() {
       // If no search term, show only first 6 industries
       filtered = allIndustries.slice(0, 6);
     }
-    
-    // Move selected industry to top if it exists in filtered results
-    if (selectedIndustry && filtered.some(i => i.id === selectedIndustry.id)) {
-      const selectedIndex = filtered.findIndex(i => i.id === selectedIndustry.id);
-      const reordered = [
-        selectedIndustry,
-        ...filtered.slice(0, selectedIndex),
-        ...filtered.slice(selectedIndex + 1)
-      ];
-      return reordered;
+
+    // ✅ FIXED: Always check ALL industries for selected one, not just filtered
+    if (selectedIndustry) {
+      // Check if selected industry is in current filtered list
+      const isInFiltered = filtered.some((i) => i.id === selectedIndustry.id);
+      
+      if (isInFiltered) {
+        // If already in filtered list, move to top
+        const selectedIndex = filtered.findIndex(
+          (i) => i.id === selectedIndustry.id
+        );
+        const reordered = [
+          selectedIndustry,
+          ...filtered.slice(0, selectedIndex),
+          ...filtered.slice(selectedIndex + 1),
+        ];
+        return reordered;
+      } else {
+        // ✅ If selected industry is NOT in filtered list (was selected via search),
+        // add it to the top of the list
+        return [selectedIndustry, ...filtered];
+      }
     }
-    
+
     return filtered;
   }, [searchTerm, allIndustries, selectedIndustry]);
   // Handle form submission
   const handleSubmit = (e) => {
-  e.preventDefault();
-  setShowValidation(true);
+    e.preventDefault();
 
-  if (selectedIndustry) {
-    // ✅ FIX: Save just the ID, not array
-    dispatch(saveIndustryCategory(selectedIndustry.id));
+    if (selectedIndustry) {
+      // Save if industry selected
+      dispatch(saveIndustryCategory(selectedIndustry.id));
+    } else {
+      // Save null if nothing selected
+      dispatch(saveIndustryCategory(null));
+    }
+
+    // Always navigate regardless of selection
     navigate("/help-our-ai");
-  }
-};
+  };
 
   // Handle skip action
   const handleSkip = () => {
     setSkipClicked(true);
+
+    setSelectedIndustry(null);
+
+    dispatch(saveIndustryCategory(null));
 
     try {
       const prev = JSON.parse(sessionStorage.getItem("onboardingForm")) || {};
@@ -194,7 +225,69 @@ function IndustryCategories() {
     navigate("/help-our-ai");
   };
 
+  // ⭐ NEW: Prefill from Redux profile data
+  // ⭐ FIXED: Prefill from Redux profile data
+  useEffect(() => {
+    // Skip mode check
+    if (skipClicked) {
+      console.log("⏭️ Skip mode - not prefilling industry");
+      return;
+    }
+
+    const saved = sessionStorage.getItem("onboardingForm");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.industry?.selectedIndustry) {
+        console.log("✅ Using sessionStorage industry (user changes)");
+        return; // Don't override with Redux
+      }
+    }
+
+    // ✅ FIX: Check profileData first, not reduxIndustryCategory
+    // Profile data is the source of truth for prefilling
+    if (profileData?.profile?.industry && allIndustries.length > 0) {
+      console.log("📝 Prefilling IndustryCategories from Profile Data");
+
+      const apiIndustry = profileData.profile.industry;
+
+      // If industry is object with id
+      if (typeof apiIndustry === "object" && apiIndustry.id) {
+        const foundIndustry = allIndustries.find(
+          (ind) => ind.id === apiIndustry.id
+        );
+        if (foundIndustry) {
+          setSelectedIndustry(foundIndustry);
+          console.log("✅ Industry prefilled:", foundIndustry.name);
+        }
+      }
+      // If industry is just ID
+      else if (typeof apiIndustry === "number") {
+        const foundIndustry = allIndustries.find(
+          (ind) => ind.id === apiIndustry
+        );
+        if (foundIndustry) {
+          setSelectedIndustry(foundIndustry);
+          console.log("✅ Industry prefilled:", foundIndustry.name);
+        }
+      }
+    } else if (reduxIndustryCategory && reduxIndustryCategory.length > 0) {
+      // ✅ Fallback: If no profile data, use Redux onboarding data
+      console.log("📝 Prefilling from Redux onboarding state");
+      const industryId = Array.isArray(reduxIndustryCategory)
+        ? reduxIndustryCategory[0]
+        : reduxIndustryCategory;
+
+      const foundIndustry = allIndustries.find((ind) => ind.id === industryId);
+      if (foundIndustry) {
+        setSelectedIndustry(foundIndustry);
+        console.log("✅ Industry prefilled from Redux:", foundIndustry.name);
+      }
+    } else {
+      console.log("ℹ️ No industry data to prefill");
+    }
+  }, [profileData, allIndustries, skipClicked, reduxIndustryCategory]);
   // Loading state
+
   if (isLoading) {
     return (
       <ProcessWrapper>
@@ -204,7 +297,7 @@ function IndustryCategories() {
               <FormHeader {...formHeader} />
               <HeroHeading data={data} />
             </div>
-            
+
             <div className="forn-container flex flex-col h-full justify-center items-center">
               <div className="text-white text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
@@ -213,7 +306,7 @@ function IndustryCategories() {
             </div>
           </div>
         </div>
-        
+
         <div className="sticky top-0">
           <FormImg src={"industry-categories.png"} />
         </div>
@@ -272,14 +365,23 @@ function IndustryCategories() {
                         name="industry"
                         value={industry.id}
                         selectedValue={selectedIndustry?.id}
-                        onChange={() => setSelectedIndustry(industry)}
+                        onChange={(val) => {
+                          // Handle both selection and deselection
+                          if (val === null) {
+                            setSelectedIndustry(null);
+                          } else {
+                            setSelectedIndustry(industry);
+                          }
+                        }}
                         delay={i * 100}
                       />
                     ))}
                   </div>
                 ) : (
                   <div className="text-white text-sm text-center py-8">
-                    {searchTerm ? "No industries found matching your search." : "No industries available."}
+                    {searchTerm
+                      ? "No industries found matching your search."
+                      : "No industries available."}
                   </div>
                 )}
               </div>
@@ -301,10 +403,7 @@ function IndustryCategories() {
             </div>
 
             {/* Footer with submit button */}
-            <FormFooter
-              data={formFooter}
-              onSkipClick={handleSkip}
-            />
+            <FormFooter data={formFooter} onSkipClick={handleSkip} />
           </form>
         </div>
       </div>

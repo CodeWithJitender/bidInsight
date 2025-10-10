@@ -82,6 +82,8 @@ export const resendOtp = async (payload) => {
 export const getAllStates = async () => {
   try {
     const response = await API.get("/auth/states/");
+
+    // console.log(response.data, "🔥 ..............States fetched");
     return response.data;
   } catch (error) {
     console.error("Error fetching states:", error);
@@ -128,6 +130,7 @@ export const getSolicitationTypes = async () => {
     throw error;
   }
 };
+
 
 export const getNAICSCodes = async () => {
   try {
@@ -179,6 +182,7 @@ export const forgotPasswordRequest = async (email) => {
   }
 };
 
+
 export const forgotPasswordVerify = async (payload) => {
   try {
     const response = await API.post("/auth/forgot-password/reset/", payload);
@@ -187,6 +191,7 @@ export const forgotPasswordVerify = async (payload) => {
     throw error;
   } 
 };
+
 
 export const updateProfile = async (payload) => {
   console.log(payload, "Payload in servicewwwwwwwwwwwwwwwwwwwwwwww");
@@ -208,7 +213,6 @@ export const updateProfile = async (payload) => {
 };
 
 
-
 export const emailAlert = async (payload) => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
@@ -225,6 +229,7 @@ export const emailAlert = async (payload) => {
     throw error;
   }
 };
+
 
 export const EmailAlertUpdate = async (payload, id) => {
   const token = localStorage.getItem("access_token");
@@ -243,6 +248,7 @@ export const EmailAlertUpdate = async (payload, id) => {
   }
 };
 
+
 export const getApiEmailAlert = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
@@ -257,6 +263,40 @@ export const getApiEmailAlert = async () => {
   }
 };
 
+
+export const userPaymentTable = async () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found");
+  try {
+    const response = await API.get("/payments/my-payments/", {
+      headers: {  Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching payment data:", error);
+    throw error;
+  } 
+};
+
+
+export const paymentRecipt = async (id) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found"); 
+  try {
+
+    console.log("first")
+    const response = await API.get(`/payments/receipt/${id}/`, {
+      headers: {  Authorization: `Bearer ${token}` },
+      data:{stripe_payment_intent_id: id} // ⭐ Note: Axios GET with body requires 'data' key
+    });
+    console.log(response.data, "🔥 Payment data fetcheddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+    return response.data;
+  }
+  catch (error) {
+    console.error("Error fetching payment data:", error);
+    throw error;
+  }
+};
 
          
 export const deactivateAccount = async () => {
@@ -278,37 +318,64 @@ export const deactivateAccount = async () => {
 
 
 
-
-export const userPaymentTable = async () => {
+export const deleteRequest = async () => {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No access token found");
   try {
-    const response = await API.get("/payments/my-payments/", {
-      headers: {  Authorization: `Bearer ${token}` },
+    const response = await API.post("/auth/user/request-delete/", {}, {
+      headers: {  
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
-    console.log(response.data, "🔥 Payment data fetcheddddddddddddddddddddddddddddddddddddddddddddddd");
     return response.data;
   } catch (error) {
-    console.error("Error fetching payment data:", error);
+    console.error("Error in delete request:", error);
+    throw error;
+  }
+};
+
+
+export const confirmDelete = async (payload) => {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No access token found"); 
+  try {
+    const response = await API.post("/auth/user/confirm-delete/", payload, {
+      headers: {  
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error in confirm delete:", error);
     throw error;
   } 
 };
 
 
-
-
-export const paymentRecipt = async (id) => {
+export const updateUserProfile = async (profileData) => {
   const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No access token found"); 
-  try {
-    const response = await API.get(`/payments/receipt/${id}/`, {
-      headers: {  Authorization: `Bearer ${token}` },
-    });
-    console.log(response.data, "🔥 Payment data fetcheddddddddddddddddddddddddddddddddddddddddddddddddddddd");
-    return response.data;
+  if (!token) {
+    throw new Error("No access token found");
   }
-  catch (error) {
-    console.error("Error fetching payment data:", error);
+  
+  try {
+    const response = await API.put(
+      `/auth/profile/`, 
+      profileData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      }
+    );
+    console.log("✅ Profile updated:", response.data);
+    return response;  // ⭐ CHANGED: Full response return karo
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
     throw error;
   }
 };
+

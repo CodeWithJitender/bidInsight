@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import SignupModal from "../../components/SignupModal";
-import { comingsoonPopup } from "../../services/admin.service";
+import { Link } from "react-router-dom";
+import SignupModal from "./SignupModal";
+import { comingsoonPopup } from "../services/admin.service"; // ADD THIS IMPORT
 
-function AiToolset() {
+function NormalBtn({ text, link, btnBg, btnFun }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState("idle");
 
@@ -18,13 +19,11 @@ function AiToolset() {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-76px)] w-full flex justify-center items-center p-2">
-      <img
-        src="/coming-soon.jpg"
-        onClick={() => setIsModalOpen(true)}
-        className="rounded-lg w-[300px] md:max-w-[40%] cursor-pointer"
-        alt=""
-      />
+    <div className="">
+      <div className="mt-4 font-inter text-lg bg-btn rounded-[50px] py-4 px-8 inline-block cursor-pointer">
+        {link && <Link to={link}>{text}</Link>}
+        {btnFun && <span onClick={() => setIsModalOpen(true)}>{text}</span>}
+      </div>
 
       <SignupModal
         isOpen={isModalOpen}
@@ -59,4 +58,4 @@ function AiToolset() {
   );
 }
 
-export default AiToolset;
+export default NormalBtn;
