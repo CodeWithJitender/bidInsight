@@ -439,7 +439,7 @@ export default function PersonalDetail({ profileData, onProfileUpdate }) {
         {/* First Name */}
         <div>
           <label className="block text-sm text-[#999999] font-inter font-medium mb-2">
-            First Name
+            Name
           </label>
           <input
             type="text"

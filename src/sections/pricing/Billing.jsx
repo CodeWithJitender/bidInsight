@@ -53,35 +53,35 @@ function Billing() {
         // },
       ],
     },
-    {
-      title: "Full Stack A.I. Arsenal",
-      features: [
-        {
-          name: "RFP Compatibility Summary",
-          values: ["-", "-", "Coming Soon", "Coming Soon"],
-        },
-        {
-          name: "Proposal Compliance Checker",
-          values: ["-", "-", "-", "Coming Soon"],
-        },
-        {
-          name: "Competitive Pricing Generator",
-          values: ["-", "-", "-", "Coming Soon"],
-        },
-        {
-          name: "Task Checklist Generator",
-          values: ["-", "-", "-", "Coming Soon"],
-        },
-        {
-          name: "Questionnaire Generator",
-          values: ["-", "-", "-", "Coming Soon"],
-        },
-        {
-          name: "Capability Statement Generator",
-          values: ["-", "-", "-", "Coming Soon"],
-        },
-      ],
-    },
+    // {
+    //   title: "Full Stack A.I. Arsenal",
+    //   features: [
+    //     {
+    //       name: "RFP Compatibility Summary",
+    //       values: ["-", "-", "Coming Soon", "Coming Soon"],
+    //     },
+    //     {
+    //       name: "Proposal Compliance Checker",
+    //       values: ["-", "-", "-", "Coming Soon"],
+    //     },
+    //     {
+    //       name: "Competitive Pricing Generator",
+    //       values: ["-", "-", "-", "Coming Soon"],
+    //     },
+    //     {
+    //       name: "Task Checklist Generator",
+    //       values: ["-", "-", "-", "Coming Soon"],
+    //     },
+    //     {
+    //       name: "Questionnaire Generator",
+    //       values: ["-", "-", "-", "Coming Soon"],
+    //     },
+    //     {
+    //       name: "Capability Statement Generator",
+    //       values: ["-", "-", "-", "Coming Soon"],
+    //     },
+    //   ],
+    // },
   ];
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null

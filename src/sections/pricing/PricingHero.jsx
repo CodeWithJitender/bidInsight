@@ -59,7 +59,7 @@ function PricingHero() {
         "20 Bookmarks",
         "Export 100 bids/month",
         "Cities & Counties (Coming Soon)",
-        "RFP Compatibility Summary (Coming Soon)"
+        "AI Features (Coming Soon)"
       ],
       icon: "/price-3.svg",
       delay: "300",
