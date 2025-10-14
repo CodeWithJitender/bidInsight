@@ -126,7 +126,6 @@ p {
   background-repeat: no-repeat;
 }
 
-
 /* Home Page Start =================== */
 /* .comparison-grid {
   display: grid;
@@ -454,11 +453,25 @@ p {
 .mySwiper.swiper {
   height: auto !important;
 }
+
+#work-content-0,
+#work-content-1,
+#work-content-2 {
+  background-image: url("./how-it-works.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+  background-size: contain;
+}
 /* Apply CSS For Laptop View and Less */
 @media screen and (max-width: 992px) {
 }
 /* Apply CSS For Tab View and Less */
 @media screen and (max-width: 768px) {
+  #work-content-0,
+  #work-content-1,
+  #work-content-2 {
+    background-image: none;
+  }
   .btn {
     height: 44px;
   }
