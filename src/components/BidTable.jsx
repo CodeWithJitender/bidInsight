@@ -362,7 +362,7 @@ const BidTable = forwardRef(
                         : "Click to sort by closing date"
                     }
                   >
-                    Closed Date {getSortIcon("closing_date")}
+                    Close Date {getSortIcon("closing_date")}
                   </th>
 
                   <th
