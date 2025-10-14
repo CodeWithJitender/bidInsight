@@ -30,6 +30,7 @@ import { useSearchHandling } from "../hooks/useSearchHandling";
 import { useFilterHandling } from "../hooks/useFilterHandling";
 import { useDashboardUI } from "../hooks/useDashboardUI";
 import AlertToggle from "../components/AlertToggle";
+import OnboardingRequiredPopup from "../components/OnboardingRequiredPopup";
 
 function Dashboard() {
   const perPage = DASHBOARD_CONSTANTS.PER_PAGE;
@@ -120,6 +121,7 @@ function Dashboard() {
 
   // 🚀 NEW STATE - Export Loading
   const [exportLoading, setExportLoading] = useState(false);
+  const [showOnboardingPopup, setShowOnboardingPopup] = useState(false);
   const [isRestrictedFollowView, setIsRestrictedFollowView] = useState(false);
 
   // Existing states ke saath ye add karo
@@ -421,6 +423,22 @@ function Dashboard() {
         console.log("🚫 Request cancelled");
         return; // Don't show error for cancelled requests
       }
+
+      if (err.response?.status === 403) {
+      const errorMessage = err.response?.data?.detail || "";
+      
+      // Check if error is related to profile/onboarding
+      if (
+        errorMessage.toLowerCase().includes("profile") ||
+        errorMessage.toLowerCase().includes("state") ||
+        errorMessage.toLowerCase().includes("onboarding")
+      ) {
+        console.log("⚠️ Onboarding incomplete - showing popup");
+        setShowOnboardingPopup(true);
+        setError(""); // Don't show generic error
+        return;
+      }
+    }
 
       console.error("❌ Failed to fetch bids:", err);
       setError("Failed to fetch bids");
@@ -757,6 +775,13 @@ useEffect(() => {
           featureName={restrictionPopup.featureName}
           showUpgradeButton={restrictionPopup.showUpgradeButton}
         />
+
+        <OnboardingRequiredPopup
+        isOpen={showOnboardingPopup}
+        onClose={() => setShowOnboardingPopup(false)}
+        title="Complete Your Profile"
+        message="Please add at least one state to your geographic coverage to view bids."
+      />
 
         {sidebarToggle && (
           <FilterPanel
