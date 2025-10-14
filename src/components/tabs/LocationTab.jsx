@@ -8,7 +8,7 @@ import SavedSearchPopup from "../SavedSearchPopup"; // path adjust karo
 // Top mein add karo
 import { checkOutSessionBoltOn } from "../../services/pricing.service";
 import FormSelect from "../FormSelect";
-import { useNavigate } from "react-router-dom";
+import AddPaymentMethod from "../../pages/AddPaymentMethod";
 
 // Mock local entities data
 const LOCAL_ENTITIES = [
@@ -84,7 +84,11 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const [boltOnStates, setBoltOnStates] = useState([]);
   const [selectedBoltOnState, setSelectedBoltOnState] = useState(null);
   const [boltOnLoading, setBoltOnLoading] = useState(false);
-  const navigate = useNavigate();
+  const [isSubmittingBoltOn, setIsSubmittingBoltOn] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [clientSecret, setClientSecret] = useState(null);
+  const [cardJustAdded, setCardJustAdded] = useState(false);
+  const [pendingStateSelection, setPendingStateSelection] = useState(null);
 
   // Plan and profile data from Redux
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
@@ -175,11 +179,13 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
 
     console.log("bolton clicked");
     setBoltOnLoading(true);
+    setPendingStateSelection(null);
     try {
       const states = await getAllStates();
       const filteredStates = states.filter(
         state => !userStates.some(userState => userState.id === state.id)
       );
+      setSelectedBoltOnState(null);
       setBoltOnStates(filteredStates);
       setShowBoltOnPopup(true);
     } catch (error) {
@@ -195,28 +201,40 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   };
 
   const handleBoltOnProceed = async () => {
-    setBoltOnLoading(true);
+    if (!selectedBoltOnState) {
+      return;
+    }
+
+    setIsSubmittingBoltOn(true);
     try {
-      const res = await checkOutSessionBoltOn(selectedBoltOnState.id);
+      const res = await checkOutSessionBoltOn(selectedBoltOnState.id.toString());
       if (!res) {
         throw new Error("Failed to initiate payment");
       }
 
-      setShowBoltOnPopup(false);
-      onCloseFilterPanel(); // Filter panel close kar do
+      if (!res.invoice_url && res.requires_setup) {
+        setClientSecret(res.setup_client_secret);
+        setPendingStateSelection(selectedBoltOnState);
+        setShowAddCard(true);
+        setShowBoltOnPopup(false);
+        onCloseFilterPanel();
+        setIsSubmittingBoltOn(false);
+        return;
+      }
 
-      navigate("/payment", {
-        state: {
-          clientSecret: res.clientSecret,
-          publishableKey: res.publishableKey,
-          plan: res.plan,
-        },
-      });
+      if (res.invoice_url) {
+        window.open(res.invoice_url, "_blank");
+      }
+
       setShowBoltOnPopup(false);
+      onCloseFilterPanel();
+      setSelectedBoltOnState(null);
+      setPendingStateSelection(null);
     } catch (error) {
       console.error("Failed to initiate payment:", error);
+      alert(error?.message || "Failed to initiate payment. Please try again.");
     } finally {
-      setBoltOnLoading(false);
+      setIsSubmittingBoltOn(false);
     }
   };
   // Filtered data
@@ -964,20 +982,104 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
             )}
             <div className="flex justify-between mt-6 gap-4 w-full pb-4">
               <button
-                onClick={() => setShowBoltOnPopup(false)}
+                onClick={() => {
+                  setShowBoltOnPopup(false);
+                  setSelectedBoltOnState(null);
+                }}
                 className="px-4 py-2 text-white border-white border-[1px] rounded-xl transition-colors"
               >
                 Close
               </button>
               <button
-                disabled={!selectedBoltOnState}
+                disabled={!selectedBoltOnState || isSubmittingBoltOn}
                 onClick={handleBoltOnProceed}
                 className="px-4 border-white border-[1px] rounded-xl text-white transition-colors"
               >
-                {boltOnLoading ? "Loading..." : "Proceed"}
+                {isSubmittingBoltOn ? "Loading..." : "Proceed"}
               </button>
             </div>
             <p className="text-sm text-white w-96 pb-5">NOTE: This fee is recurring with the validity & cadence as per your master plan.</p>
+          </div>
+        </div>
+      )}
+
+      {showAddCard && clientSecret && (
+        <AddPaymentMethod
+          clientSecret={clientSecret}
+          onSuccess={(setupIntent) => {
+            console.log("Card added successfully!", setupIntent);
+            setShowAddCard(false);
+            setClientSecret(null);
+            setCardJustAdded(true);
+
+            setTimeout(() => {
+              setCardJustAdded(false);
+            }, 8000);
+          }}
+          onCancel={() => {
+            setShowAddCard(false);
+            setClientSecret(null);
+            setPendingStateSelection(null);
+          }}
+        />
+      )}
+
+      {cardJustAdded && (
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="bg-blue text-white px-6 py-4 rounded-lg shadow-lg max-w-md">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">
+                  Payment Method Added Successfully!
+                </h3>
+                <p className="text-sm opacity-90">
+                  Your card has been saved. You can now proceed to add the bolt-on state
+                  {pendingStateSelection && ` "${pendingStateSelection.name}"`}.
+                </p>
+                <button
+                  onClick={() => {
+                    setCardJustAdded(false);
+                    handleBoltOnClick();
+                  }}
+                  className="mt-3 bg-white text-black px-4 py-2 rounded font-medium text-sm hover:bg-green-50 transition-colors"
+                >
+                  Add Bolt-On State Now
+                </button>
+              </div>
+              <button
+                onClick={() => setCardJustAdded(false)}
+                className="flex-shrink-0 text-white hover:text-green-100"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
