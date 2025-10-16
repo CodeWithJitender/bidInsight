@@ -16,6 +16,8 @@ export default function MyPlans({
   onReceiptDownload,
   profileData,
 }) {
+
+
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
   );
@@ -77,7 +79,7 @@ export default function MyPlans({
 
   // Amount ko dollar format mein convert karna
   const formatAmount = (amount) => {
-    return `$${(amount / 100).toFixed(2)}`; // cents to dollars
+    return `$${(amount).toFixed(2)}`; // cents to dollars
   };
 
   // Date format karna
@@ -102,10 +104,13 @@ export default function MyPlans({
         return { text: "Success", color: "text-green-600" };
       case "requires_payment_method":
         return { text: "Failed", color: "text-red-600" };
+      case "created":
+        return { text: "Failed", color: "text-red-600" }; // 👈 added this line
       default:
         return { text: status, color: "text-gray-600" };
     }
   };
+
 
   // Plan name extract karna metadata se
   const getPlanName = (metadata) => {
@@ -224,11 +229,11 @@ export default function MyPlans({
                 {isFreeplan
                   ? "N/A"
                   : profileData?.subscription_plan?.recurring_interval
-                      ?.charAt(0)
-                      .toUpperCase() +
-                      profileData?.subscription_plan?.recurring_interval?.slice(
-                        1
-                      ) || "N/A"}
+                    ?.charAt(0)
+                    .toUpperCase() +
+                  profileData?.subscription_plan?.recurring_interval?.slice(
+                    1
+                  ) || "N/A"}
               </div>
             </p>
             <p className="mt-5 ">
@@ -239,8 +244,8 @@ export default function MyPlans({
                 {isFreeplan
                   ? "N/A"
                   : formatDate(
-                      profileData?.subscription_plan?.next_payment_date
-                    )}
+                    profileData?.subscription_plan?.next_payment_date
+                  )}
               </div>
             </p>
             <p className="mt-5 ">
@@ -259,7 +264,7 @@ export default function MyPlans({
               </div>
               <div className="font-inter text-lg font-medium">
                 {subscriptionPlanId === "002" ||
-                subscriptionPlanId === "starter"
+                  subscriptionPlanId === "starter"
                   ? "State"
                   : "N/A"}
 
@@ -309,6 +314,7 @@ export default function MyPlans({
               <tbody className="font-inter font-medium">
                 {transactions.map((tx) => {
                   const statusInfo = getPaymentStatus(tx.status);
+                  console.log(statusInfo, "ssssssssssssssss")
                   return (
                     <tr
                       key={tx.id}
@@ -335,11 +341,10 @@ export default function MyPlans({
                       <td className="py-3 px-4 flex justify-center">
                         <a href={tx.invoice_url} target="_blank">
                           <FiDownload
-                            className={`transition-colors ${
-                              tx.status === "succeeded"
-                                ? "cursor-pointer hover:text-primary text-gray-700"
-                                : "cursor-not-allowed text-gray-300"
-                            }`}
+                            className={`transition-colors ${tx.status === "succeeded"
+                              ? "cursor-pointer hover:text-primary text-gray-700"
+                              : "cursor-not-allowed text-gray-300"
+                              }`}
                             onClick={() => tx.status === "succeeded"}
                             title={
                               tx.status === "succeeded"
