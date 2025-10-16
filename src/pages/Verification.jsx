@@ -373,7 +373,7 @@ function Verification() {
       </div>
 
       <div className="sticky top-0">
-        <FormImg src={"login-img.png"} />
+        <FormImg src={"email-verification.webp"} />
       </div>
     </ProcessWrapper>
   );

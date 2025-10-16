@@ -492,7 +492,7 @@ function CompanyBuild() {
         </div>
       </div>
       <div className="sticky top-0">
-        <FormImg src={"compang-build.png"} />
+        <FormImg src={"company-build.webp"} />
       </div>
     </ProcessWrapper>
   );

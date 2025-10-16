@@ -829,7 +829,7 @@ useEffect(() => {
           </div>
 
           <div className="dashboard-feature pt-20">
-            <div className="flex justify-between items-center  gap-4">
+            <div className="md:flex justify-between items-center  md:gap-4">
               <div className="feature-left hidden md:flex gap-4 items-center">
                 <div
                   className={`bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer ${restrictions?.advanceSearch ? 'opacity-50 bg-white/10' : ''
@@ -919,7 +919,7 @@ useEffect(() => {
                   />
                 )}
               </div>
-              <div className="feature-right md:w-full 2xl:w-auto ">
+              <div className="feature-right hidden md:block md:w-full 2xl:w-auto ">
                 <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div
@@ -1005,9 +1005,9 @@ useEffect(() => {
                         </div>
                       </BgCover>
                     </div>
-                    <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
+                    {/* <div className=" md:hidden bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer text-white">
                       <i class="fas fa-sort-alt"></i>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

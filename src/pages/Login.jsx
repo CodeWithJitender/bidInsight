@@ -182,7 +182,7 @@ function Login() {
         </div>
       </div>
       <div className="sticky top-0">
-        <FormImg src={"loginbid.png"} />
+        <FormImg src={"loginbid.webp"} />
       </div>
     </ProcessWrapper>
   );

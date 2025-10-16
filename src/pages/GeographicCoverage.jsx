@@ -521,7 +521,7 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
       </div>
 
       <div className="sticky top-0">
-        <FormImg src={"geographic-coverage.png"} />
+        <FormImg src={"geographic-coverage.webp"} />
       </div>
 
       <FeatureRestrictionPopup
