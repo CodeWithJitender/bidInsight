@@ -198,29 +198,93 @@ export default function UserProfile() {
       return "Invalid Date";
     }
   };
-  const handleLogout = async () => {
-    try {
-      console.log("Logout clicked - starting cleanup...");
+  // const handleLogout = async () => {
+  //   try {
+  //     console.log("Logout clicked - starting cleanup...");
 
-      // 🔥 Sabhi slices clear karo
-      dispatch(clearProfile());
-      dispatch(logoutUser()); // authSlice
-      dispatch(clearLoginData()); // loginSlice
-      dispatch(clearOnboardingData()); // onboardingSlice ✅
-      dispatch(clearSavedSearches()); // savedSearchesSlice (new action)
+  //     // 🔥 Sabhi slices clear karo
+  //     dispatch(clearProfile());
+  //     dispatch(logoutUser()); // authSlice
+  //     dispatch(clearLoginData()); // loginSlice
+  //     dispatch(clearOnboardingData()); // onboardingSlice ✅
+  //     dispatch(clearSavedSearches()); // savedSearchesSlice (new action)
 
-      await persistor.purge();
-      localStorage.clear();
-      sessionStorage.clear();
+  //     await persistor.purge();
+  //     localStorage.clear();
+  //     sessionStorage.clear();
 
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Logout error:", error);
-      navigate("/login", { replace: true });
-    }
-  };
+  //     navigate("/login", { replace: true });
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //     navigate("/login", { replace: true });
+  //   }
+  // };
 
   // User data nikalna
+  
+ const handleLogout = async () => {
+  try {
+    console.log("Logout clicked — starting full site cleanup...");
+
+    // 1️⃣ Clear Redux state
+    dispatch(clearProfile());
+    dispatch(logoutUser());
+    dispatch(clearLoginData());
+    dispatch(clearOnboardingData());
+    dispatch(clearSavedSearches());
+
+    // 2️⃣ Clear Redux persist data
+    await persistor.purge();
+
+    // 3️⃣ Clear localStorage & sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 4️⃣ Clear cookies for current domain (works on localhost & real domains)
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(
+          /=.*/,
+          `=;expires=${new Date(0).toUTCString()};path=/;domain=${window.location.hostname}`
+        );
+    });
+
+    // 5️⃣ Clear Cache Storage (used by service workers or fetch)
+    if ("caches" in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      console.log("Cache storage cleared!");
+    }
+
+    // 6️⃣ Clear IndexedDB databases
+    if ("indexedDB" in window) {
+      const dbs = await indexedDB.databases();
+      for (const db of dbs) {
+        await indexedDB.deleteDatabase(db.name);
+      }
+      console.log("IndexedDB cleared!");
+    }
+
+    // 7️⃣ Unregister Service Workers (important for PWAs)
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of registrations) {
+        await reg.unregister();
+      }
+      console.log("Service workers unregistered!");
+    }
+
+    // 8️⃣ Redirect user to login
+    navigate("/login", { replace: true });
+  } catch (error) {
+    console.error("Logout error:", error);
+    navigate("/login", { replace: true });
+  }
+};
+
+
+  
   const getUserData = () => {
     try {
       // Pehle auth mein check karo

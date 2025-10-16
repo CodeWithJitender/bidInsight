@@ -179,13 +179,13 @@ const Navbar = () => {
             </button>
           </div>
            {/* Right Buttons (Desktop) */}
-          <div className="flex items-center md:space-x-3 order-3">
+          <div className="flex  items-center md:space-x-3 order-3">
             {isAuthenticated ? (
               <Link
                 to="/user-profile"
                 className={`flex items-center`}
               >
-                <i class="fas fa-user-circle text-xl md:text-2xl lg:text-3xl"></i>
+                <i class="fas text-slate-300 fa-user-circle text-xl md:text-2xl lg:text-3xl"></i>
                 {/* <FontAwesomeIcon
                   icon={faUser}
                   className="transition-transform duration-300 group-hover:scale-110"
