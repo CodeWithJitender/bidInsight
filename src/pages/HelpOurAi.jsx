@@ -668,7 +668,7 @@ function HelpOurAi() {
           </div>
         </div>
         <div className="sticky top-0">
-          <FormImg src="help-ai.png" />
+          <FormImg src="help-our-ai.webp" />
         </div>
       </ProcessWrapper>
     );

@@ -492,7 +492,7 @@ useEffect(() => {
         </div>
       </div>
       <div className="sticky top-0">
-        <FormImg src={"loginbid.png"} />
+        <FormImg src={"register.webp"} />
       </div>
     </ProcessWrapper>
   );

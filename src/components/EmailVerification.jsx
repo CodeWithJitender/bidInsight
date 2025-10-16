@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import FormImg from "./FormImg";
 
 function EmailVerification() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -102,15 +103,16 @@ function EmailVerification() {
         </div>
 
         {/* Right Panel (Image) */}
-        <div className="hidden lg:block">
+        <FormImg src={"email-verification.webp"}/>
+        {/* <div className="hidden lg:block">
           <div className="bg-[#1A237E] rounded-[50px] p-10 flex justify-center items-center h-full">
             <img
-              src="/verify-phones.png"
+              src="/email-verification.webp"
               alt="Smart Bidding"
               className="max-h-[80vh] object-contain"
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

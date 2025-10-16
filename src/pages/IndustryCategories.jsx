@@ -308,7 +308,7 @@ function IndustryCategories() {
         </div>
 
         <div className="sticky top-0">
-          <FormImg src={"industry-categories.png"} />
+          <FormImg src={"industry-categories.webp"} />
         </div>
       </ProcessWrapper>
     );
