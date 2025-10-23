@@ -19,6 +19,8 @@ function FormMultiSelect({
   required = true,
   value = [],
   onChange,
+  inputRef = null,        // 🔥 NEW: Accept ref
+  highlightClass = "",  
 }) {
   const dropdownRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -131,6 +133,7 @@ function FormMultiSelect({
 
       {/* Custom Dropdown */}
       <div
+      ref={inputRef}
         className="relative font-t p-3 py-5 rounded-[20px] border border-gray-300 text-white cursor-pointer"
         onClick={handleDropdownToggle}
       >

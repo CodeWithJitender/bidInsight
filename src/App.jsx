@@ -8,7 +8,6 @@ import ProtectedRoute from "./protectedRoute/ProtectedRoute";
 import ShimmerSummaryCard from "./components/shimmereffects/ShimmerSummaryCard.jsx";
 import AiToolSet from "./pages/AiToolSet.jsx";
 import HelpCenter from "./pages/HelpCenter.jsx";
-import OTPVerification from "./components/OTPVerification.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import PaymentPage from "./pages/Payment.jsx";
 import PaymentStatus from "./pages/PaymentStatus.jsx";
