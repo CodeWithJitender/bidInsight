@@ -829,8 +829,8 @@ useEffect(() => {
           </div>
 
           <div className="dashboard-feature pt-20">
-            <div className="md:flex justify-between items-center  md:gap-4">
-              <div className="feature-left hidden md:flex gap-4 items-center">
+            <div className="flex flex-wrap justify-between items-center  md:gap-4">
+              <div className="feature-left hidden md:flex gap-4 items-center w-full justify-between">
                 <div
                   className={`bg-btn p-4 w-[56px] h-[56px] rounded-[16px] flex justify-center items-center cursor-pointer ${restrictions?.advanceSearch ? 'opacity-50 bg-white/10' : ''
                     }`}
@@ -856,7 +856,7 @@ useEffect(() => {
                   )}
                 </div>
                 <div>
-                  <div className="hidden lg:flex items-center gap-3">
+                  <div className="hidden md:flex items-center justify-center lg:justify-between w-full lg:w-auto gap-3">
                     <span className="text-white text-sm font-normal">Full View</span>
 
                     {/* Toggle Switch - Exact Design */}
@@ -900,9 +900,7 @@ useEffect(() => {
                 </div>
               </div>
 
-
-
-              <div className="dashboard-middle">
+              <div className="dashboard-middle w-full xl:w-auto">
                 {loading ? (
                   <StatShimmer />
                 ) : (
@@ -919,7 +917,8 @@ useEffect(() => {
                   />
                 )}
               </div>
-              <div className="feature-right hidden md:block md:w-full 2xl:w-auto ">
+
+              <div className="feature-right hidden md:block w-full xl:w-auto ">
                 <div className="flex gap-4 items-center justify-between">
                   {/* Export Button (already has restrictions) */}
                   <div

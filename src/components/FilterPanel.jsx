@@ -483,7 +483,7 @@ const FilterPanel = ({ onClose, filters: propFilters, setFilters: setPropFilters
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-screen z-[500] flex">
+    <div className="fixed top-0 left-0 w-full h-screen z-[500000] flex">
       {/* Sidebar */}
       <div className="w-[30%] bg-blue text-white p-10 flex flex-col justify-between">
         <div>

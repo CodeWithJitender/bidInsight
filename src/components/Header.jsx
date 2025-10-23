@@ -19,7 +19,7 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   return (
-    <header className='fixed top-0 w-full' id='header'>
+    <header className='fixed top-0 w-full z-[100000]' id='header'>
      <Navbar/>
     </header>
   )

@@ -118,7 +118,7 @@ const DashboardStats = ({
   ];
 
   return (
-    <div className="flex gap-3 text-[1em] justify-between ">
+    <div className="flex gap-3 text-[1em] justify-center w-full xl:w-auto  ">
       {stats.map((item) => (
         <div className={`featue-${item.id}`} key={item.id}>
           <BgCover 
@@ -127,8 +127,8 @@ const DashboardStats = ({
             onClick={item.onClick || (() => {})}
           >
             <div className={`flex flex-wrap flex-col justify-center md:flex-row gap-2 items-center`}>
-              <div className="text-[12px] lg:text-base font-inter text-[#DBDBDB]">{item.title}</div>
-              <p className="text-[12px] num lg:text-xl font-inter font-semibold text-white">
+              <div className="text-[12px] md:text-base font-inter text-[#DBDBDB]">{item.title}</div>
+              <p className="text-[12px] num md:text-xl font-inter font-semibold text-white">
                 {item.num}
               </p>
             </div>
