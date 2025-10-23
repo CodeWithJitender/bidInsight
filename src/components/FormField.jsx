@@ -13,6 +13,7 @@ function FormField({
   onBlur,
   message = "",
   messageType = "",
+  disabled = false, // NEW: Added disabled prop with default false
 }) {
   const isSuccess = messageType === "success";
 
@@ -26,11 +27,14 @@ function FormField({
         id={name}
         name={name}
         placeholder={placeholder}
-        className="form-input font-t p-3 rounded-[20px] bg-transparent border border-gray-300 focus:ring-0"
+        className={`form-input font-t p-3 rounded-[20px] bg-transparent border border-gray-300 focus:ring-0 ${
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        }`} // NEW: Added disabled styling
         value={value}
         onChange={onChange}
         onBlur={onBlur}
         autoComplete="off"
+        disabled={disabled} // NEW: Added disabled attribute
       />
       {message && (
         <p className={`text-sm flex items-center gap-1 mt-0.5 mb-1 ${isSuccess ? "text-green-400" : "text-red-400"}`}>

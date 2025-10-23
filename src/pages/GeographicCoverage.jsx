@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { saveGeographicCoverage } from "../redux/reducer/onboardingSlice";
 import { fetchUserProfile } from "../redux/reducer/profileSlice";
@@ -27,6 +27,8 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
     pSize: "text-xl",
   };
 
+ 
+
   const formHeader = {
     title: "Log In",
     link: "/login",
@@ -51,7 +53,7 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
   const [regionMapping, setRegionMapping] = useState({});
   const [skipClicked, setSkipClicked] = useState(false);
   const [showSavedSearchPopup, setShowSavedSearchPopup] = useState(false);
-
+  // const [stateFieldRef, setStateFieldRef] = useState(null);
   // 🔥 NEW: Validation states (HelpOurAi pattern)
   const [showValidation, setShowValidation] = useState(false);
   const [touchedFields, setTouchedFields] = useState({
@@ -59,7 +61,7 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
     regions: false,
     states: false,
   });
-
+ const stateFieldRef = useRef(null);
   const [popupState, setPopupState] = useState({
     isOpen: false,
     title: "",
@@ -85,10 +87,43 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
     setPopupState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleUpgrade = () => {
-    navigate("/pricing");
-    handleClosePopup();
-  };
+ const handleUpgrade = () => {
+  navigate("/pricing");
+  handleClosePopup();
+};
+
+// 🔥 ADD THIS NEW FUNCTION
+const handleSelectStateInstead = () => {
+  // Step 1: Close popup
+  setShowSavedSearchPopup(false);
+  
+  // Step 2: Smooth scroll after small delay
+  setTimeout(() => {
+    if (stateFieldRef.current) {
+      stateFieldRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      // Step 3: Add glow effect
+      stateFieldRef.current.classList.add('field-highlight');
+      
+      // Step 4: Focus and open dropdown
+      setTimeout(() => {
+        const selectInput = stateFieldRef.current.querySelector('input');
+        if (selectInput) {
+          selectInput.focus();
+          selectInput.click();
+        }
+      }, 700);
+      
+      // Step 5: Remove glow
+      setTimeout(() => {
+        stateFieldRef.current.classList.remove('field-highlight');
+      }, 2500);
+    }
+  }, 300);
+};
 
   // ✅ 1. Fetch profile on mount
   useEffect(() => {
@@ -486,15 +521,19 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
                 </div>
               )}
 
-              <FormMultiSelect
-                label="Select State"
-                name="industries"
-                placeholder="Choose State"
-                options={stateOptions}
-                value={selectedStates}
-                onChange={handleStateChange}
-                menuPlacement="auto"
-              />
+              <div className="state-field-wrapper">
+  <FormMultiSelect
+    label="Select State"
+    name="industries"
+    placeholder="Choose State"
+    options={stateOptions}
+    value={selectedStates}
+    onChange={handleStateChange}
+    menuPlacement="auto"
+    inputRef={stateFieldRef}  // 🔥 Pass ref as prop
+    highlightClass="field-highlight"  
+  />
+</div>
 
               {/* 🔥 FIXED: Validation message display */}
               <div style={{ marginTop: 14 }}>
@@ -534,14 +573,27 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
         showUpgradeButton={popupState.showUpgradeButton}
       />
 
-      <SavedSearchPopup
-        isOpen={showSavedSearchPopup}
-        onClose={() => setShowSavedSearchPopup(false)}
-        title="Location Access Restricted"
-        message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and regions."
-        upgradeButtonText="Upgrade Plan"
-        cancelButtonText="Got It"
-      />
+     <SavedSearchPopup
+  isOpen={showSavedSearchPopup}
+  onClose={() => {
+    setShowSavedSearchPopup(false);
+    // Auto-scroll when popup closes
+    setTimeout(() => {
+      if (stateFieldRef.current) {
+        stateFieldRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        stateFieldRef.current.classList.add('field-highlight');
+        setTimeout(() => {
+          stateFieldRef.current.classList.remove('field-highlight');
+        }, 1000);
+      }
+    }, 100);
+  }}
+  title="Location Access Restricted"
+  message="Starter plan includes 1 state access. Please select one state below to continue."
+  upgradeButtonText="Upgrade Plan"
+  cancelButtonText="Got It"
+  onCancel={handleSelectStateInstead}
+/>
     </ProcessWrapper>
   );
 }

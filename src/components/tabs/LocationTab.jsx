@@ -94,8 +94,18 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
   const planCode = useSelector(state => state.profile?.profile?.subscription_plan?.plan_code);
   const activeAddonState = useSelector(state => state.profile?.profile?.subscription_plan?.active_addon?.state);
   // Existing Redux selectors ke saath add karo
-  const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
-  const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
+  // const userStates = useSelector((state) => state.profile?.profile?.profile?.states || []);
+  // const profileStates = useSelector(state => state.profile?.profile?.profile?.states) || [];
+
+  // ✅ FIXED: Memoized Redux selectors to prevent unnecessary re-renders
+const userStates = useSelector(
+  (state) => state.profile?.profile?.profile?.states || [],
+  (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+);
+const profileStates = useSelector(
+  (state) => state.profile?.profile?.profile?.states || [],
+  (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+);
   console.log(activeAddonState)
   const isEssentialPlan = planCode === "003";
 
@@ -105,6 +115,9 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
     const newLocationState = initializeLocationState(filters.location);
     setLocationState(newLocationState);
   }, []);
+
+  const userStatesLength = userStates.length;
+const activeAddonStateId = activeAddonState?.id;
 
   // Fetch states from API
   useEffect(() => {
@@ -172,7 +185,7 @@ const LocationTab = ({ filters = {}, setFilters = () => { }, onCloseFilterPanel 
       }
     };
     fetchStates();
-  }, [userStates, activeAddonState, planCode]);
+  }, [userStatesLength, activeAddonStateId, planCode]);
 
   // Ye function names change karo
   const handleBoltOnClick = async () => {
