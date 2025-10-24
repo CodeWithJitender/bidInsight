@@ -20,6 +20,7 @@ import {
   deleteRequest,
   confirmDelete,
 } from "../../services/user.service";
+import { changePaymentMethodAPI } from "../../services/pricing.service";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ConfirmationModal from "./ConfirmationModal";
 import { clearProfile } from "../../redux/reducer/profileSlice";
@@ -68,6 +69,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
   const reduxProfileData = useSelector((state) => {
     return state.profile.profile ? state.profile.profile.email : "";
   });
+
 
   console.log(reduxProfileData, "🔥 Profile Data from Redux");
   const userEmail = reduxProfileData || "";
@@ -127,7 +129,28 @@ export default function AccountSetting({ fullName, lastLogin }) {
     return () => clearInterval(interval);
   }, [passwordCooldown]);
 
-  const settings = [
+
+    // Get subscription plan from Redux store
+const subscriptionPlan = useSelector((state) => {
+  return state.profile.profile?.subscription_plan || null;
+});
+
+console.log(subscriptionPlan, "🔥 Subscription Plan from Redux");
+
+
+// Check if payment method should be hidden
+const shouldHidePaymentMethod = () => {
+  if (!subscriptionPlan) return true; // Hide if no plan data
+  
+  const planName = subscriptionPlan.name?.toLowerCase();
+  const planCode = subscriptionPlan.plan_code;
+  
+  // Hide for Free, Sneak plans or plan_code 001
+  return planName === 'free' || planName === 'sneak' || planCode === '001';
+};
+
+
+  const allSettings = [
     {
       title: "Change payment method",
       description: "Change your payment method",
@@ -174,6 +197,15 @@ export default function AccountSetting({ fullName, lastLogin }) {
       action: "delete",
     },
   ];
+
+  const filteredSettings = allSettings.filter(setting => {
+  if (setting.action === 'payment' && shouldHidePaymentMethod()) {
+    return false; // Hide payment method
+  }
+  return true; // Show all other settings
+});
+
+  
 
   // Email alert options
   const emailAlertOptions = [
@@ -356,10 +388,28 @@ export default function AccountSetting({ fullName, lastLogin }) {
     }
   };
 
+  // Add new state for payment error
+  const [paymentError, setPaymentError] = useState("");
+
   // Handle setting click
   const handleSettingClick = async (action) => {
     if (action === "payment") {
-      navigate("/user-profile/change-payment-method");
+      try {
+        setPaymentError(""); // Clear any previous error
+        console.log("🔥 Initiating payment method change...");
+        const response = await changePaymentMethodAPI();
+        
+        if (response?.url) {
+          console.log("✅ Opening Stripe URL:", response.url);
+          window.open(response.url, '_blank');
+        } else {
+          console.error("❌ No URL received from payment method API");
+          setPaymentError("Something went wrong. Please try again later.");
+        }
+      } catch (error) {
+        console.error("❌ Error changing payment method:", error);
+        setPaymentError("Something went wrong. Please try again later.");
+      }
       return;
     }
 
@@ -432,7 +482,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
 
       {/* Settings List */}
       <div className="space-y-4">
-        {settings.map((item, i) => (
+        {filteredSettings.map((item, i) => (
           <div className="max-w-2xl relative" key={i}>
             <div className="flex items-center gap-2 mb-3 w-full justify-between">
               <p className="text-sm font-medium text-gray-500 font-inter">
@@ -523,6 +573,9 @@ export default function AccountSetting({ fullName, lastLogin }) {
                   </div>
                 ))}
               </div>
+            )}
+            {item.action === "payment" && paymentError && (
+              <p className="mt-2 text-red-500 text-sm">{paymentError}</p>
             )}
           </div>
         ))}
