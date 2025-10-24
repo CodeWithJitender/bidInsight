@@ -15,6 +15,7 @@ import ConfirmPassword from "./pages/ConfirmPassword.jsx";
 import { fetchUserProfile } from "./redux/reducer/profileSlice.js";
 import ForgotVerification from "./pages/ForgotVerification.jsx";
 import ChangePaymentMethod from "./pages/ChangePaymentMethod.jsx";
+import ChangePaymentPopup from "./components/ChangePaymentPopup.jsx";
 // import PaymentPopup from "./components/PaymentPopup.jsx";
 
 // Lazy-loaded Pages
@@ -120,6 +121,7 @@ const App = () => {
           <Route path="/payment-status" element={<ProtectedRoute><PaymentStatus /></ProtectedRoute>} />
           <Route path="/payment" element={<Payment content={content} />} />
           <Route path="/*" element={<Error404 />} />
+          <Route path="/ChangePayment" element={<ChangePaymentPopup />} />
           {/* <Route path="/payment-unsuccessful" element={<PaymentUnsuccessful />} /> */}
         </Routes>
       </Suspense> 
