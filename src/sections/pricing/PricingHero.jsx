@@ -110,6 +110,7 @@ function PricingHero() {
         "All Federal Bids",
         "Unlimited Visible Bids",
         "1 Saved Search",
+        "1 State Access",
         "5 Bookmarks"
       ],
       icon: "/price-2.svg",
