@@ -246,7 +246,7 @@ function PricingHero() {
 
       {/* <EnhancedPricingToggle /> */}
 
-      <div className=" from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-8">
+      <div className="  flex items-center justify-center p-8">
         <div className="text-center">
 
 
@@ -255,7 +255,7 @@ function PricingHero() {
             {/* Glow Effect Background */}
             <div className="absolute inset-0 bg-blue blur-2xl rounded-full animate-pulse"></div>
 
-            <div className="relative bg-gradient-to-r  backdrop-blur-xl p-2 rounded-full border border-blue-500/30 shadow-2xl">
+            <div className="relative  p-2 rounded-full border border-blue-500/30 bg-blue">
               <div className="flex items-center gap-2">
                 {/* Annual Button */}
                 <button
@@ -267,7 +267,7 @@ function PricingHero() {
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Annual"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-primary text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
@@ -279,8 +279,8 @@ function PricingHero() {
                       mt-1 inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold
                       transition-all duration-500
                       ${billingCycle === "Annual"
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)] animate-pulse"
-                          : "bg-emerald-500/20 text-emerald-300"
+                          ? "bg-white text-black shadow-[0_0_20px_rgba(16,185,129,0.6)] animate-pulse"
+                          : "bg-black/50 text-white "
                         }
                     `}>
                       <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -310,7 +310,7 @@ function PricingHero() {
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Monthly"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-primary text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
