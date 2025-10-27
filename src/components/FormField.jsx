@@ -14,13 +14,14 @@ function FormField({
   message = "",
   messageType = "",
   disabled = false, // NEW: Added disabled prop with default false
+  showAsterisk = true, // NEW: control whether to show the "*" mark
 }) {
   const isSuccess = messageType === "success";
 
   return (
     <div className="form-field flex flex-col mb-3 w-[100%] md:w-[90%]">
       <label className="form-label font-t mb-2" htmlFor={name}>
-        {label}
+        {label} {showAsterisk ? "*" : ""}
       </label>
       <input
         type={type === "phone" ? "text" : type}

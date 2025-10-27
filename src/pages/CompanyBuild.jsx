@@ -104,9 +104,10 @@ function CompanyBuild() {
   const validateField = (name, value) => {
     let msg = "";
     let type = "error";
+    // Allow companyWebsite to be empty (no validation message) and upload optional
     if (!value || (name === "upload" && !value)) {
-      if (name === "upload") {
-        msg = ""; // No error for optional upload
+      if (name === "upload" || name === "companyWebsite") {
+        msg = ""; // No error for optional upload or empty companyWebsite
         type = "";
       } else {
         msg = "This field is required";
@@ -114,9 +115,7 @@ function CompanyBuild() {
     } else {
       if (name === "companyWebsite") {
         const urlRegex = /^(https?:\/\/)?(www\.)?([\w-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
-        msg = urlRegex.test(value)
-          ? "Website is valid"
-          : "Enter a valid url";
+        msg = urlRegex.test(value) ? "Website is valid" : "Enter a valid url";
         type = urlRegex.test(value) ? "success" : "error";
       } else if (name === "upload") {
         if (value && value.name) {
@@ -159,12 +158,12 @@ function CompanyBuild() {
   const getMessageType = (name) => {
     if (!touched[name]) return "";
     if (name === "companyWebsite") {
-      // Use the same regex as above for consistency
+      // If empty, don't show validation state
+      if (!fields[name]) return "";
       const urlRegex = /^(https?:\/\/)?(www\.)?([\w-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
       return urlRegex.test(fields[name]) ? "success" : "error";
     }
     if (name === "upload") {
-      // If file is selected and has a name, return success
       return fields.upload && fields.upload.name ? "success" : "error";
     }
     if (["yearInBusiness", "numberOfEmployees", "state", "targetContractSize"].includes(name)) {
@@ -183,17 +182,23 @@ function CompanyBuild() {
 
     Object.keys(fields).forEach((key) => {
       newTouched[key] = true;
-      if ((!fields[key] && key !== "upload")) {
+      // Make companyWebsite optional (don't require)
+      if ((!fields[key] && key !== "upload" && key !== "companyWebsite")) {
         newErrors[key] = "This field is required";
         valid = false;
       } else {
         if (key === "companyWebsite") {
-          const urlRegex = /^(https?:\/\/)?(www\.)?([\w-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
-          if (!urlRegex.test(fields[key])) {
-            newErrors[key] = "Enter a valid website URL (must start with http:// or https://)";
-            valid = false;
+          // If empty, keep no error; otherwise validate format
+          if (!fields[key]) {
+            newErrors[key] = "";
           } else {
-            newErrors[key] = "Website is valid";
+            const urlRegex = /^(https?:\/\/)?(www\.)?([\w-]+\.)+[a-zA-Z]{2,}(\/\S*)?$/;
+            if (!urlRegex.test(fields[key])) {
+              newErrors[key] = "Enter a valid website URL (must start with http:// or https://)";
+              valid = false;
+            } else {
+              newErrors[key] = "Website is valid";
+            }
           }
         } else if (key === "companyFienOrSsn") {
           // Updated validation - only digits, no special characters
@@ -329,7 +334,7 @@ function CompanyBuild() {
           >
             <div className="">
               <FormField
-                label="Company name *"
+                label="Company name "
                 type="text"
                 name="companyName"
                 placeholder="e.g. BidInsight "
@@ -353,7 +358,7 @@ function CompanyBuild() {
                 messageType={getMessageType("companyFienOrSsn")}
               /> */}
               <FormField
-                label="Company website *"
+                label="Company website"
                 type="text"
                 name="companyWebsite"
                 placeholder="e.g. www.mark-jospeh.com"
@@ -363,6 +368,7 @@ function CompanyBuild() {
                 onBlur={handleBlur}
                 message={touched.companyWebsite || errors.companyWebsite ? errors.companyWebsite : ""}
                 messageType={getMessageType("companyWebsite")}
+                showAsterisk={false} // NEW: don't show '*' for optional website
               />
 
 

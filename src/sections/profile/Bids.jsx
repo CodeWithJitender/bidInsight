@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import BookmarkTable from './BookmarkTable';
 import { 
   totalBookmarkedBids, 
@@ -81,12 +81,12 @@ function Bids() {
       
       return {
        id: item.id, // This is the top-level ID (174 in your example)
-      bidId: bid.id, // This is the bid ID (27800 in your example) 
-      entityType: bid.entity_type || 'N/A',
-      bidName: bid.bid_name || 'N/A',
-      openDate: formatDate(bid.open_date),
-      closedDate: formatDate(bid.closing_date),
-      countdown: calculateCountdown(bid.closing_date),
+      bidId: bid?.id ?? "-", // This is the bid ID (27800 in your example) 
+      entityType: bid?.entity_type || "-", 
+      bidName: bid?.bid_name || "-",
+      openDate: formatDate(bid?.open_date),
+      closedDate: formatDate(bid?.closing_date),
+      countdown: calculateCountdown(bid?.closing_date),
       originalData: item // Keep for reference
       };
     });
@@ -94,27 +94,29 @@ function Bids() {
 
   // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return '-';
     
     try {
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '-';
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
       });
     } catch {
-      return dateString;
+      return '-';
     }
   };
 
   // Calculate countdown
   const calculateCountdown = (closingDate) => {
-    if (!closingDate) return 'N/A';
+    if (!closingDate) return '-';
     
     try {
       const now = new Date();
       const closing = new Date(closingDate);
+      if (isNaN(closing.getTime())) return '-';
       const diffTime = closing - now;
       
       if (diffTime <= 0) return 'Closed';
@@ -128,7 +130,7 @@ function Bids() {
       if (diffMonths === 1) return '1 month';
       return `${diffMonths} months`;
     } catch {
-      return 'N/A';
+      return '-';
     }
   };
 

@@ -52,7 +52,7 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
                 },
                 { 
                     label: "Transaction Date", 
-                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')
+                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-US') : new Date().toLocaleDateString('en-US')
                 },
                 { 
                     label: "Amount", 
@@ -97,7 +97,7 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
                 },
                 { 
                     label: "Attempted Date", 
-                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')
+                    value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-US') : new Date().toLocaleDateString('en-US')
                 },
                 { 
                     label: "Amount", 

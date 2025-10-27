@@ -142,11 +142,25 @@ function PricingCard({
         <img src={icon} className="w-full" alt={title} />
       </div>
 
-      {/* Title + Price */}
+      {/* Title + Price Section */}
       <h3 className="text-[30px] font-h font-semibold text-start">{title}</h3>
-      <div className="flex items-center gap-3">
-        <div className="text-[50px] font-bold font-h">
-          {price === "0" ? "Free" : `$${price}`}
+      <div className="flex flex-col space-y-0.5"> {/* Reduced space from space-y-1 to space-y-0.5 */}
+        {/* Price Display */}
+        <div className="flex items-baseline mt-5 gap-2">
+          <span className="text-[50px] font-bold font-h leading-[1] tracking-tight">
+            {price === "0" ? "Free" : `$${price}`}
+          </span>
+          <span className="text-[20px] font-medium text-white/90">
+            {duration === "year" ? "/year" : "/mo"}
+          </span>
+        </div>
+
+        {/* Tax Note - Left aligned with reduced top gap */}
+        <div 
+          className="text-[13px] font-normal text-white/60 tracking-wide text-left pl-1"
+          title="Taxes will be calculated based on your billing location"
+        >
+          Plus applicable taxes
         </div>
       </div>
 

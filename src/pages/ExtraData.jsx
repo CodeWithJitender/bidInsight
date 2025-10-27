@@ -435,7 +435,7 @@ useEffect(() => {
       // Enabled field - normal interactive behavior
       return {
         ...baseProps,
-        placeholder: "Enter amount (e.g., 50000)",
+        placeholder: "Enter amount (e.g., $50000)",
         onChange: handleChange,
         onBlur: handleBlur,
         message: isFieldTouched && fieldError ? fieldError : "",
