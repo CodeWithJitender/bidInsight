@@ -16,9 +16,6 @@ function PricingCard({
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log("planId->>>>>>>>>>>>>>>>>>>>", planID);
-  console.log("Interval->>>>>>>>>>>>>>>>>>>>", duration);
-
   // Get subscription plan id from Redux (if logged in)
   const subscriptionPlanId = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || null
@@ -31,7 +28,7 @@ function PricingCard({
 
   // Button state logic
   let buttonText = "Upgrade";
-  let isButtonDisabled = false;
+  let isButtonDisabled = false;  
   let shouldRenderButton = true;
 
   if (!numericSubPlanId) {
