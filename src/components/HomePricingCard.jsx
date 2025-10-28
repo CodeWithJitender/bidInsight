@@ -2,7 +2,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function HomePricingCard({ title, price, features, delay, icon, isComingSoon, planID }) {
+function HomePricingCard({ 
+  title, 
+  price, 
+  features, 
+  delay, 
+  icon, 
+  isComingSoon, 
+  planID,
+  duration 
+}) {
   const navigate = useNavigate();
 
   // Check if user is authenticated
@@ -54,10 +63,15 @@ function HomePricingCard({ title, price, features, delay, icon, isComingSoon, pl
 
       {/* Title + Price */}
       <h3 className="text-[30px] font-h font-semibold text-start">{title}</h3>
-      <div className="flex items-center gap-3">
-        <div className="text-[50px] font-bold font-h">
+      <div className="flex items-baseline mt-5 gap-2">
+        <span className="text-[50px] font-bold font-h leading-[1] tracking-tight">
           {price === "0" ? "Free" : `$${price}`}
-        </div>
+        </span>
+        {price !== "0" && price !== "$$$" && (
+          <span className="text-[20px] font-medium text-white/90">
+            /{duration}
+          </span>
+        )}
       </div>
 
       {/* Action Button */}

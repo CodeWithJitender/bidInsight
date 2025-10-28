@@ -13,7 +13,6 @@ import { fetchUserProfile } from "../../redux/reducer/profileSlice";
 
 function PricingHero() {
   const [billingCycle, setBillingCycle] = useState("Monthly");
-  const [shimmerKey, setShimmerKey] = useState(0); // Add this state
   const [planDetails, setPlanDetails] = useState(null);
   const subscriptionPlanName = useSelector(
     (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
@@ -261,13 +260,12 @@ function PricingHero() {
                 <button
                   onClick={() => {
                     setBillingCycle("Annual");
-                    setShimmerKey(prev => prev + 1); // Trigger new animation
                   }}
                   className={`
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Annual"
-                      ? "bg-primary text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-blue text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
@@ -290,40 +288,23 @@ function PricingHero() {
                       SAVE 5%
                     </span>
                   </span>
-
-                  {/* Shine Effect */}
-                  {billingCycle === "Annual" && (
-                    <span 
-                      key={`annual-${shimmerKey}`}
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1s_ease-out]"
-                    />
-                  )}
                 </button>
 
                 {/* Monthly Button */}
                 <button
                   onClick={() => {
                     setBillingCycle("Monthly");
-                    setShimmerKey(prev => prev + 1); // Trigger new animation
                   }}
                   className={`
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Monthly"
-                      ? "bg-primary text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-blue text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
                 >
                   <span className="relative z-10">Monthly</span>
-
-                  {/* Shine Effect */}
-                  {billingCycle === "Monthly" && (
-                    <span 
-                      key={`monthly-${shimmerKey}`}
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1s_ease-out]"
-                    />
-                  )}
                 </button>
               </div>
             </div>

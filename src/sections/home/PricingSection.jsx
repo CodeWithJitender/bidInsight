@@ -6,7 +6,6 @@ import Heading from "../../components/Heading";
 
 function PricingSection() {
   const [billingCycle, setBillingCycle] = useState("Annual");
-  const [shimmerKey, setShimmerKey] = useState(0); // <-- ADD THIS LINE
   const navigate = useNavigate();
 
   const plans = [
@@ -170,15 +169,12 @@ function PricingSection() {
               <div className="flex items-center gap-2">
                 {/* Annual Button */}
                 <button
-                  onClick={() => {
-                    setBillingCycle("Annual");
-                    setShimmerKey(prev => prev + 1); // Trigger new animation
-                  }}
+                  onClick={() => setBillingCycle("Annual")}
                   className={`
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Annual"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-blue text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
@@ -201,40 +197,21 @@ function PricingSection() {
                       SAVE 5%
                     </span>
                   </span>
-
-                  {/* Shine Effect */}
-                  {billingCycle === "Annual" && (
-                    <span 
-                      key={`annual-${shimmerKey}`}
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1s_ease-out]"
-                    />
-                  )}
                 </button>
 
                 {/* Monthly Button */}
                 <button
-                  onClick={() => {
-                    setBillingCycle("Monthly");
-                    setShimmerKey(prev => prev + 1); // Trigger new animation
-                  }}
+                  onClick={() => setBillingCycle("Monthly")}
                   className={`
                   relative px-8 py-4 rounded-full font-semibold text-base
                   transition-all duration-500 ease-out
                   ${billingCycle === "Monthly"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
+                      ? "bg-blue text-white shadow-[0_0_30px_rgba(59,130,246,0.6)] scale-105"
                       : "text-blue-300 hover:text-white"
                     }
                 `}
                 >
                   <span className="relative z-10">Monthly</span>
-
-                  {/* Shine Effect */}
-                  {billingCycle === "Monthly" && (
-                    <span 
-                      key={`monthly-${shimmerKey}`}
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1s_ease-out]"
-                    />
-                  )}
                 </button>
               </div>
             </div>
@@ -267,20 +244,6 @@ function PricingSection() {
 
 
         <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%) skewX(-15deg);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(100%) skewX(-15deg);
-            opacity: 0;
-          }
-        }
-        
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -319,7 +282,10 @@ function PricingSection() {
                   animationDelay: `${index * 0.1}s`,
                 }}
               >
-                <HomePricingCard {...plan} />
+                <HomePricingCard 
+                  {...plan} 
+                  duration={billingCycle === "Annual" ? "year" : "mo"}
+                />
               </div>
             ))
           : plansYear.map((plan, index) => (
@@ -335,7 +301,10 @@ function PricingSection() {
                   animationDelay: `${index * 0.1}s`,
                 }}
               >
-                <HomePricingCard {...plan} />
+                <HomePricingCard 
+                  {...plan}
+                  duration={billingCycle === "Annual" ? "year" : "mo"}
+                />
               </div>
             ))}
       </div>
