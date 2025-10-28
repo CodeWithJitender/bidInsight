@@ -362,7 +362,7 @@ import {
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import URLBar from "../sections/super-admin/URLBar";
-import { countbidsAdmin, getErrorBids } from "../services/admin.service";
+import { countbidsAdmin, getErrorBids, deleteScrapper } from "../services/admin.service";
 
 export default function SuperAdmin() {
   // Values
@@ -532,6 +532,54 @@ export default function SuperAdmin() {
     } catch {
       return timeStamp || "N/A";
     }
+  };
+
+  // New states and handlers for delete confirmation
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+
+  const handleTrashClick = (bid) => {
+    // Check localStorage first
+    const dontShow = localStorage.getItem('dontShowDeleteConfirm') === 'true';
+    
+    if (dontShow) {
+      handleDelete(bid);
+    } else {
+      setItemToDelete(bid);
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  // Update handleDelete function
+  const handleDelete = async (bid) => {
+    try {
+      setDeleteLoading(bid.id);
+      await deleteScrapper(bid.id);
+      
+      // Close confirmation modal
+      setShowDeleteConfirm(false);
+      
+      // Reset page to 1 and refresh data
+      setPage(1);
+      setErrorBids([]);
+      setHasMore(true);
+      await fetchErrorBids(1, false); // Fetch fresh data
+    
+    } catch (error) {
+      console.error("Delete failed:", error);
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    // Save preference if checkbox is checked
+    if (dontAskAgain) {
+      localStorage.setItem('dontShowDeleteConfirm', 'true');
+    }
+    handleDelete(itemToDelete);
   };
 
   return (
@@ -706,7 +754,8 @@ export default function SuperAdmin() {
             <div className="bg-primary text-white font-semibold text-sm p-3 flex justify-between text-center select-none">
               <span className="w-[10%] font-inter">ID</span>
               <span className="w-[30%] font-inter">Scraper Name</span>
-              <span className="w-[30%] font-inter">Error</span>
+              {/* <span className="w-[30%] font-inter">Error</span> */}
+                  <span className="w-[30%] font-inter">Closing Date</span>
               <span className="w-[30%] font-inter">Entity Type</span>
               <span className="w-[15%] font-inter">Status</span>
               <span className="w-[10%] font-inter">Action</span>
@@ -747,11 +796,18 @@ export default function SuperAdmin() {
                       >
                         {bid.scraper_name || "-"}
                       </span>
-                      <span
+                      {/* <span
                         className="w-[30%] text-center text-red-600 whitespace-nowrap font-inter"
                         title={bid.errors?.error || "N/A"}
                       >
                         {bid.errors?.error || "-"}
+                      </span> */}
+
+                       <span
+                        className="w-[30%] text-center text-red-600 whitespace-nowrap font-inter"
+                        title={bid.errors?.error || "N/A"}
+                      >
+                        {bid.end_time || "-"}
                       </span>
                       <span className="w-[30%] text-center font-inter">
                         {bid.entity_type || "-"}
@@ -762,10 +818,16 @@ export default function SuperAdmin() {
                       >
                         {bid.success ? "Success" : "Failed"}
                       </span>
-                      <span className="w-[10%] text-red-700 text-center cursor-pointer select-none font-inter">
+                      <span className="w-[10%] text-red-700 text-center cursor-pointer select-none font-inter"
+                        onClick={() => handleTrashClick(bid)}
+                      >
                         {/* <i class="fal fa-trash"></i> */}
                         {/* <i class="fas fa-trash-alt"></i> */}
-                        <i class="far fa-trash-alt"></i>
+                        {deleteLoading === bid.id ? (
+                          <i className="fas fa-spinner fa-spin" />
+                        ) : (
+                          <i className="far fa-trash-alt hover:text-red-800" />
+                        )}
                       </span>
                     </div>
                   ))}
@@ -793,6 +855,45 @@ export default function SuperAdmin() {
 
         {/* URLBar Component */}
         <URLBar />
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
+              <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this scraper?
+              </p>
+              
+              {/* Don't ask again checkbox */}
+              <label className="flex items-center gap-2 mb-6">
+                <input
+                  type="checkbox"
+                  checked={dontAskAgain}
+                  onChange={(e) => setDontAskAgain(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-600">Don't ask me again</span>
+              </label>
+
+              <div className="flex justify-end gap-4">
+                <button
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  onClick={handleConfirmDelete}
+                  disabled={deleteLoading === itemToDelete?.id}
+                >
+                  {deleteLoading === itemToDelete?.id ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

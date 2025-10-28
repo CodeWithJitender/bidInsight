@@ -15,30 +15,25 @@ export const getErrorBids = async (page = 1, pageSize = 50) => {
 };
 
 
-export const scrapperBids = async () => {
-    try {
-        // const token = localStorage.getItem("access_token");
-        // const headers   = { Authorization: `Bearer ${token}` };
-    
-        const response = await API.get(`/scrapping/scrapers/`);
-        console.log(response.data);
-        return response.data;
-    } catch (error) {
-        console.error("❌ Error fetching scrapper bids:", error);
-        throw error;
-    }
-}
-
+export const scrapperBids = async (page = 1, pageSize = 10) => {
+  try {
+    const response = await API.get(`/scrapping/scrapers/?page=${page}&pageSize=${pageSize}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching scrapper bids:", error);
+    throw error;
+  }
+};
 
 
 export const postPricingPlans = async (planId) => {
   try {
     const token = localStorage.getItem("access_token");
     const headers = { Authorization: `Bearer ${token}` };
-    
+
     // Send plan_id in the request body
     const payload = { plan_id: planId };
-    
+
     const response = await API.post(`/auth/palns/set-plan/`, payload, { headers });
     console.log(response.data, `✅ Plan ${planId} set successfully`);
     return response.data;
@@ -69,7 +64,7 @@ export const comingsoonPopup = async (payload) => {
   } catch (error) {
     console.error("❌ Error submitting coming soon popup:", error);
     throw error;
-  } 
+  }
 };
 
 
@@ -89,7 +84,7 @@ export const countbidsAdmin = async () => {
     throw error;
   }
 };
-    
+
 
 
 export const runScraper = async (id) => {
@@ -103,6 +98,23 @@ export const runScraper = async (id) => {
     return response.data;
   } catch (error) {
     console.error("❌ Error running scraper:", error);
+    throw error;
+  }
+};
+
+
+
+
+export const deleteScrapper = async (id) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const response = await API.patch(`/scrapping/logs/deactivate/${id}`, { headers });
+    console.log("Delete Scraper Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error deleting scraper:", error);
     throw error;
   }
 };

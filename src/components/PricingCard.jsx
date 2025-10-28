@@ -28,7 +28,7 @@ function PricingCard({
 
   // Button state logic
   let buttonText = "Upgrade";
-  let isButtonDisabled = false;  
+  let isButtonDisabled = false;
   let shouldRenderButton = true;
 
   if (!numericSubPlanId) {
@@ -116,9 +116,8 @@ function PricingCard({
 
   return (
     <div
-      className={`bg-blue text-white h-full  w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${
-        !isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
-      }`}
+      className={`bg-blue text-white h-full  w-full  mx-auto p-6 rounded-3xl shadow-lg flex flex-col border border-white border-1 relative ${!isComingSoon ? "cursor-pointer hover:shadow-xl transition-shadow" : ""
+        }`}
       data-aos="fade-up"
       data-aos-delay={delay}
     >
@@ -153,7 +152,7 @@ function PricingCard({
         </div>
 
         {/* Tax Note - Left aligned with reduced top gap */}
-        <div 
+        <div
           className="text-[13px] font-normal text-white/60 tracking-wide text-left pl-1"
           title="Taxes will be calculated based on your billing location"
         >
@@ -166,19 +165,18 @@ function PricingCard({
       {shouldRenderButton && (
         // <Link to="#pricing-cards">
         <button
-          className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${
-            isComingSoon || isLoading || isButtonDisabled
+          className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:text-blue transition-colors"
-          }`}
+            }`}
           disabled={isComingSoon || isLoading || isButtonDisabled}
           onClick={handlePlanSelection}
         >
           {isComingSoon
             ? "Coming Soon"
             : isLoading
-            ? "Processing..."
-            : buttonText}
+              ? "Processing..."
+              : buttonText}
         </button>
         // </Link>
       )}
