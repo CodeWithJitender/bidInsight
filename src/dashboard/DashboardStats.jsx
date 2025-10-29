@@ -22,6 +22,11 @@ const DashboardStats = ({
 
   // Function to format count display based on restrictions and limits
   const formatCountDisplay = (currentCount, maxLimit, isRestricted) => {
+    // Check for Sneak plan or plan code 001
+    if (planCode === "001" || planInfo?.subscription_plan?.name === "Sneak") {
+      return "0"; // Return zero for restricted plans
+    }
+
     if (isRestricted || maxLimit === 0) {
       return currentCount; // Just show current count for restricted plans
     }
@@ -91,7 +96,7 @@ const DashboardStats = ({
       description: "Bids added in the last 24 hours.",
       onClick: handleNewBidsClickNew, // Add click handler for New Bids
     },
-    { 
+    {
       id: 4,
       title: "Bookmark",
       num: formatCountDisplay(
@@ -121,10 +126,10 @@ const DashboardStats = ({
     <div className="flex gap-3 text-[1em] justify-center w-full xl:w-auto  ">
       {stats.map((item) => (
         <div className={`featue-${item.id}`} key={item.id}>
-          <BgCover 
+          <BgCover
             description={item.description}
             title={item.title}
-            onClick={item.onClick || (() => {})}
+            onClick={item.onClick || (() => { })}
           >
             <div className={`flex flex-wrap flex-col justify-center md:flex-row gap-2 items-center`}>
               <div className="text-[12px] md:text-base font-inter text-[#DBDBDB]">{item.title}</div>

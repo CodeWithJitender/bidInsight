@@ -96,8 +96,11 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
   // ⭐ Handle Complete Form button
   // ⭐ Handle Complete Form button
 const handleCompleteForm = () => {
-  // Always redirect to first page
-  navigate('/geographic-coverage');
+  if (planCode === "002") {
+    navigate('/industry-categories');
+  } else {
+    navigate('/geographic-coverage');
+  }
 };
 
   // ⭐ Debug logs (optional - remove in production)

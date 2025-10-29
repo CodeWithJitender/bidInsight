@@ -294,7 +294,7 @@ export default function MyPlans({
       </div>
 
       {/* Transactions Table - Only show for non-free plans */}
-      {subscriptionPlanId !== "001" && (
+      {/* {subscriptionPlanId !== "001" && ( */}
         <div className=" border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
           {paymentLoading ? (
             <div className="p-6 text-center">Loading payments...</div>
@@ -365,7 +365,7 @@ export default function MyPlans({
             </div>
           )}
         </div>
-      )}
+      {/* )} */}
 
       {/* State Selection Popup - ADD HERE */}
       {/* State Selection Popup with FormSelect */}

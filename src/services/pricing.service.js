@@ -69,3 +69,17 @@ export const changePaymentMethodAPI = async () => {
     throw error;
   }
 };
+
+
+export const cancelSubscription = async () => {
+
+  try {
+    const res = await API.post("/payments/cancel-subscription/");
+    return res.data;
+  } catch (error) {
+    console.error("Error cancelling subscription:", error);
+    throw error;
+  }
+
+}
+
