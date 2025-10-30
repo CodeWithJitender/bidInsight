@@ -376,7 +376,7 @@ useEffect(() => {
             <div>
               {/* Full Name */}
               <FormField
-                label="Full Name *"
+                label="Full Name "
                 type="text"
                 name="fullName"
                 placeholder="e.g. John Doe"
@@ -397,7 +397,7 @@ useEffect(() => {
 
               {/* Email with API Validation */}
               <FormField
-                label="Email *"
+                label="Email "
                 type="email"
                 name="email"
                 placeholder="e.g. jopseph.mark12@gmail.com"
