@@ -25,7 +25,6 @@ function PricingHero() {
       title: "Free",
       price: "0",
       features: [
-        "All Federal Bids",
         "3 Visible Bids Only",
         "Basic Access"
       ],
@@ -39,8 +38,8 @@ function PricingHero() {
       features: [
         "Advanced Search (Filters)",
         "All Federal Bids",
-        "Unlimited Visible Bids",
         "1 Saved Search",
+        "1 State",
         "5 Bookmarks",
         "One additional state as a bolt-on ($9/month)"
       ],
@@ -107,9 +106,8 @@ function PricingHero() {
       features: [
         "Advanced Search (Filters)",
         "All Federal Bids",
-        "Unlimited Visible Bids",
         "1 Saved Search",
-        "1 State Access",
+        "1 State",
         "5 Bookmarks"
       ],
       icon: "/price-2.svg",

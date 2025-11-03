@@ -13,7 +13,6 @@ function PricingSection() {
       title: "Free",
       price: "0",
       features: [
-        "All Federal Bids",
         "3 Visible Bids Only",
         "Basic Access"
       ],
@@ -27,9 +26,9 @@ function PricingSection() {
       features: [
         "Advanced Search (Filters)",
         "All Federal Bids",
-        "Unlimited Visible Bids",
         "1 Saved Search",
         "5 Bookmarks",
+        "1 State",
         "One additional state as a bolt-on ($9/month)"
       ],
       icon: "https://bid-insight.vercel.app/price-2.png",
@@ -95,9 +94,8 @@ function PricingSection() {
       features: [
         "Advanced Search (Filters)",
         "All Federal Bids",
-        "Unlimited Visible Bids",
         "1 Saved Search",
-        "1 State Access",
+        "1 State",
         "5 Bookmarks"
       ],
       icon: "https://bid-insight.vercel.app/price-2.png",
@@ -269,7 +267,7 @@ function PricingSection() {
       {/* Pricing Cards - Using HomePricingCard now */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
         {billingCycle === "Annual"
-          ? plans.map((plan, index) => (
+          ? plansYear.map((plan, index) => (
               <div
                 key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
                 className={`
@@ -288,7 +286,7 @@ function PricingSection() {
                 />
               </div>
             ))
-          : plansYear.map((plan, index) => (
+          : plans.map((plan, index) => (
               <div
                 key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
                 className={`
