@@ -96,11 +96,11 @@ function Profile({ fullName, lastLogin, profileData, onProfileUpdate, loading })
   // ⭐ Handle Complete Form button
   // ⭐ Handle Complete Form button
 const handleCompleteForm = () => {
-  if (planCode === "002") {
-    navigate('/industry-categories');
-  } else {
+  // if (planCode === "002") {
+    // navigate('/industry-categories');
+  // } else {
     navigate('/geographic-coverage');
-  }
+  // }
 };
 
   // ⭐ Debug logs (optional - remove in production)

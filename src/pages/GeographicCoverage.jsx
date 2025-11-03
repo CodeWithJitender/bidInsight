@@ -55,6 +55,10 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
   const [showSavedSearchPopup, setShowSavedSearchPopup] = useState(false);
   // const [stateFieldRef, setStateFieldRef] = useState(null);
   // 🔥 NEW: Validation states (HelpOurAi pattern)
+
+  // 🔥 NEW: State lock management
+const [isStateFieldLocked, setIsStateFieldLocked] = useState(false);
+const [lockedStateName, setLockedStateName] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [touchedFields, setTouchedFields] = useState({
     nationwide: false,
@@ -68,6 +72,7 @@ function GeographicCoverage({ onFeatureRestriction = () => {} }) {
     message: "",
     featureName: "",
     showUpgradeButton: true,
+    showChangeStateButton: false,
   });
 
   console.log(profileData, "🔥 Profile data in GeographicCoverage");
@@ -125,11 +130,62 @@ const handleSelectStateInstead = () => {
   }, 300);
 };
 
+// 🔥 NEW: Handle locked state field click
+const handleLockedStateClick = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  console.log("🚫 Locked state field clicked!");
+  
+  setPopupState({
+    isOpen: true,
+    title: "State Selection Locked",
+    message: `You currently have ${lockedStateName} in your Starter plan. Upgrade to access all 50 states, or change to another single state.`,
+    featureName: "Multi-State Access",
+    showUpgradeButton: true,
+    showChangeStateButton: true, // 🔥 Show "Change State" button
+  });
+};
+
+// 🔥 NEW: Allow user to change state (unlock field temporarily)
+const handleChangeState = () => {
+  console.log("🔓 Allowing state change...");
+ navigate("/pricing");
+};
+
   // ✅ 1. Fetch profile on mount
   useEffect(() => {
     dispatch(fetchUserProfile());
     console.log("🔥 Profile fetched on Geographic Coverage page");
   }, [dispatch]);
+
+
+  // 🔥 NEW: Detect if state field should be locked
+useEffect(() => {
+  console.log("🔒 Checking state lock conditions...");
+  
+  const isStarter = planInfo?.plan_code === "002" || planInfo?.isStarter;
+  const hasStates = profileData?.profile?.states?.length > 0;
+  
+  console.log("🔍 Lock Check:", {
+    isStarter,
+    hasStates,
+    statesCount: profileData?.profile?.states?.length,
+    planCode: planInfo?.plan_code
+  });
+
+  if (isStarter && hasStates) {
+    const stateName = profileData.profile.states[0]?.name || "your selected state";
+    console.log("🔒 LOCKING state field. Current state:", stateName);
+    
+    setIsStateFieldLocked(true);
+    setLockedStateName(stateName);
+  } else {
+    console.log("🔓 State field is UNLOCKED");
+    setIsStateFieldLocked(false);
+    setLockedStateName("");
+  }
+}, [planInfo?.plan_code, planInfo?.isStarter, profileData?.profile?.states]);
 
   // ✅ 2. Fetch regions from API
   useEffect(() => {
@@ -521,7 +577,7 @@ const handleSelectStateInstead = () => {
                 </div>
               )}
 
-              <div className="state-field-wrapper">
+           <div className="state-field-wrapper relative">
   <FormMultiSelect
     label="Select State"
     name="industries"
@@ -530,9 +586,26 @@ const handleSelectStateInstead = () => {
     value={selectedStates}
     onChange={handleStateChange}
     menuPlacement="auto"
-    inputRef={stateFieldRef}  // 🔥 Pass ref as prop
-    highlightClass="field-highlight"  
+    inputRef={stateFieldRef}
+    highlightClass="field-highlight"
+    isDisabled={isStateFieldLocked} // 🔥 NEW: Disable when locked
   />
+  
+  {/* 🔥 NEW: Invisible overlay to capture clicks when locked */}
+  {isStateFieldLocked && (
+    <div 
+      className="absolute inset-0 bg-transparent cursor-not-allowed z-10"
+      onClick={handleLockedStateClick}
+      style={{ borderRadius: '8px' }}
+    />
+  )}
+  
+  {/* 🔥 NEW: Lock indicator */}
+  {isStateFieldLocked && (
+    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-20">
+      {/* <i className="fas fa-lock text-gray-400 text-lg"></i> */}
+    </div>
+  )}
 </div>
 
               {/* 🔥 FIXED: Validation message display */}
@@ -567,10 +640,12 @@ const handleSelectStateInstead = () => {
         isOpen={popupState.isOpen}
         onClose={handleClosePopup}
         onUpgrade={handleUpgrade}
+        onChangeState={handleChangeState} // 🔥 NEW: Pass change state handler
         title={popupState.title}
         message={popupState.message}
         featureName={popupState.featureName}
         showUpgradeButton={popupState.showUpgradeButton}
+        showChangeStateButton={popupState.showChangeStateButton}
       />
 
      <SavedSearchPopup
