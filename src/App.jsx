@@ -16,6 +16,7 @@ import { fetchUserProfile } from "./redux/reducer/profileSlice.js";
 import ForgotVerification from "./pages/ForgotVerification.jsx";
 import ChangePaymentMethod from "./pages/ChangePaymentMethod.jsx";
 import ChangePaymentPopup from "./components/ChangePaymentPopup.jsx";
+import OnboardingProtectedRoute from "./protectedRoute/OnboardingProtectedRoute.jsx";
 // import PaymentPopup from "./components/PaymentPopup.jsx";
 
 // Lazy-loaded Pages
@@ -101,10 +102,10 @@ const App = () => {
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
           <Route path="/ai-toolset" element={<AiToolSet />} />
           <Route path="/plan" element={<Plan />} />
-          <Route path="/geographic-coverage" element={<ProtectedRoute> <GeographicCoverage /> </ProtectedRoute>} />
-          <Route path="/industry-categories" element={<ProtectedRoute> <IndustryCategories /> </ProtectedRoute>} />
-          <Route path="/help-our-ai" element={<ProtectedRoute> <HelpOurAi /> </ProtectedRoute>} />
-          <Route path="/extra-data" element={<ProtectedRoute><ExtraData /></ProtectedRoute>} />
+          <Route path="/geographic-coverage" element={<ProtectedRoute> <OnboardingProtectedRoute> <GeographicCoverage /> </OnboardingProtectedRoute> </ProtectedRoute>} />
+          <Route path="/industry-categories" element={<ProtectedRoute> <OnboardingProtectedRoute> <IndustryCategories />  </OnboardingProtectedRoute> </ProtectedRoute>} />
+          <Route path="/help-our-ai" element={<ProtectedRoute> <OnboardingProtectedRoute> <HelpOurAi /> </OnboardingProtectedRoute>  </ProtectedRoute>} />
+          <Route path="/extra-data" element={<ProtectedRoute> <OnboardingProtectedRoute> <ExtraData /> </OnboardingProtectedRoute> </ProtectedRoute>} />
           <Route path="/email-verification" element={<EmailVerification />} />
           <Route path="/verification" element={<Verification />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
