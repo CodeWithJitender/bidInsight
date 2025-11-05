@@ -55,7 +55,7 @@ function Vision() {
           viewport={{ once: true, amount: 0.3 }}
         >
           <LazyLoadImage
-            src="/vission.png"
+            src="/register.webp"
             alt="App Preview"
             className="w-full md:w-auto md:max-h-full m-auto"
           />

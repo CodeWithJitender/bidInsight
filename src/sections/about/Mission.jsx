@@ -70,7 +70,7 @@ At BidInsight, we believe that every business, whether you’re a nimble startup
           viewport={{ once: true, amount: 0.3 }}
         >
           <LazyLoadImage
-            src="/mission.png"
+            src="/company-build.webp"
             alt="App Preview"
             className="w-full md:w-auto md:max-h-full m-auto"
           />
