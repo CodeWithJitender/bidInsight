@@ -49,7 +49,8 @@ const PaymentPopup = ({ content, onClose }) => {
         </div>
 
         {/* Buttons */}
-        <div className="mt-10 p-2 justify-center gap-6">
+        {/* Buttons - Update flex layout for multiple buttons */}
+        <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
           {content.buttons &&
             content.buttons.map((btn, idx) =>
               btn.type === "link" ? (
