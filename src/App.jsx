@@ -17,6 +17,7 @@ import ForgotVerification from "./pages/ForgotVerification.jsx";
 import ChangePaymentMethod from "./pages/ChangePaymentMethod.jsx";
 import ChangePaymentPopup from "./components/ChangePaymentPopup.jsx";
 import OnboardingProtectedRoute from "./protectedRoute/OnboardingProtectedRoute.jsx";
+import BidAnalizer from "./pages/aitoolspage/BidAnalizer.jsx";
 // import PaymentPopup from "./components/PaymentPopup.jsx";
 
 // Lazy-loaded Pages
@@ -101,6 +102,7 @@ const App = () => {
           {/* <Route path="/paymentpopup" element={<PaymentPopup />} /> */}
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
           <Route path="/ai-toolset" element={<AiToolSet />} />
+          <Route path="/bid-analyzer" element={<ProtectedRoute><BidAnalizer initialTab="bid-analyzer" /></ProtectedRoute>} />
           <Route path="/plan" element={<Plan />} />
           <Route path="/geographic-coverage" element={<ProtectedRoute> <OnboardingProtectedRoute> <GeographicCoverage /> </OnboardingProtectedRoute> </ProtectedRoute>} />
           <Route path="/industry-categories" element={<ProtectedRoute> <OnboardingProtectedRoute> <IndustryCategories />  </OnboardingProtectedRoute> </ProtectedRoute>} />

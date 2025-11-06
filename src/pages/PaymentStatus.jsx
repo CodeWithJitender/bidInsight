@@ -442,10 +442,10 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
                         ? `$${(paymentData.amount_total / 100).toFixed(2)}` 
                         : (paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}`)
                 },
-                {
-                    label: "Error Code",
-                    value: paymentData?.error_code || "PAYMENT_FAILED"
-                },
+                // {
+                //     label: "Error Code",
+                //     value: paymentData?.error_code || "PAYMENT_FAILED"
+                // },
                 {
                     label: "Status",
                     value: "FAILED"
@@ -457,7 +457,7 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
             ],
             note: {
                 text: "If the issue continues, contact our support team at",
-                email: "support@bidinsight.com",
+                email: "contactus@bidinsight.com",
             },
         };
 
