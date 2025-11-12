@@ -310,17 +310,22 @@ export default function PersonalDetail({ profileData, onProfileUpdate }) {
   const [statesList, setStatesList] = useState([]);
 
   // Fetch all states when component mounts
-  useEffect(() => {
-    const fetchStates = async () => {
-      try {
-        const states = await getAllStates();
-        setStatesList(states);
-      } catch (error) {
-        console.error("Failed to fetch states", error);
-      }
-    };
-    fetchStates();
-  }, []);
+ // Fetch all states when component mounts
+useEffect(() => {
+  const fetchStates = async () => {
+    try {
+      const states = await getAllStates();
+      // ✅ Sort states alphabetically by name
+      const sortedStates = states.sort((a, b) => 
+        a.name.localeCompare(b.name)
+      );
+      setStatesList(sortedStates);
+    } catch (error) {
+      console.error("Failed to fetch states", error);
+    }
+  };
+  fetchStates();
+}, []);
 
   useEffect(() => {
     if (profileData) {

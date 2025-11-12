@@ -436,12 +436,7 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
                     label: "Attempted Date", 
                     value: paymentData?.created_at ? new Date(paymentData.created_at).toLocaleDateString('en-US') : new Date().toLocaleDateString('en-US')
                 },
-                { 
-                    label: "Amount", 
-                    value: isApiData 
-                        ? `$${(paymentData.amount_total / 100).toFixed(2)}` 
-                        : (paymentData?.amount ? `$${(paymentData.amount / 100).toFixed(2)}` : `$${planPrice}`)
-                },
+                
                 // {
                 //     label: "Error Code",
                 //     value: paymentData?.error_code || "PAYMENT_FAILED"

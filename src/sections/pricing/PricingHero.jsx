@@ -18,6 +18,25 @@ function PricingHero() {
     (state) => state.profile?.profile?.subscription_plan?.plan_code || "No Plan"
   );
 
+  // Redux se user subscription data
+  const userSubscriptionPlan = useSelector(
+    (state) => state.profile?.profile?.subscription_plan
+  );
+
+
+  // Check function for Essential button disable
+  const shouldDisableEssentialButton = () => {
+    if (!userSubscriptionPlan) return false;
+
+    const isStarterYearly =
+      userSubscriptionPlan?.name === "Starter" &&
+      (userSubscriptionPlan?.recurring_interval === "year" ||
+        userSubscriptionPlan?.recurring_interval === "yearly");
+
+    const isMonthlyToggleActive = billingCycle === "Monthly";
+
+    return isStarterYearly && isMonthlyToggleActive;
+  };
 
 
   const plans = [
@@ -378,33 +397,27 @@ function PricingHero() {
           ? getUpdatedPlans(plans).map((plan, index) => (
             <div
               key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
-              className={`
-                  transform transition-all duration-300 ease-out
-                  hover:scale-105
-                  ${index === 1 ? "lg:scale-105" : ""}
-                  opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
-                `}
-              style={{
-                animationDelay: `${index * 0.1}s`,
-              }}
+              className="..."
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"month"} />
+              <PricingCard
+                {...plan}
+                planDetails={planDetails}
+                duration={"month"}
+                isDisabled={plan.title === "Essentials" ? shouldDisableEssentialButton() : false}  // ✅ Add this
+              />
             </div>
           ))
           : getUpdatedPlans(plansYear).map((plan, index) => (
             <div
               key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
-              className={`
-                  transform transition-all duration-300 ease-out
-                  hover:scale-105
-                  ${index === 1 ? "lg:scale-105" : ""}
-                  opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
-                `}
-              style={{
-                animationDelay: `${index * 0.1}s`,
-              }}
+              className="..."
             >
-              <PricingCard {...plan} planDetails={planDetails} duration={"year"} />
+              <PricingCard
+                {...plan}
+                planDetails={planDetails}
+                duration={"year"}
+                isDisabled={false}  // ✅ Add this - Annual pe kabhi disable nahi
+              />
             </div>
           ))}
       </div>

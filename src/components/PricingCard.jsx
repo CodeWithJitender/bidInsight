@@ -12,9 +12,11 @@ function PricingCard({
   isComingSoon,
   planID,
   duration,
+  isDisabled
 }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false); // ✅ Add t
 
   // Get subscription plan id from Redux (if logged in)
   const subscriptionPlanId = useSelector(
@@ -30,6 +32,7 @@ function PricingCard({
   let buttonText = "Upgrade";
   let isButtonDisabled = false;
   let shouldRenderButton = true;
+  let tooltipMessage = "";
 
   if (!numericSubPlanId) {
     // 👉 Guest user
@@ -47,6 +50,13 @@ function PricingCard({
       isButtonDisabled = true;
     }
   }
+
+
+  if (isDisabled && title === "Essentials") {
+    buttonText = "Upgrade to Annual";
+    tooltipMessage = "You currently have an annual Starter plan. To access Essentials features, please upgrade to the annual Essentials plan.";
+  }
+
 
   // Handle plan selection
   const handlePlanSelection = async (e) => {
@@ -163,22 +173,53 @@ function PricingCard({
       {/* Action Button */}
       {/* // Replace button with: */}
       {shouldRenderButton && (
-        // <Link to="#pricing-cards">
-        <button
-          className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled
+        <div className="relative"> {/* ✅ Wrap in div for tooltip positioning */}
+          <button
+            className={`bg-btn border border-white text-white p-4 font-inter w-full font-medium rounded-2xl my-3 ${isComingSoon || isLoading || isButtonDisabled || isDisabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:text-blue transition-colors"
-            }`}
-          disabled={isComingSoon || isLoading || isButtonDisabled}
-          onClick={handlePlanSelection}
-        >
-          {isComingSoon
-            ? "Coming Soon"
-            : isLoading
-              ? "Processing..."
-              : buttonText}
-        </button>
-        // </Link>
+              }`}
+            disabled={isComingSoon || isLoading || isButtonDisabled || isDisabled}
+            onClick={handlePlanSelection}
+            onMouseEnter={() => isDisabled && setShowTooltip(true)} // ✅ Add this
+            onMouseLeave={() => setShowTooltip(false)} // ✅ Add this
+          >
+            {isComingSoon
+              ? "Coming Soon"
+              : isLoading
+                ? "Processing..."
+                : buttonText}
+          </button>
+
+          {/* ✅ Tooltip Popup */}
+          {isDisabled && showTooltip && (
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-72 z-50">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm rounded-lg p-4 shadow-2xl border border-blue-400/30 relative">
+                {/* Arrow */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                  <div className="border-8 border-transparent border-t-blue-800"></div>
+                </div>
+
+                {/* Icon */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  {/* Message */}
+                  <div className="flex-1">
+                    <p className="font-semibold mb-1">Annual Plan Required</p>
+                    <p className="text-xs leading-relaxed opacity-90">
+                      {tooltipMessage}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Features */}
