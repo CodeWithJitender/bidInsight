@@ -13,7 +13,7 @@ export default function ConfirmationModal({ isOpen, onClose, onConfirm, action, 
           message: "Are you sure you want to disable your account?",
           description: "Your account will be temporarily disabled. You can reactivate it later by emailing us at contactus@bidinsight.com.",
           confirmText: "Disable Account",
-          confirmButtonClass: "bg-red-600 hover:bg-red-700",
+          confirmButtonClass: "border hover:bg-white/20",
           icon: <FaPause size={50} className="text-red-900" />
         };
       case "delete":
@@ -22,7 +22,7 @@ export default function ConfirmationModal({ isOpen, onClose, onConfirm, action, 
           message: "Are you sure you want to delete your account?",
           description: "This action cannot be undone. All your data will be permanently deleted.",
           confirmText: "Delete Account",
-          confirmButtonClass: "bg-red-900 hover:bg-red-900",
+          confirmButtonClass: "border hover:bg-white/20",
           icon: <FaTrash size={50} className="text-red-900" />
         };
       default:

@@ -60,7 +60,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
   // States for email alert dropdown
   const [showEmailDropdown, setShowEmailDropdown] = useState(false);
   const [emailAlertLoading, setEmailAlertLoading] = useState(false);
-  const [currentEmailAlert, setCurrentEmailAlert] = useState("");
+  const [currentEmailAlert, setCurrentEmailAlert] = useState("Daily");
 
   // NEW: States for Cancel Subscription popup
   const [showCancelSubPopup, setShowCancelSubPopup] = useState(false);
@@ -722,7 +722,8 @@ export default function AccountSetting({ fullName, lastLogin }) {
                     <button
                       onClick={handleCancelSubscription}
                       disabled={cancelSubLoading}
-                      className="w-full font-archivo text-lg px-6 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full font-archivo text-lg px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    
                     >
                       {cancelSubLoading ? (
                         <>
@@ -810,7 +811,7 @@ export default function AccountSetting({ fullName, lastLogin }) {
                 <button
                   onClick={handleConfirmDelete}
                   disabled={deleteOtpLoading}
-                  className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl transition text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 bg-red-900 hover:bg-red-800"
+                  className="w-full font-archivo text-xl sm:w-auto px-6 py-3 rounded-xl transition text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 border hover:bg-white/20"
                 >
                   {deleteOtpLoading ? (
                     <>
