@@ -11,7 +11,7 @@ export default function ConfirmationModal({ isOpen, onClose, onConfirm, action, 
         return {
           title: "Disable Account",
           message: "Are you sure you want to disable your account?",
-          description: "Your account will be temporarily disabled. You can reactivate it later.",
+          description: "Your account will be temporarily disabled. You can reactivate it later by emailing us at contactus@bidinsight.com.",
           confirmText: "Disable Account",
           confirmButtonClass: "bg-red-600 hover:bg-red-700",
           icon: <FaPause size={50} className="text-red-900" />

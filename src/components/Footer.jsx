@@ -24,7 +24,7 @@ const Footer = () => {
               { 
                 title: "Home", 
                 links: [
-                  { name: "A.I. Toolkit", url: "/ai-toolset" },
+                  { name: "A.I. Toolset", url: "/ai-toolset" },
                   { name: "Why BidInsight?", url: "/#why-bidinsight" },
                   { name: "Register Now!", url: "/register" },
                   // { name: "Plans & Pricing", url: "/pricing" }
@@ -46,7 +46,7 @@ const Footer = () => {
                   { name: "Mission", url: "/about#mission" },
                   { name: "Vision", url: "/about#vision" },
                   { name: "Our Story", url: "/about#our-story" },
-                  { name: "Core Values", url: "/about#core-values" }
+                  { name: "Our Values", url: "/about#core-values" }
                 ], 
                 delay:"400" 
               },
@@ -74,7 +74,7 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className="">
-          <h1 className="text-g text-6xl lg:text-8xl font-black font-h max-w-4xl " data-aos="fade-up" data-aos-delay="">
+          <h1 className="text-g text-6xl lg:text-6xl font-black font-h max-w-4xl " data-aos="fade-up" data-aos-delay="">
             Your next government contract awaits!
           </h1>
           <div className="mt-12 border-t border-white/20 pt-4 flex flex-col md:flex-row justify-between items-center gap-3" >

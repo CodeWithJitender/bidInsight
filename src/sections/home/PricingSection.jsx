@@ -29,7 +29,7 @@ function PricingSection() {
         "1 Saved Search",
         "5 Bookmarks",
         "1 State",
-        "One additional state as a bolt-on ($9/month)"
+        "One additional state as a Add-On ($9/month)"
       ],
       icon: "https://bid-insight.vercel.app/price-2.png",
       delay: "200",
@@ -308,14 +308,14 @@ function PricingSection() {
       </div>
 
       <p
-        className="mt-10 text-[22px]  font-t"
+        className="mt-10  text-[19px]  font-t"
         data-aos="fade-up"
         data-aos-delay="300"
       >
-        Know Everything There Is! <br />
+        Enjoy full flexibility on our monthly plan. Cancel anytime with no penalties or long-term commitment. <br />
         <Link
           to="/pricing"
-          className="text-blue-600 font-medium underline body-t mt-2 block"
+          className="text-blue-600  font-medium underline body-t mt-5 block"
         >
           View Pricing Page ↗
         </Link>

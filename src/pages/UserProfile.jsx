@@ -344,7 +344,7 @@ export default function UserProfile() {
         );
       case "Bids":
         return <Bids />;
-      case "AI Toolset":
+      case "A.I. Toolset":
         return <AiToolset />;
       case "Account Settings":
         return (
@@ -369,11 +369,23 @@ export default function UserProfile() {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside
-        className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between h-screen fixed md:static top-0 left-0 z-20 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300`}
-      >
+      {/* // Line 421 ke baad - aside tag mein yeh classes add karo */}
+<aside
+  className={`bg-primary text-white w-64 ps-0 p-6 flex flex-col justify-between 
+    fixed md:static top-0 left-0 z-20 transform ${
+    sidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } md:translate-x-0 transition-transform duration-300
+  
+  /* Safari-specific fix */
+  h-screen overflow-y-auto
+  `}
+  style={{
+    /* Safari scrollbar fix */
+    WebkitOverflowScrolling: 'touch',
+    scrollbarWidth: 'thin',
+    scrollbarColor: 'rgba(255,255,255,0.3) transparent'
+  }}
+>
         <div>
           <h1 className="text-2xl font-bold mb-10 ps-4 flex items-center justify-between">
             <Link to="/">
@@ -392,7 +404,7 @@ export default function UserProfile() {
               { title: "Profile", icon: faUser },
               { title: "My Plans", icon: faClipboardList },
               { title: "Bids", icon: faChartLine },
-              { title: "AI Toolset", icon: faRobot },
+              { title: "A.I. Toolset", icon: faRobot },
               { title: "Account Settings", icon: faCog },
             ].map((item, i) => (
               <div

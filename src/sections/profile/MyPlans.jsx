@@ -48,7 +48,7 @@ export default function MyPlans({
   const hasActiveAddon = Boolean(activeAddon);
   console.log(userStates);
 
-  // Handle bolt-on click
+  // Handle Add-On click
   const handleBoltOnClick = async () => {
     setLoading(true);
     try {
@@ -117,9 +117,9 @@ export default function MyPlans({
     try {
       const detail = JSON.parse(metadata.detail);
 
-      // Check if it's a bolt-on purchase
+      // Check if it's a Add-On purchase
       if (metadata.purpose === "buy_addon_state" && detail.addon_state) {
-        return `Bolt-on State: ${detail.addon_state.name}`;
+        return `Add-On State: ${detail.addon_state.name}`;
       }
 
       // Regular plan purchase
@@ -251,7 +251,7 @@ export default function MyPlans({
             <p className="mt-5 ">
               <div className="text-lg font-inter font-medium text-[#999999]">
                 <div className="flex items-center gap-2">
-                  Bolt-On
+                  Add-On
                   {(subscriptionPlanId === "002" ||
                     subscriptionPlanId === "starter") &&
                     !hasActiveAddon && (
@@ -322,7 +322,7 @@ export default function MyPlans({
                     >
                       <td className="py-3 px-4">
                         {tx.metadata.purpose === "buy_addon_state"
-                          ? `Bolt-on Purchase`
+                          ? `Add-On Purchase`
                           : `Payment for ${(tx.plan)}`}
                       </td>
                       <td className="py-3 px-4">
@@ -466,7 +466,7 @@ export default function MyPlans({
                 </h3>
                 <p className="text-sm opacity-90">
                   Your card has been saved. You can now proceed to add the
-                  bolt-on state
+                  Add-On state
                   {pendingStateSelection && ` "${pendingStateSelection.name}"`}.
                 </p>
                 <button
@@ -476,7 +476,7 @@ export default function MyPlans({
                   }}
                   className="mt-3 bg-white text-black px-4 py-2 rounded font-medium text-sm hover:bg-green-50 transition-colors"
                 >
-                  Add Bolt-On State Now
+                  Add Add-On State Now
                 </button>
               </div>
               <button

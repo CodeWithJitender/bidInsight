@@ -964,13 +964,13 @@ const activeAddonStateId = activeAddonState?.id;
             handleBoltOnClick();
           }}
           title="Location Access Restricted"
-          message="Your current plan doesn't allow access to this location filter. Upgrade to access all states and local entities."
+          message="Your current plan doesn't allow access to this location filter. Add one state as an add-on or upgrade to access all states and local entities."
           upgradeButtonText="Upgrade Plan"
           cancelButtonText="Got It"
         />
       )}
 
-      {/* Bolt-on popup - MyPlans wala copy karo */}
+      {/* Add-On popup - MyPlans wala copy karo */}
       {showBoltOnPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-blue rounded-xl p-6 max-w-md w-full mx-4">
@@ -1061,7 +1061,7 @@ const activeAddonStateId = activeAddonState?.id;
                   Payment Method Added Successfully!
                 </h3>
                 <p className="text-sm opacity-90">
-                  Your card has been saved. You can now proceed to add the bolt-on state
+                  Your card has been saved. You can now proceed to add the Add-On state
                   {pendingStateSelection && ` "${pendingStateSelection.name}"`}.
                 </p>
                 <button
@@ -1071,7 +1071,7 @@ const activeAddonStateId = activeAddonState?.id;
                   }}
                   className="mt-3 bg-white text-black px-4 py-2 rounded font-medium text-sm hover:bg-green-50 transition-colors"
                 >
-                  Add Bolt-On State Now
+                  Add Add-On State Now
                 </button>
               </div>
               <button

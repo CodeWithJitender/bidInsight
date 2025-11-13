@@ -18,37 +18,37 @@ const faqs = [
     question: "I didn't receive the OTP email for password reset or verification.",
     answer: "Check Spam/promotions and confirm the email address you entered. If it’s not there, request a new OTP. If problems persist, contact support (contactus@bidinsight.com).",
   },
-  {
-    question: "Can I use single sign-on (SSO) or social login?",
-    answer: "Yes, if your organization has SSO enabled you’ll see that option. Note: password resets and account verification for standard email accounts use email OTP only.",
-  },
-  {
-    question: "Is multi-factor authentication (MFA) supported?",
-    answer: "Yes, enable MFA in Account Settings for extra security. Primary verification and password resets remain email-OTP only; MFA can use authenticator apps where available.",
-  },
+  // {
+  //   question: "Can I use single sign-on (SSO) or social login?",
+  //   answer: "Yes, if your organization has SSO enabled you’ll see that option. Note: password resets and account verification for standard email accounts use email OTP only.",
+  // },
+  // {
+  //   question: "Is multi-factor authentication (MFA) supported?",
+  //   answer: "Yes, enable MFA in Account Settings for extra security. Primary verification and password resets remain email-OTP only; MFA can use authenticator apps where available.",
+  // },
   {
     question: "How do I create an account?",
-    answer: "Click Register / Sign up, enter your email and password (or choose a social sign-up). You’ll receive an OTP via email to verify the address, enter it to complete registration.",
+    answer: "Click Register / Sign up, enter your email and password. You’ll receive an OTP via email to verify the address, enter it to complete registration.",
   },
   {
     question: "What fields are required during registration?",
-    answer: "Typically: email, password, and acceptance of Terms & Privacy. Optional fields (name, company, phone) can be filled later in your profile.",
+    answer: "Typically: email, password, name, other company details and acceptance of Terms & Privacy. Optional fields can be filled later in your profile.",
   },
   {
     question: "Can I use a work email or personal email?",
     answer: "Either, use whichever you want associated with the account.",
   },
-  {
-    question: "Is there an invite flow for teams?",
-    answer: "Yes, if your organization sends an invite link, accepting it will link your account to that organization. Invite acceptance may require email OTP verification.",
-  },
+  // {
+  //   question: "Is there an invite flow for teams?",
+  //   answer: "Yes, if your organization sends an invite link, accepting it will link your account to that organization. Invite acceptance may require email OTP verification.",
+  // },
   {
     question: "What personal details do you collect and why?",
-    answer: "Common items: full name, job title, time zone, language preference, and contact email. These are used to personalize your experience, manage notifications, and for billing where needed.",
+    answer: "Common items: full name, job title, and contact email. These are used to personalize your experience, manage notifications, and for billing where needed.",
   },
   {
     question: "Can I edit my personal details later?",
-    answer: "Yes, go to Account > Profile to update name, email, title, timezone and contact info.",
+    answer: "Yes, go to Account > Profile to update name, title, and other details.",
   },
   {
     question: "How do you protect my personal info?",
@@ -56,11 +56,11 @@ const faqs = [
   },
   {
     question: "What should I put in the company profile?",
-    answer: "Company name, address, website, number of employees and billing contact. This helps with invoices and team setup.",
+    answer: "Company name, address, website, number of employees and billing contact. This helps with invoices.",
   },
   {
     question: "What are geographic preferences?",
-    answer: "Settings for allowed regions, time zone and content localization (language and region-specific recommendations).",
+    answer: "Settings for allowed regions and content localization (region-specific recommendations).",
   },
   {
     question: "Why do you ask for location?",
@@ -68,7 +68,7 @@ const faqs = [
   },
   {
     question: "Can I change geographic preferences later?",
-    answer: "Yes, update time zone or region in Account settings. If changing billing country, contact support to ensure invoices/taxes are correct.",
+    answer: "Yes, update region in Account settings. If changing billing country, contact support to ensure invoices/taxes are correct.",
   },
   {
     question: "Why do you ask about my industry?",
@@ -84,7 +84,7 @@ const faqs = [
   },
   {
     question: "Which details make the biggest difference for AI personalization?",
-    answer: "Company summary, product descriptions, target audience and preferred tone (formal/casual) have the biggest impact.",
+    answer: "Compatibility statement, product descriptions, target audience and preferred tone (formal/casual) have the biggest impact.",
   },
   {
     question: "How do I provide details to personalize AI?",
@@ -124,11 +124,11 @@ const faqs = [
   },
   {
     question: "Can I update my card or payment method?",
-    answer: "Yes — go to Billing > Payment methods to update. New cards are added securely via Stripe.",
+    answer: "Yes — go to Account Settings > Change Your Payment Method to update. New cards are added securely via Stripe.",
   },
   {
     question: "How are invoices and receipts handled?",
-    answer: "Receipts are emailed after each charge. Downloadable invoices appear in Billing > Invoices for paid plans, especially annual/enterprise.",
+    answer: "Receipts are emailed after each charge. Downloadable invoices appear in My Plans > Transaction History for paid plans, especially annual/enterprise.",
   },
   {
     question: "What happens if a payment fails?",
@@ -152,7 +152,7 @@ const faqs = [
   },
   {
     question: "How does cancellation work?",
-    answer: "Cancel in Billing > Subscription. Cancellation takes effect at the end of your current billing period (you keep access until then). Immediate cancellations and refunds depend on policy and are handled case-by-case.",
+    answer: "Cancel in Account Settings > Cancel Subscription. Cancellation takes effect at the end of your current billing period (you keep access until then). Immediate cancellations and refunds depend on policy and are handled case-by-case.",
   },
   {
     question: "Is there a free trial?",
@@ -162,21 +162,21 @@ const faqs = [
     question: "Are there discounts for annual billing?",
     answer: "Often yes, annual plans are typically discounted vs monthly. Promo codes and coupons are applied at checkout when available.",
   },
-  {
-    question: "How are seats or team members billed?",
-    answer: "Seats are billed per active user unless your plan includes unlimited seats. Adding/removing seats adjusts your invoice; seat changes during a billing period are prorated.",
-  },
+  // {
+  //   question: "How are seats or team members billed?",
+  //   answer: "Seats are billed per active user unless your plan includes unlimited seats. Adding/removing seats adjusts your invoice; seat changes during a billing period are prorated.",
+  // },
   {
     question: "How do upgrades and downgrades work?",
     answer: "Upgrades usually take effect immediately and may incur a prorated charge for the remainder of the billing period. Downgrades typically take effect via an email request only, though some may be immediate and prorated depending on the change.",
   },
   {
     question: "Can I get an enterprise quote or pay by PO?",
-    answer: "Yes, contact Sales for enterprise contracts, POs, SSO setup, custom billing cycles or volume discounts.",
+    answer: "Yes, contact Sales for enterprise contracts, POs, SSO setup, custom billing cycles or volume discounts. Email your requirements to contactus@bidinsight.com",
   },
   {
     question: "I want all my data deleted, how?",
-    answer: "Request data deletion via Account > Privacy or contact support. Deletion removes personal data; minimal billing records may be retained for legal/financial reasons.",
+    answer: "Request data deletion by contacting support. Deletion removes personal data; minimal billing records may be retained for legal/financial reasons.",
   },
   {
     question: "How do you handle PCI, privacy, and data usage?",

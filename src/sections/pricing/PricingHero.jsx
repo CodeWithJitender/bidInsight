@@ -60,7 +60,7 @@ function PricingHero() {
         "1 Saved Search",
         "1 State",
         "5 Bookmarks",
-        "One additional state as a bolt-on ($9/month)"
+        "One additional state as a Add-On ($9/month)"
       ],
       icon: "/price-2.svg",
       delay: "200",
@@ -423,7 +423,7 @@ function PricingHero() {
       </div>
 
 
-      <p className="text-white text-lg max-w-[800px] mx-auto mt-14 px-5"><span className="font-bold">NOTE:</span> The term “monthly” only reflects the billing cycle, not the commitment. The commitment for all plans, bolt-ons & upgrades strictly bind you for a total period of 12 months, regardless of the billing cycle.</p>
+      <p className="text-white text-lg max-w-[1000px] mx-auto mt-14 px-4"><span className="font-semibold">MONTHLY :</span> Enjoy full flexibility. Cancel anytime with no penalties or long-term commitment. <br></br> <span className="font-semibold">ANNUAL :</span> Lock in savings with a 12-month contract. Please note: early cancellations do not qualify for partial refunds.</p>
 
       <style jsx>{`
         @keyframes fadeInUp {

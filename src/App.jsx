@@ -102,7 +102,7 @@ const App = () => {
           {/* <Route path="/paymentpopup" element={<PaymentPopup />} /> */}
           {/* <Route path="/i" element={<IndustryCategoriesSkeletonLeft />} /> */}
           <Route path="/ai-toolset" element={<AiToolSet />} />
-          <Route path="/bid-analyzer" element={<ProtectedRoute><BidAnalizer initialTab="bid-analyzer" /></ProtectedRoute>} />
+          {/* <Route path="/bid-analyzer" element={<ProtectedRoute><BidAnalizer initialTab="bid-analyzer" /></ProtectedRoute>} /> */}
           <Route path="/plan" element={<Plan />} />
           <Route path="/geographic-coverage" element={<ProtectedRoute> <OnboardingProtectedRoute> <GeographicCoverage /> </OnboardingProtectedRoute> </ProtectedRoute>} />
           <Route path="/industry-categories" element={<ProtectedRoute> <OnboardingProtectedRoute> <IndustryCategories />  </OnboardingProtectedRoute> </ProtectedRoute>} />

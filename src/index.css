@@ -562,3 +562,42 @@ p {
 .state-field-wrapper:has(.field-highlight) {
   z-index: 10;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Safari-specific sidebar fix */
+aside {
+  height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+aside::-webkit-scrollbar {
+  width: 4px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}

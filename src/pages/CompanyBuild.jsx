@@ -486,7 +486,7 @@ function CompanyBuild() {
               <div className="text-white font-t">
                 <b>NOTE:</b> The capability statement is essential for building
                 your company's profile, as providing comprehensive information
-                is crucial to achieving optimal A.I. results
+                is crucial to achieving optimal A.I. results.
               </div>
 
             </div>

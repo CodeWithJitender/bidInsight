@@ -139,7 +139,7 @@ useEffect(() => {
     
     const apiProfile = profileData.profile;
     
-    // Map API field names to form field names
+    // Store as plain numbers (no formatting needed here)
     const prefilledFields = {
       workersCompensationAmount: apiProfile.workers_compensation_amount?.toString() || "",
       generalLiabilityAmount: apiProfile.general_liability_insurance_amount?.toString() || "",
@@ -175,21 +175,24 @@ useEffect(() => {
 };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    // Only allow changes to enabled fields
-    if (!enabledFields.includes(name) && !isSkipMode) {
-      return;
-    }
+  if (!enabledFields.includes(name) && !isSkipMode) {
+    return;
+  }
 
-    setFields((prev) => ({ ...prev, [name]: value }));
+  // Remove formatting to get plain number
+  const plainValue = unformatCurrency(value);
 
-    // Only validate enabled fields
-    if (enabledFields.includes(name)) {
-      const validation = validateField(name, value);
-      setErrors((prev) => ({ ...prev, [name]: validation.msg }));
-    }
-  };
+  // Store plain number in state
+  setFields((prev) => ({ ...prev, [name]: plainValue }));
+
+  // Validate with plain number
+  if (enabledFields.includes(name)) {
+    const validation = validateField(name, plainValue);
+    setErrors((prev) => ({ ...prev, [name]: validation.msg }));
+  }
+};
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
@@ -435,7 +438,8 @@ useEffect(() => {
       // Enabled field - normal interactive behavior
       return {
         ...baseProps,
-        placeholder: "Enter amount (e.g., $50000)",
+        placeholder: "Enter amount (e.g., $50,000)",
+        value: formatCurrency(fields[fieldName] || ""), // ✅ Format for display
         onChange: handleChange,
         onBlur: handleBlur,
         message: isFieldTouched && fieldError ? fieldError : "",
@@ -474,6 +478,20 @@ useEffect(() => {
     headingSize: "h3",
     pSize: "text-xl",
   };
+
+  // Format number to display with $ and commas
+const formatCurrency = (value) => {
+  if (!value) return "";
+  const numericValue = value.replace(/[^0-9.]/g, "");
+  const parts = numericValue.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return "$" + parts.join(".");
+};
+
+// Remove formatting to get plain number
+const unformatCurrency = (value) => {
+  return value.replace(/[$,]/g, "");
+};
 
   const formHeader = {
     title: "Log In",

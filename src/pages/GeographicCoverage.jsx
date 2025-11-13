@@ -140,7 +140,7 @@ const handleLockedStateClick = (e) => {
   setPopupState({
     isOpen: true,
     title: "State Selection Locked",
-    message: `You currently have ${lockedStateName} in your Starter plan. Upgrade to access all 50 states, or change to another single state.`,
+    message: `You currently have ${lockedStateName} in your Starter plan. Upgrade to access all 50 states.`,
     featureName: "Multi-State Access",
     showUpgradeButton: true,
     showChangeStateButton: true, // 🔥 Show "Change State" button
