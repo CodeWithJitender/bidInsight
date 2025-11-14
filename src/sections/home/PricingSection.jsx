@@ -145,6 +145,7 @@ function PricingSection() {
 
   return (
     <section className="py-16 px-4 bg-[url('https://bid-insight.vercel.app/pricing-bg.jpg')] bg-no-repeat bg-center bg-cover text-center">
+
       <div className="mb-4" data-aos="fade-up">
         <Heading
           textAlign={"text-center"}
@@ -154,7 +155,7 @@ function PricingSection() {
       </div>
 
       {/* Toggle */}
-        <div className=" from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-8">
+      <div className=" from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-8">
         <div className="text-center">
 
 
@@ -184,9 +185,9 @@ function PricingSection() {
                       mt-1 inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold
                       transition-all duration-500
                       ${billingCycle === "Annual"
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)] animate-pulse"
-                          : "bg-emerald-500/20 text-emerald-300"
-                        }
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)] animate-pulse"
+                        : "bg-emerald-500/20 text-emerald-300"
+                      }
                     `}>
                       <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
@@ -216,28 +217,28 @@ function PricingSection() {
 
             {/* Bottom Indicator */}
             <div className="mt-6 flex items-center justify-center gap-2 text-sm">
-            {billingCycle === "Annual" ? (
-              <div className="flex items-center gap-2 text-emerald-300 animate-[fadeIn_0.6s_ease-out] bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20">
-                <svg className="w-4 h-4 text-blue-800" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                </svg>
-                <span className="font-medium text-blue-800">You're saving with annual billing!</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-blue-200 animate-[fadeIn_0.6s_ease-out] bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20">
-                <svg className="w-4 h-4 text-blue-800" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
-                </svg>
-                <span className="font-medium text-blue-800">Switch to annual and save 5%</span>
-              </div>
-            )}
-          </div>
+              {billingCycle === "Annual" ? (
+                <div className="flex items-center gap-2 text-emerald-300 animate-[fadeIn_0.6s_ease-out] bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20">
+                  <svg className="w-4 h-4 text-blue-800" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium text-blue-800">You're saving with annual billing!</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-blue-200 animate-[fadeIn_0.6s_ease-out] bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20">
+                  <svg className="w-4 h-4 text-blue-800" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium text-blue-800">Switch to annual and save 5%</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Demo Info */}
-         <div className="mt-12 text-blue-200/40 text-sm">
-          <p className="text-blue-600">Current Selection: <span className="text-blue font-semibold">{billingCycle}</span></p>
-        </div>
+          <div className="mt-12 text-blue-200/40 text-sm">
+            <p className="text-blue-600">Current Selection: <span className="text-blue font-semibold">{billingCycle}</span></p>
+          </div>
         </div>
 
 
@@ -268,43 +269,43 @@ function PricingSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
         {billingCycle === "Annual"
           ? plansYear.map((plan, index) => (
-              <div
-                key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
-                className={`
+            <div
+              key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
+              className={`
                   transform transition-all duration-300 ease-out
                   hover:scale-105
                   ${index === 1 ? "lg:scale-105" : ""}
                   opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
                 `}
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
-              >
-                <HomePricingCard 
-                  {...plan} 
-                  duration={billingCycle === "Annual" ? "year" : "mo"}
-                />
-              </div>
-            ))
+              style={{
+                animationDelay: `${index * 0.1}s`,
+              }}
+            >
+              <HomePricingCard
+                {...plan}
+                duration={billingCycle === "Annual" ? "year" : "mo"}
+              />
+            </div>
+          ))
           : plans.map((plan, index) => (
-              <div
-                key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
-                className={`
+            <div
+              key={`${plan.planID || plan.title}-${billingCycle}-${index}`}
+              className={`
                   transform transition-all duration-300 ease-out
                   hover:scale-105
                   ${index === 1 ? "lg:scale-105" : ""}
                   opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]
                 `}
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
-              >
-                <HomePricingCard 
-                  {...plan}
-                  duration={billingCycle === "Annual" ? "year" : "mo"}
-                />
-              </div>
-            ))}
+              style={{
+                animationDelay: `${index * 0.1}s`,
+              }}
+            >
+              <HomePricingCard
+                {...plan}
+                duration={billingCycle === "Annual" ? "year" : "mo"}
+              />
+            </div>
+          ))}
       </div>
 
       <p
@@ -333,6 +334,8 @@ function PricingSection() {
           }
         }
       `}</style>
+
+
     </section>
   );
 }
