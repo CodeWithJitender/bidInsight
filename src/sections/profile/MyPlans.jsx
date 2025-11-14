@@ -248,9 +248,9 @@ export default function MyPlans({
                   )}
               </div>
             </p>
-            <p className="mt-5 ">
+            <p className="mt-5">
               <div className="text-lg font-inter font-medium text-[#999999]">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative group">
                   Add-On
                   {(subscriptionPlanId === "002" ||
                     subscriptionPlanId === "starter") &&
@@ -260,6 +260,12 @@ export default function MyPlans({
                         onClick={handleBoltOnClick}
                       />
                     )}
+
+                  {/* Tooltip */}
+                  <div className=" absolute left-0 bottom-full w-64 bg-gray-100 leading-tight text-gray-600 text-[12px] rounded-lg px-1 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 shadow-lg">
+                    Add one state as an add-on or upgrade to access all states and local entities.
+                    {/* <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-800"></div> */}
+                  </div>
                 </div>
               </div>
               <div className="font-inter text-lg font-medium">
@@ -295,76 +301,76 @@ export default function MyPlans({
 
       {/* Transactions Table - Only show for non-free plans */}
       {/* {subscriptionPlanId !== "001" && ( */}
-        <div className=" border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
-          {paymentLoading ? (
-            <div className="p-6 text-center">Loading payments...</div>
-          ) : transactions.length > 0 ? (
-            <table className="w-full text-left border-collapse">
-              <thead className="font-inter font-medium">
-                <tr className="border-b-2 border-primary bg-gray-50">
-                  <th className="py-3 px-4">Description</th>
-                  <th className="py-3 px-4">Transaction Id</th>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Plan</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-center">Download</th>
-                </tr>
-              </thead>
-              <tbody className="font-inter font-medium">
-                {transactions.map((tx) => {
-                  const statusInfo = getPaymentStatus(tx.status);
-                  console.log(statusInfo, "ssssssssssssssss")
-                  return (
-                    <tr
-                      key={tx.id}
-                      className="border-b last:border-0 hover:bg-gray-50"
+      <div className=" border-2 border-primary rounded-xl overflow-x-scroll shadow-sm">
+        {paymentLoading ? (
+          <div className="p-6 text-center">Loading payments...</div>
+        ) : transactions.length > 0 ? (
+          <table className="w-full text-left border-collapse">
+            <thead className="font-inter font-medium">
+              <tr className="border-b-2 border-primary bg-gray-50">
+                <th className="py-3 px-4">Description</th>
+                <th className="py-3 px-4">Transaction Id</th>
+                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Amount</th>
+                <th className="py-3 px-4">Plan</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-center">Download</th>
+              </tr>
+            </thead>
+            <tbody className="font-inter font-medium">
+              {transactions.map((tx) => {
+                const statusInfo = getPaymentStatus(tx.status);
+                console.log(statusInfo, "ssssssssssssssss")
+                return (
+                  <tr
+                    key={tx.id}
+                    className="border-b last:border-0 hover:bg-gray-50"
+                  >
+                    <td className="py-3 px-4">
+                      {tx.metadata.purpose === "buy_addon_state"
+                        ? `Add-On Purchase`
+                        : `Payment for ${(tx.plan)}`}
+                    </td>
+                    <td className="py-3 px-4">
+                      {tx.stripe_invoice_id}
+                    </td>
+                    <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
+                    <td className="py-3 px-4 font-bold">
+                      {formatAmount(tx.amount)}
+                    </td>
+                    <td className="py-3 px-4">{(tx.plan)}</td>
+                    <td
+                      className={`py-3 px-4 font-semibold ${statusInfo.color}`}
                     >
-                      <td className="py-3 px-4">
-                        {tx.metadata.purpose === "buy_addon_state"
-                          ? `Add-On Purchase`
-                          : `Payment for ${(tx.plan)}`}
-                      </td>
-                      <td className="py-3 px-4">
-                        {tx.stripe_invoice_id}
-                      </td>
-                      <td className="py-3 px-4">{formatDate(tx.created_at)}</td>
-                      <td className="py-3 px-4 font-bold">
-                        {formatAmount(tx.amount)}
-                      </td>
-                      <td className="py-3 px-4">{(tx.plan)}</td>
-                      <td
-                        className={`py-3 px-4 font-semibold ${statusInfo.color}`}
-                      >
-                        {statusInfo.text}
-                      </td>
-                      <td className="py-3 px-4 flex justify-center">
-                        <a href={tx.invoice_url} target="_blank">
-                          <FiDownload
-                            className={`transition-colors ${tx.status === "succeeded"
-                              ? "cursor-pointer hover:text-primary text-gray-700"
-                              : "cursor-not-allowed text-gray-300"
-                              }`}
-                            onClick={() => tx.status === "succeeded"}
-                            title={
-                              tx.status === "succeeded"
-                                ? "Download Receipt"
-                                : "Receipt not available for failed payments"
-                            }
-                          />
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <div className="p-6 text-center text-gray-500">
-              No payment history found
-            </div>
-          )}
-        </div>
+                      {statusInfo.text}
+                    </td>
+                    <td className="py-3 px-4 flex justify-center">
+                      <a href={tx.invoice_url} target="_blank">
+                        <FiDownload
+                          className={`transition-colors ${tx.status === "succeeded"
+                            ? "cursor-pointer hover:text-primary text-gray-700"
+                            : "cursor-not-allowed text-gray-300"
+                            }`}
+                          onClick={() => tx.status === "succeeded"}
+                          title={
+                            tx.status === "succeeded"
+                              ? "Download Receipt"
+                              : "Receipt not available for failed payments"
+                          }
+                        />
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div className="p-6 text-center text-gray-500">
+            No payment history found
+          </div>
+        )}
+      </div>
       {/* )} */}
 
       {/* State Selection Popup - ADD HERE */}

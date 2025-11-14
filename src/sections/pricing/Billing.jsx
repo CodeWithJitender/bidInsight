@@ -28,7 +28,19 @@ function Billing() {
           values: ["-", "Up to 1", "✔️", "✔️"],
         },
         {
-          name: "Cities & Counties",
+          name: "Cities",
+          values: ["-", "-", "Coming Soon", "Coming Soon"],
+        },
+        {
+          name: "Counties",
+          values: ["-", "-", "Coming Soon", "Coming Soon"],
+        },
+         {
+          name: "Colleges & Universities",
+         values: ["-", "-", "Coming Soon", "Coming Soon"],
+        },
+        {
+          name: "School Districts",
           values: ["-", "-", "Coming Soon", "Coming Soon"],
         },
         {

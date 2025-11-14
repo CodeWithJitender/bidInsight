@@ -88,7 +88,7 @@ const faqs = [
   },
   {
     question: "How do I provide details to personalize AI?",
-    answer: "During onboarding you’ll see fields and optional uploads (docs, website URL, brand guidelines). You can also import or edit them later in AI Settings.",
+    answer: "During onboarding you’ll see fields and optional uploads (docs, website URL, compatibility statement). You can also import or edit them later in AI Settings.",
   },
   {
     question: "Can I remove or update the info used to personalize AI?",
@@ -116,7 +116,7 @@ const faqs = [
   },
   {
     question: "What payment methods are accepted?",
-    answer: "Typically major credit/debit cards and regional methods Stripe supports. Available options depend on your country.",
+    answer: "Typically major credit/debit cards and regional methods Stripe supports. Available options depend on your state & region.",
   },
   {
     question: "How does checkout work?",
@@ -136,7 +136,7 @@ const faqs = [
   },
   {
     question: "Do you charge taxes?",
-    answer: "Where applicable, tax (VAT/GST/sales tax) is calculated at checkout and on invoices based on billing address.",
+    answer: "Where applicable, tax is calculated at checkout and on invoices based on billing address.",
   },
   {
     question: "Are refunds possible?",
@@ -170,10 +170,10 @@ const faqs = [
     question: "How do upgrades and downgrades work?",
     answer: "Upgrades usually take effect immediately and may incur a prorated charge for the remainder of the billing period. Downgrades typically take effect via an email request only, though some may be immediate and prorated depending on the change.",
   },
-  {
-    question: "Can I get an enterprise quote or pay by PO?",
-    answer: "Yes, contact Sales for enterprise contracts, POs, SSO setup, custom billing cycles or volume discounts. Email your requirements to contactus@bidinsight.com",
-  },
+  // {
+  //   question: "Can I get an enterprise quote or pay by PO?",
+  //   answer: "Yes, contact Sales for enterprise contracts, POs, SSO setup, custom billing cycles or volume discounts. Email your requirements to contactus@bidinsight.com",
+  // },
   {
     question: "I want all my data deleted, how?",
     answer: "Request data deletion by contacting support. Deletion removes personal data; minimal billing records may be retained for legal/financial reasons.",

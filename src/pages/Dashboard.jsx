@@ -983,7 +983,7 @@ useEffect(() => {
 
                     {/* Save Search Button with restrictions */}
                     <div className="hidden md:block">
-                      <BgCover title="SAVE SEARCH" description="Keep these filters handy, come back to any set with one click.">
+                      <BgCover title="SAVE SEARCH" description="Select your preferred set of filters and keep them handy, come back to any set with one click.">
                         <div
                           className={`text-white cursor-pointer flex items-center ${restrictions?.savedSearch ? 'opacity-50' : ''
                             }`}
