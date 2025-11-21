@@ -6,16 +6,18 @@ export default function CustomTooltip({ title }) {
 
   return (
     <div
-      className="relative inline-block"
+      className="relative z-50 inline-block"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
     >
       <FiInfo className="text-gray-400 cursor-pointer font-inter" />
 
       {show && (
-        <div className="absolute left-6 top-0 bg-[#9999994D] text-[#4A4A4A] text-xs rounded-md px-3 py-2 w-64 shadow-lg z-10">
+        <div className="absolute left-6 bottom-full mb-2 bg-[#9999994D] 
+text-[#4A4A4A] text-xs rounded-md px-3 py-2 w-64 shadow-lg z-50">
           {title}
         </div>
+
       )}
     </div>
   );
