@@ -403,12 +403,12 @@ function PaymentStatusInner({ planPrice, status, transactionData }) {
                         ? paymentData.line_items[0].product_name 
                         : "Subscription Plan"
                 },
-                {
-                    label: "Billing Cycle",
-                    value: isApiData && paymentData.line_items?.[0]?.interval 
-                        ? paymentData.line_items[0].interval 
-                        : "Monthly"
-                },
+                // {
+                //     label: "Billing Cycle",
+                //     value: isApiData && paymentData.line_items?.[0]?.interval 
+                //         ? paymentData.line_items[0].interval 
+                //         : "Monthly"
+                // },
                 {
                     label: "Payment Status",
                     value: isApiData ? paymentData.payment_status?.toUpperCase() : "COMPLETED"

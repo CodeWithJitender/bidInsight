@@ -12,7 +12,8 @@ function PricingCard({
   isComingSoon,
   planID,
   duration,
-  isDisabled
+  isDisabled,
+  disabledMessage
 }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,9 +53,18 @@ function PricingCard({
   }
 
 
-  if (isDisabled && title === "Essentials") {
-    buttonText = "Upgrade to Annual";
-    tooltipMessage = "You currently have an annual Starter plan. To access Essentials features, please upgrade to the annual Essentials plan.";
+  // ✅ ADD THIS INSTEAD:
+  // ✅ Dynamic button text based on disabled state
+  if (isDisabled) {
+    // Extract which tab to switch to from the disabled message
+    if (disabledMessage && disabledMessage.includes("'Monthly'")) {
+      buttonText = "Switch to Monthly";
+    } else if (disabledMessage && disabledMessage.includes("'Annual'")) {
+      buttonText = "Switch to Annual";
+    } else {
+      buttonText = "Not Available";
+    }
+    tooltipMessage = disabledMessage || "Unable to upgrade at this time.";
   }
 
 
@@ -181,7 +191,8 @@ function PricingCard({
               }`}
             disabled={isComingSoon || isLoading || isButtonDisabled || isDisabled}
             onClick={handlePlanSelection}
-            onMouseEnter={() => isDisabled && setShowTooltip(true)} // ✅ Add this
+            // ✅ FIXED (Check both conditions):
+            onMouseEnter={() => (isDisabled || isButtonDisabled) && setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)} // ✅ Add this
           >
             {isComingSoon
@@ -192,7 +203,7 @@ function PricingCard({
           </button>
 
           {/* ✅ Tooltip Popup */}
-          {isDisabled && showTooltip && (
+          {(isDisabled || isButtonDisabled) && showTooltip && (
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-72 z-50">
               <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm rounded-lg p-4 shadow-2xl border border-blue-400/30 relative">
                 {/* Arrow */}
@@ -209,8 +220,9 @@ function PricingCard({
                   </div>
 
                   {/* Message */}
+                // ✅ UPDATED:
                   <div className="flex-1">
-                    <p className="font-semibold mb-1">Annual Plan Required</p>
+                    <p className="font-semibold mb-1">⚠️ Upgrade Restricted</p>
                     <p className="text-xs leading-relaxed opacity-90">
                       {tooltipMessage}
                     </p>

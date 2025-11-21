@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 function Billing() {
   // data/plans.js
-  const plans = ["Free", "Starter", "Essentials", "AI Powerhouse"];
+  const plans = ["Free", "Starter", "Essentials", "A.I. Powerhouse"];
 
   const sections = [
     {

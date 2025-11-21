@@ -79,7 +79,7 @@ export default function MyPlans({
 
   // Amount ko dollar format mein convert karna
   const formatAmount = (amount) => {
-    return `$${(amount).toFixed(2)}`; // cents to dollars
+    return `$${(amount / 100 ).toFixed(2)}`; // cents to dollars
   };
 
   // Date format karna

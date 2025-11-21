@@ -25,19 +25,64 @@ function PricingHero() {
 
 
   // Check function for Essential button disable
-  const shouldDisableEssentialButton = () => {
+  // ✅ NEW FUNCTION (Complete Logic)
+  const shouldDisableEssentialButton = (planTitle) => {
     if (!userSubscriptionPlan) return false;
 
-    const isStarterYearly =
-      userSubscriptionPlan?.name === "Starter" &&
-      (userSubscriptionPlan?.recurring_interval === "year" ||
-        userSubscriptionPlan?.recurring_interval === "yearly");
+    // Agar user Starter plan pe hai
+    const isStarterPlan = userSubscriptionPlan?.name === "Starter";
 
-    const isMonthlyToggleActive = billingCycle === "Monthly";
+    if (!isStarterPlan) return false;
 
-    return isStarterYearly && isMonthlyToggleActive;
+    // User ka current billing cycle check karo
+    const userIsYearly =
+      userSubscriptionPlan?.recurring_interval === "year" ||
+      userSubscriptionPlan?.recurring_interval === "yearly";
+
+    const userIsMonthly =
+      userSubscriptionPlan?.recurring_interval === "month" ||
+      userSubscriptionPlan?.recurring_interval === "monthly";
+
+    // Current toggle position
+    const toggleIsMonthly = billingCycle === "Monthly";
+    const toggleIsAnnual = billingCycle === "Annual";
+
+    // RULE: User ko apne current cycle se different cycle mein upgrade nahi karne dena
+    if (userIsYearly && toggleIsMonthly) {
+      return true; // Disable karo (User yearly pe hai, monthly dikha raha)
+    }
+
+    if (userIsMonthly && toggleIsAnnual) {
+      return true; // Disable karo (User monthly pe hai, annual dikha raha)
+    }
+
+    return false; // Enable rakho
   };
 
+
+  // ✅ ADD THIS NEW FUNCTION
+const getDisabledMessage = () => {
+  const userIsYearly =
+    userSubscriptionPlan?.recurring_interval === "year" ||
+    userSubscriptionPlan?.recurring_interval === "yearly";
+
+  const userIsMonthly =
+    userSubscriptionPlan?.recurring_interval === "month" ||
+    userSubscriptionPlan?.recurring_interval === "monthly";
+
+  const toggleIsMonthly = billingCycle === "Monthly";
+  const toggleIsAnnual = billingCycle === "Annual";
+
+  if (userIsMonthly && toggleIsAnnual) {
+    return "You're on a Monthly plan. Switch to the 'Monthly' tab above to see upgrade options.";
+  }
+
+  if (userIsYearly && toggleIsMonthly) {
+    return "You're on an Annual plan. Switch to the 'Annual' tab above to see upgrade options.";
+  }
+
+  return "Unable to upgrade at this time.";
+};
 
   const plans = [
     {
@@ -138,12 +183,12 @@ function PricingHero() {
         "Advanced Search (Filters)",
         "All Federal Bids",
         "All State Bids",
+        "All Local Bids",
         "5 Saved Searches",
         "10 Follows",
         "20 Bookmarks",
         "Export 100 bids/month",
-        `Cities & Counties  (Coming Soon)`,
-        "RFP Compatibility Summary (Coming Soon)"
+        "AI Features (Coming Soon)",
       ],
       icon: "/price-3.svg",
       delay: "300",
@@ -156,11 +201,9 @@ function PricingHero() {
         "Advanced Search (Filters)",
         "All Federal Bids",
         "All State Bids",
-        "Schools, Universities & Housing Authorities",
-        "Commodities",
+        "All Local Bids",
         "10 Saved Searches",
         "25 Follows",
-        "Cities & Counties",
         "50 Bookmarks",
         "Export 500 bids/month",
         "Full AI Arsenal (6 Tools)",
@@ -391,33 +434,39 @@ function PricingHero() {
 
       {/* Pricing Cards - Simplified Animation */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-center max-w-7xl mx-auto">
-        {billingCycle === "Monthly"
-          ? getUpdatedPlans(plans).map((plan, index) => (
-            <div
-              key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
-              className="..."
-            >
-              <PricingCard
-                {...plan}
-                planDetails={planDetails}
-                duration={"month"}
-                isDisabled={plan.title === "Essentials" ? shouldDisableEssentialButton() : false}  // ✅ Add this
-              />
-            </div>
-          ))
-          : getUpdatedPlans(plansYear).map((plan, index) => (
-            <div
-              key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}
-              className="..."
-            >
-              <PricingCard
-                {...plan}
-                planDetails={planDetails}
-                duration={"year"}
-                isDisabled={false}  // ✅ Add this - Annual pe kabhi disable nahi
-              />
-            </div>
-          ))}
+      {billingCycle === "Monthly"
+  ? getUpdatedPlans(plans).map((plan, index) => (
+    <div key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}>
+      <PricingCard
+        {...plan}
+        planDetails={planDetails}
+        duration={"month"}
+        isDisabled={
+          (plan.title === "Essentials" || plan.title === "A.I. Powerhouse")
+            ? shouldDisableEssentialButton(plan.title)
+            : false
+        }
+        disabledMessage={getDisabledMessage()}
+      />
+    </div>
+  ))
+  : getUpdatedPlans(plansYear).map((plan, index) => (
+    <div key={`${plan.id || plan.planID || plan.title}-${billingCycle}-${index}`}>
+      <PricingCard
+        {...plan}
+        planDetails={planDetails}
+        duration={"year"}
+        isDisabled={
+          (plan.title === "Essentials" || plan.title === "A.I. Powerhouse")
+            ? shouldDisableEssentialButton(plan.title)
+            : false
+        }
+        disabledMessage={getDisabledMessage()}
+
+      />
+    </div>
+  ))
+}
       </div>
 
 
